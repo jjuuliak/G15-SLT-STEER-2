@@ -12,7 +12,7 @@ async def connect_mongodb():
 
     print("Connecting to MongoDB")
     global mongo
-    mongo = AsyncIOMotorClient(f"mongodb://admin:{db_password}@host.docker.internal:27017/")
+    mongo = AsyncIOMotorClient(f"mongodb://admin:{db_password}@database:27017/")
     print(await mongo.server_info())
     return
 
@@ -23,7 +23,6 @@ app.add_event_handler("startup", connect_mongodb)
 
 @app.get("/")
 async def home():
-    mongo.get_database("test_database").get_collection("test_collection")
     return {"message": "Hello from FastAPI!"}
 
 
