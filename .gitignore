@@ -45,3 +45,6 @@ service-account.json
 # Logs & Cache
 logs/
 *.log
+
+# Secrets
+db_password.txt
