@@ -6,11 +6,11 @@ from dotenv import load_dotenv
 import os
 import json
 
+load_dotenv()
+
 async def connect_mongodb():
-    print("Loading db_password")
-    with open("/run/secrets/db_password", 'r') as file:
-        db_password = file.readline().strip()
-    print(db_password)
+    db_user = os.getenv("MONGO_USER")
+    db_password = os.getenv("MONGO_PASSWORD")
 
     print("Connecting to MongoDB")
     global mongo
@@ -19,13 +19,14 @@ async def connect_mongodb():
     return
 
 app = FastAPI()
-load_dotenv()
+
 api_key = os.getenv("API_KEY")
 if not api_key:
     raise ValueError("API_KEY missing from environment variables")
 
 llm_service = LLMService(api_key=api_key)
 app.add_event_handler("startup", connect_mongodb)
+
 
 @app.get("/")
 async def home():
@@ -45,12 +46,14 @@ async def ask_llm(request: ChatRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+def get_mongo():
+    return app.state.mongo
+
 @app.get("/insert")
 async def insert_test():
     test = await mongo.get_database("test_database").get_collection("test_collection").insert_one({"test": True})
     created = await mongo.get_database("test_database").get_collection("test_collection").find_one({"_id": test.inserted_id})
     return {"document": json.dumps( created, default=str)}
-
 
 @app.get("/list")
 async def list_test():
