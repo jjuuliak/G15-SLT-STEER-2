@@ -1,12 +1,32 @@
-version: "3.8"
 services:
   backend:
     build: ./backend
     ports:
       - "8000:8000"
+    secrets:
+      - db_password
   frontend:
     build: ./frontend
     ports:
       - "3000:3000"
     depends_on:
       - backend
+  database:
+    image: mongo:8
+    ports:
+      - "27017:27017"
+    volumes:
+      - database:/data/db
+      - database:/data/configdb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+
+volumes:
+  database:
+
+secrets:
+  db_password:
+    file: db_password.txt
