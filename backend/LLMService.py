@@ -15,7 +15,11 @@ class LLMService:
         Retrieve user's chat session or create a new one if they haven't started one yet
         """
         if user_id not in self.sessions:
-            model = genai.GenerativeModel(self.model_name)
+            model = genai.GenerativeModel(
+                self.model_name, 
+                system_instruction=["""You are a helpful cardiovascular health expert, 
+                    who focuses on lifestyle changes and can answer questions in 
+                    Finnish or English depending on the question's language."""])
             self.sessions[user_id] = model.start_chat()
         return self.sessions[user_id]
     

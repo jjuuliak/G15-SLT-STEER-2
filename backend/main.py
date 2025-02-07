@@ -1,10 +1,16 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import LLMService
+from LLMService import LLMService
+from dotenv import load_dotenv
+import os
 
 app = FastAPI()
+load_dotenv()
+api_key = os.getenv("API_KEY")
+if not api_key:
+    raise ValueError("API_KEY missing from environment variables")
 
-llm_service = LLMService(api_key="")
+llm_service = LLMService(api_key=api_key)
 
 @app.get("/")
 async def home():
