@@ -3,8 +3,7 @@ services:
     build: ./backend
     ports:
       - "8000:8000"
-    secrets:
-      - db_password
+    env_file: ".env"
   frontend:
     build: ./frontend
     ports:
@@ -19,14 +18,8 @@ services:
       - database:/data/db
       - database:/data/configdb
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/db_password
-    secrets:
-      - db_password
-
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    env_file: ".env"
 volumes:
   database:
-
-secrets:
-  db_password:
-    file: db_password.txt
