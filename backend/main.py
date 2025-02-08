@@ -14,7 +14,7 @@ async def connect_mongodb():
 
     print("Connecting to MongoDB")
     global mongo
-    mongo = AsyncIOMotorClient(f"mongodb://admin:{db_password}@database:27017/")
+    mongo = AsyncIOMotorClient(f"mongodb://{db_user}:{db_password}@database:27017/")
     print(await mongo.server_info())
     return
 
