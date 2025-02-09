@@ -9,6 +9,12 @@
     "react-scripts": "5.0.1",
     "web-vitals": "^4.2.4"
   },
+  "overrides": {
+    "react-scripts": {
+      "@svgr/webpack": "8.1.0",
+      "postcss": "8.4.38"
+    }
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
