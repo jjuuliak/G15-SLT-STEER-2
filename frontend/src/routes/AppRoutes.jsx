@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "../pages/Home/Home";
 import LogIn from "../pages/LogIn";
+import Register from "../pages/Register";
 //import Profile from "../pages/Profile";
 //import Chat from "../pages/Chat";
 //import History from "../pages/History";
@@ -14,6 +15,7 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<LogIn />} />
+        <Route path="/register" element={<Register />} />
         {/*<Route path="/data-input" element={<Profile />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />

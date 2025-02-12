@@ -94,7 +94,7 @@ const LogIn = () => {
             Forgot Password?
           </Link>
           <Link
-            onClick={() => navigate('/')} // TODO: onClick={() => navigate('/register')}
+            onClick={() => navigate('/register')}
             sx={{ cursor: 'pointer' }}
           >
             Create an Account
