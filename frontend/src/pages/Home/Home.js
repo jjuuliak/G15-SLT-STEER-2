@@ -1,5 +1,6 @@
 import React from "react";
 import { Typography, Container } from "@mui/material";
+import Chat from "../../components/Chat";
 
 const Home = () => {
     return (
@@ -10,6 +11,7 @@ const Home = () => {
           <Typography variant="body1">
             Welcome to the heart disease patient lifestyle guidance application.
           </Typography>
+          <Chat/>
         </Container>
       );
 };
