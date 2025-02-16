@@ -9,6 +9,13 @@ class LLMService:
         genai.configure(api_key=api_key)
         self.model_name = model_name
         self.sessions: Dict[str, genai.ChatSession] = {}
+        self.prompt_correction_model = genai.GenerativeModel(
+            self.model_name,
+            system_instruction=["""You are an assistant that corrects spelling, 
+                                grammatical, and punctuation errors in the user's
+                                prompt. Return only the corrected version of the
+                                prompt, without any additional text or explanation."""]
+        )
     
     def get_session(self, user_id: str) -> genai.ChatSession:
         """
@@ -28,3 +35,9 @@ class LLMService:
         response = session.send_message(message)
         return response.text if response else "Error: No response from model."
     
+    def correct_prompt(self, prompt: str) -> str:
+        """
+        Fixes spelling, grammatical and punctuation errors in the user given prompt
+        """
+        response = self.prompt_correction_model.generate_content(prompt)
+        return response.text if response else None
