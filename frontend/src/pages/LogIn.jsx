@@ -8,14 +8,36 @@ const LogIn = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleLogin = () => {
-        // TODO Add validation logic
-        if (username && password) {
-          navigate('/'); 
-        }
-      };
+    const handleLogin = async () => {
+      if (username && password) {
+          try {
+              const response = await fetch('http://localhost:8000/login', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ email: username, password: password }),
+              });
+  
+              if (response.ok) {
+                  const data = await response.json();
+                  const { access_token, user_data } = data;
+                  localStorage.setItem('access_token', access_token);
+                  localStorage.setItem('user_data', user_data);
+                  navigate('/chat');
+              } else {
+                  setError('Invalid login credentials');
+              }
+          } catch (error) {
+              setError('An error occurred during login');
+          }
+      } else {
+          setError('Please enter username and password');
+      }
+    };
 
       const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);

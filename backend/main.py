@@ -2,6 +2,7 @@ import os
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 import database_connection
@@ -17,6 +18,12 @@ app = FastAPI()
 app.add_event_handler("startup", database_connection.connect_mongodb)
 app.include_router(database_test.router)
 app.include_router(login.router)
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"])  # TODO
 
 
 api_key = os.getenv("API_KEY")

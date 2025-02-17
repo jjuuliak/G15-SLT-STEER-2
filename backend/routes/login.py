@@ -49,7 +49,6 @@ async def login(user_info: UserModel, response: Response):
     existing_user = await database_connection.get_users().find_one({"email": user_info.email})
 
     if not existing_user or user_info.password != existing_user.get("password"):
-        print("existing_user", existing_user, "user_info.password", user_info.password, "existing_user.get(password)", existing_user.get("password"))
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect login")
 
     # Get userdata and send it back as part of the response

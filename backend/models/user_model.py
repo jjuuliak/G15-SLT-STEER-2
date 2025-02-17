@@ -11,7 +11,7 @@ class UserModel(BaseModel):
     """
 
     id: Optional[PyObjectId] = Field(alias="_id", default=None, exclude=True)
-    username: str = Field(...)
+    #username: str = Field(...)
     email: EmailStr = Field(...)
     password: str = Field(...)
     model_config = ConfigDict(
