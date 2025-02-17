@@ -33,16 +33,40 @@ const Register = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
     setError('');
-    console.log('User Registered:', formData);
-    alert('Registration Successful!');
-    navigate('/')
+
+    try {
+      const response = await fetch('http://localhost:8000/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const { access_token, user_data } = data;
+        localStorage.setItem('access_token', access_token);
+        localStorage.setItem('user_data', JSON.stringify(user_data));
+        alert('Registration Successful!');
+        navigate('/chat');
+      } else {
+        setError('Registration failed. Please try again.');
+      }
+    } catch (error) {
+      setError('Registration failed. Please try again.');
+    }
   };
 
   return (
