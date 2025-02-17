@@ -33,6 +33,14 @@ if not api_key:
 
 llm_service = LLMService(api_key=api_key)
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # allow all origins for now
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.get("/")
 async def home():
