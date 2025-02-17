@@ -26,6 +26,8 @@ async def register(user_info: UserModel, response: Response):
     if current_user:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Account exists")
 
+    user_info.password = UserModel.hash_password(user_info.password)
+
     add_user = await database_connection.get_users().insert_one(user_info.model_dump(by_alias=True, exclude={"id"}))
 
     # Prepare profile for userdata and send it (empty user) back as part of the response
@@ -48,7 +50,7 @@ async def register(user_info: UserModel, response: Response):
 async def login(user_info: UserModel, response: Response):
     existing_user = await database_connection.get_users().find_one({"email": user_info.email})
 
-    if not existing_user or user_info.password != existing_user.get("password"):
+    if not existing_user or not UserModel.check_password(user_info.password, existing_user.get("password")):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect login")
 
     # Get userdata and send it back as part of the response
