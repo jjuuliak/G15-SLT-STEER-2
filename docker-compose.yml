@@ -3,6 +3,8 @@ services:
     build: ./backend
     ports:
       - "8000:8000"
+    volumes:
+      - backend:/app/cache
     env_file: ".env"
   frontend:
     build: ./frontend
@@ -22,4 +24,5 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
     env_file: ".env"
 volumes:
+  backend:
   database:
