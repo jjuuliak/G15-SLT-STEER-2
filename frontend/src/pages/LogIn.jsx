@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { TextField, Button, Box, Typography, Link, InputAdornment, IconButton  } from '@mui/material';
+import { TextField, Button, Box, Typography, InputAdornment, IconButton  } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { handleLogin } from '../services/authService';
 
 const LogIn = () => {
     const [username, setUsername] = useState('');
@@ -11,79 +12,65 @@ const LogIn = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleLogin = async () => {
-      if (username && password) {
-          try {
-              const response = await fetch('http://localhost:8000/login', {
-                  method: 'POST',
-                  headers: {
-                      'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({ email: username, password: password }),
-              });
-  
-              if (response.ok) {
-                  const data = await response.json();
-                  const { access_token, user_data } = data;
-                  localStorage.setItem('access_token', access_token);
-                  localStorage.setItem('user_data', user_data);
-                  navigate('/chat');
-              } else {
-                  setError('Invalid login credentials');
-              }
-          } catch (error) {
-              setError('An error occurred during login');
+    const loginUser = async () => {
+      try {
+          const result = await handleLogin(username, password);
+          if (result.success) {
+              navigate('/');
           }
-      } else {
-          setError('Please enter username and password');
+      } catch (err) {
+          setError(err.message);
       }
-    };
+      };
 
       const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
       };
 
-    return (  
-        <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100vh',
-          padding: 2,
-          backgroundColor: '#f4f6f8',
-        }}
-      >
+    return (
+      <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        padding: 2,
+        backgroundColor: 'white',
+      }}
+    >
         <Box
           sx={{
             width: '100%',
             maxWidth: 400, 
             padding: 3,
-            borderRadius: 2,
-            boxShadow: 3,
-            backgroundColor: 'white',
           }}
         >
-          <Typography variant="h4" component="h1" gutterBottom align="center">
+          <Typography variant="h4" component="h1" gutterBottom align="start"
+          sx={{marginBottom: 3}}>
             Login
           </Typography>
+          <Typography component="h1" gutterBottom align="start">
+            Email
+          </Typography>
           <TextField
-            label="Username"
+            placeholder='user@email.com'
             variant="outlined"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             fullWidth
-            margin="normal"
           />
+          <Typography component="h1" gutterBottom align="start"
+          sx={{marginY: 1}}>
+            Password
+          </Typography>
           <TextField
-            label="Password"
+            placeholder="Enter your password"
             variant="outlined"
             type={showPassword ? 'text' : 'password'} // Toggle password type based on the state of visibility
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             fullWidth
-            margin="normal"
             InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -99,33 +86,34 @@ const LogIn = () => {
               }}
           />
           <Button
-            onClick={handleLogin}
+            onClick={loginUser}
             variant="contained"
-            color="primary"
-            sx={{ marginTop: 2 }}
+            color="secondary"
+            sx={{ marginTop: 4, paddingY: 2, borderRadius: 1.5 }}
             fullWidth
           >
-            Login
+            Login now
           </Button>
 
-          <Box sx={{ marginTop: 2, display: 'flex', justifyContent: 'space-between' }}>
-          <Link
-            onClick={() => navigate('/')} // TODO: onClick={() => navigate('/forgot-password')} etc
-            sx={{ textTransform: 'none', cursor: 'pointer' }}
-          >
-            Forgot Password?
-          </Link>
-          <Link
-            onClick={() => navigate('/register')}
-            sx={{ cursor: 'pointer' }}
-          >
-            Create an Account
-          </Link>
-        </Box>
+          <Box sx={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}>
+            <Typography 
+            sx={{marginRight: 1.5, padding: 1, fontWeight: "bold", textTransform: "none", fontSize: "1.1rem"}}
+            variant="button">
+                No account?
+            </Typography>
+          <Button
+           onClick={() => navigate('/register')}
+          sx={{marginLeft: 1.5, borderRadius: 1.5,fontWeight: "bolder", paddingX: 2.5, textTransform: "none"}}
+          variant="outlined">Sign up here</Button> 
+          </Box>
 
+          </Box>
         </Box>
-      </Box>
     );
 }
  
 export default LogIn;
+
+
+
+
