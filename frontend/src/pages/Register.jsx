@@ -12,9 +12,12 @@ import Grid from '@mui/material/Grid2';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const Register = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -92,7 +95,7 @@ const Register = () => {
         }}
       >
         <Typography variant='h4' component='h1' gutterBottom align='center'>
-          Register
+          {t('register')}
         </Typography>
 
         {error && <Alert severity='error'>{error}</Alert>}
