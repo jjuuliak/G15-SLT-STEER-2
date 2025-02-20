@@ -6,7 +6,8 @@ import { ThemeProvider } from "@mui/material/styles";
 import theme from "./theme/theme";
 import reportWebVitals from './reportWebVitals';
 import { Provider } from "react-redux";
-import store from './redux/reducers/rootReducer'
+import store from './redux/reducers/rootReducer';
+import './i18n';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
