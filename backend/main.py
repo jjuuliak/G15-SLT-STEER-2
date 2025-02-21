@@ -56,8 +56,6 @@ class ChatRequest(BaseModel):
 async def ask_llm(request: ChatRequest):
     if not request.message.strip():
         raise HTTPException(status_code=400, detail="Message cannot be empty.")
-    try:
-        response_text = llm_service.send_message(request.user_id, request.message)
-        return {"response": response_text}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+
+    response_text = await llm_service.send_message(request.user_id, request.message)
+    return {"response": response_text}
