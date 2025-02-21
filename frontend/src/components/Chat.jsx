@@ -28,9 +28,10 @@ const Chat = () => {
       const res = await fetch("http://localhost:8000/ask", {
         method: "POST",
         headers: {
+          "Authorization": `Bearer ${localStorage.getItem('access_token')}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ user_id: "test_user", message }) //TODO Fetch user_id in login page and store in context api/redux, and in this file use that user_id state
+        body: JSON.stringify({ message }) //TODO Fetch user_id in login page and store in context api/redux, and in this file use that user_id state
       });
 
       if (!res.ok) {
