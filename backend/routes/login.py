@@ -9,7 +9,9 @@ from starlette import status
 from starlette.responses import Response
 
 import database_connection
-from models.user_model import UserModel
+from auth_service import AuthService
+from models.login_model import UserLogin
+from models.user_model import User
 
 
 router = APIRouter()
@@ -20,13 +22,13 @@ access_security = JwtAccessBearer(secret_key="".join(secrets.choice(characters) 
 
 
 @router.post("/register")
-async def register(user_info: UserModel, response: Response):
+async def register(user_info: User, response: Response):
     current_user = await database_connection.get_users().find_one({"email": user_info.email})
 
     if current_user:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Account exists")
 
-    user_info.password = UserModel.hash_password(user_info.password)
+    user_info.password = AuthService.hash_password(user_info.password)
 
     add_user = await database_connection.get_users().insert_one(user_info.model_dump(by_alias=True, exclude={"id"}))
 
@@ -47,10 +49,10 @@ async def register(user_info: UserModel, response: Response):
 
 
 @router.post("/login")
-async def login(user_info: UserModel, response: Response):
+async def login(user_info: UserLogin, response: Response):
     existing_user = await database_connection.get_users().find_one({"email": user_info.email})
 
-    if not existing_user or not UserModel.check_password(user_info.password, existing_user.get("password")):
+    if not existing_user or not AuthService.check_password(user_info.password, existing_user.get("password")):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect login")
 
     # Get userdata and send it back as part of the response
