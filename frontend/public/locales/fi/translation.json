@@ -1,5 +1,12 @@
 {
     "login": "Kirjaudu",
-    "register": "Rekisteröidy"
+    "register": "Rekisteröidy",
+    "email": "Sähköposti",
+    "password": "Salasana",
+    "passwordPlaceholder": "Syötä salasanasi",
+    "login now": "Kirjaudu sisään",
+    "no account?": "Uusi käyttäjä?",
+    "sign up here": "Rekisteröidy täältä",
+    "emailPlaceholder": "esim@esimerkki.fi"
 }
   

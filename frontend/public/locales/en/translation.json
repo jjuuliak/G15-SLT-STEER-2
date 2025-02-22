@@ -1,5 +1,12 @@
 {
     "login": "Login",
-    "register": "Register"
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "login now": "Login now",
+    "no account?": "No account?",
+    "sign up here": "Sign up here",
+    "emailPlaceholder": "user@example.com"
 }
   
