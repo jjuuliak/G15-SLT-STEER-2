@@ -4,9 +4,9 @@
     "email": "Sähköposti",
     "password": "Salasana",
     "passwordPlaceholder": "Syötä salasanasi",
-    "login now": "Kirjaudu sisään",
-    "no account?": "Uusi käyttäjä?",
-    "sign up here": "Rekisteröidy täältä",
+    "loginNow": "Kirjaudu sisään",
+    "noAccount": "Uusi käyttäjä?",
+    "signUpHere": "Rekisteröidy täältä",
     "emailPlaceholder": "esim@esimerkki.fi"
 }
   

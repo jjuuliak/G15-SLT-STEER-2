@@ -242,20 +242,20 @@ const LogIn = () => {
             sx={{ marginTop: 4, paddingY: 2, borderRadius: 1.5 }}
             fullWidth
           >
-            {t('login now')}
+            {t('loginNow')}
           </Button>
 
           <Box sx={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}>
             <Typography 
             sx={{marginRight: 1.3, padding: 1, fontWeight: "bold", textTransform: "none", fontSize: "1.1rem"}}
             variant="button">
-                {t('no account?')}
+                {t('noAccount')}
             </Typography>
           <Button
            onClick={() => navigate('/register')}
           sx={{marginLeft: 1.3, borderRadius: 1.5,fontWeight: "bolder", paddingX: 2.5, textTransform: "none"}}
           variant="outlined">
-            {t('sign up here')}
+            {t('signUpHere')}
             </Button> 
           </Box>
 
