@@ -9,7 +9,7 @@ import re
 import json
 
 DOCUMENT_URLS_PATH = "document_urls.json"
-DATABASE_PATH = "document_embeddings"
+DATABASE_PATH = "embedding_db"
 EMBEDDING_MODEL = "intfloat/multilingual-e5-small"
 
 def load_urls(path):
