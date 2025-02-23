@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { handleLogin } from '../services/authService';
+import { useTranslation } from 'react-i18next';
 
 const LogIn = () => {
     const [username, setUsername] = useState('');
@@ -12,6 +13,7 @@ const LogIn = () => {
     const [error, setError] = useState('');
     const theme = useTheme(); // for responsive views
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const loginUser = async () => {
       try {
@@ -196,13 +198,13 @@ const LogIn = () => {
         >
           <Typography variant="h4" component="h1" gutterBottom align="start"
           sx={{marginBottom: 3}}>
-            Login
+            {t('login')}
           </Typography>
           <Typography component="h1" gutterBottom align="start">
-            Email
+          {t('email')}
           </Typography>
           <TextField
-            placeholder='user@email.com'
+            placeholder={t('emailPlaceholder')}
             variant="outlined"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -210,10 +212,10 @@ const LogIn = () => {
           />
           <Typography component="h1" gutterBottom align="start"
           sx={{marginY: 1}}>
-            Password
+            {t('password')}
           </Typography>
           <TextField
-            placeholder="Enter your password"
+            placeholder={t('passwordPlaceholder')}
             variant="outlined"
             type={showPassword ? 'text' : 'password'} // Toggle password type based on the state of visibility
             value={password}
@@ -240,19 +242,21 @@ const LogIn = () => {
             sx={{ marginTop: 4, paddingY: 2, borderRadius: 1.5 }}
             fullWidth
           >
-            Login now
+            {t('loginNow')}
           </Button>
 
           <Box sx={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}>
             <Typography 
             sx={{marginRight: 1.3, padding: 1, fontWeight: "bold", textTransform: "none", fontSize: "1.1rem"}}
             variant="button">
-                No account?
+                {t('noAccount')}
             </Typography>
           <Button
            onClick={() => navigate('/register')}
           sx={{marginLeft: 1.3, borderRadius: 1.5,fontWeight: "bolder", paddingX: 2.5, textTransform: "none"}}
-          variant="outlined">Sign up here</Button> 
+          variant="outlined">
+            {t('signUpHere')}
+            </Button> 
           </Box>
 
           </Box>
