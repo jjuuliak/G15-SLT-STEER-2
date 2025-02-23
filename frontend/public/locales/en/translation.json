@@ -7,6 +7,8 @@
     "loginNow": "Login now",
     "noAccount": "No account?",
     "signUpHere": "Sign up here",
-    "emailPlaceholder": "user@example.com"
+    "emailPlaceholder": "user@example.com",
+    "name": "Name",
+    "confirmPassword": "Confirm password"
 }
   

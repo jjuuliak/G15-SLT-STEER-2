@@ -6,20 +6,28 @@ import {
   Box,
   Alert,
   InputAdornment,
-  IconButton
+  IconButton,
+  useTheme
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useDispatch } from 'react-redux';
+import { registerUser } from '../services/authService';
+import { loginSuccess } from '../redux/actionCreators/authActions';
+import Logo from '../components/Logo';
+import LifelineImage from '../components/LifelineImage';
 
 const Register = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { t } = useTranslation();
+  const theme = useTheme();
 
   const [formData, setFormData] = useState({
-    username: '',
+    name: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -38,6 +46,7 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -45,164 +54,171 @@ const Register = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:8000/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
+      const data = await registerUser(formData);
 
-      const data = await response.json();
+      dispatch(loginSuccess(data.user_data));
 
-      if (response.ok) {
-        const { access_token, user_data } = data;
-        localStorage.setItem('access_token', access_token);
-        localStorage.setItem('user_data', JSON.stringify(user_data));
-        alert('Registration Successful!');
-        navigate('/chat');
-      } else {
-        setError('Registration failed. Please try again.');
-      }
+      alert('Registration Successful!');
+      navigate('/chat');
     } catch (error) {
       setError('Registration failed. Please try again.');
     }
   };
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        padding: 2,
-        backgroundColor: '#f4f6f8',
-      }}
-    >
-      <Box
+    <Grid container sx={{ height: "100vh" }}>
+      <Grid
+        item
+        xs={0}
+        md={6}
         sx={{
-          width: '100%',
-          maxWidth: 400,
+          backgroundColor: theme.palette.primary.main,
+          display: { xs: "none", md: "flex" },
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+          color: "white",
+          textAlign: "center",
           padding: 3,
-          borderRadius: 2,
-          boxShadow: 3,
-          backgroundColor: 'white',
+          flex: 1
         }}
       >
-        <Typography variant='h4' component='h1' gutterBottom align='center'>
-          {t('register')}
-        </Typography>
+        <Logo />
+        <LifelineImage />
 
-        {error && <Alert severity='error'>{error}</Alert>}
+      </Grid>
 
-        <Box component='form' onSubmit={handleSubmit} sx={{ mt: 2 }}>
-          <Grid container spacing={2} direction={'column'}>
-            <Grid size={12}>
-              <TextField
-                fullWidth
-                label='Username'
-                name='username'
-                variant='outlined'
-                value={formData.username}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-            <Grid size={12}>
-              <TextField
-                fullWidth
-                label='Email'
-                name='email'
-                type='email'
-                variant='outlined'
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-            <Grid size={12}>
-              <TextField
-                fullWidth
-                label='Password'
-                name='password'
-                type={showPassword ? 'text' : 'password'}
-                variant='outlined'
-                value={formData.password}
-                onChange={handleChange}
-                required
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position='end'>
-                        <IconButton
-                          aria-label={
-                            showPassword ? 'hide the password' : 'display the password'
-                          }
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge='end'
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
+      {/* Right Side (Registration Form) */}
+      <Grid
+        item
+        xs={12}
+        md={6}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 3,
+          flex: 1
+        }}
+      >
+        <Box
+          sx={{
+            width: '100%',
+            maxWidth: 400,
+            padding: 3
+          }}
+        >
+          <Typography variant='h4' component='h1' gutterBottom align='center'>
+            {t('register')}
+          </Typography>
+
+          {error && <Alert severity='error'>{error}</Alert>}
+
+          <Box component='form' onSubmit={handleSubmit} sx={{ mt: 2 }}>
+            <Grid container spacing={2} direction={'column'}>
+              <Grid size={12}>
+                <TextField
+                  fullWidth
+                  label={t('name')}
+                  name='name'
+                  variant='outlined'
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                />
+              </Grid>
+              <Grid size={12}>
+                <TextField
+                  fullWidth
+                  label={t('email')}
+                  name='email'
+                  type='email'
+                  variant='outlined'
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </Grid>
+              <Grid size={12}>
+                <TextField
+                  fullWidth
+                  label={t('password')}
+                  name='password'
+                  type={showPassword ? 'text' : 'password'}
+                  variant='outlined'
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position='end'>
+                          <IconButton
+                            aria-label={
+                              showPassword ? 'hide the password' : 'display the password'
+                            }
+                            onClick={() => setShowPassword(!showPassword)}
+                            edge='end'
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }
+                  }}
+                />
+              </Grid>
+              <Grid size={12}>
+                <TextField
+                  fullWidth
+                  label={t('confirmPassword')}
+                  name='confirmPassword'
+                  type={showPassword ? 'text' : 'password'}
+                  variant='outlined'
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position='end'>
+                          <IconButton
+                            aria-label={
+                              showPassword ? 'hide the password' : 'display the password'
+                            }
+                            onClick={() => setShowPassword(!showPassword)}
+                            edge='end'
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }
+                  }}
+                />
+              </Grid>
+              <Grid size={12}>
+                <Button
+                  type='submit'
+                  variant='contained'
+                  color='primary'
+                  disabled={
+                    formData.name === ''
+                    || formData.email === ''
+                    || formData.password === ''
+                    || formData.confirmPassword === ''
                   }
-                }}
-              />
+                  fullWidth
+                >
+                  {t('register')}
+                </Button>
+              </Grid>
             </Grid>
-            <Grid size={12}>
-              <TextField
-                fullWidth
-                label='Confirm Password'
-                name='confirmPassword'
-                type={showPassword ? 'text' : 'password'}
-                variant='outlined'
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position='end'>
-                        <IconButton
-                          aria-label={
-                            showPassword ? 'hide the password' : 'display the password'
-                          }
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge='end'
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }
-                }}
-              />
-            </Grid>
-            <Grid size={12}>
-              <Button
-                type='submit'
-                variant='contained'
-                color='primary'
-                disabled={
-                  formData.username === ''
-                  || formData.email === ''
-                  || formData.password === ''
-                  || formData.confirmPassword === ''
-                }
-                fullWidth
-              >
-                Register
-              </Button>
-            </Grid>
-          </Grid>
+          </Box>
         </Box>
-      </Box>
-    </Box>
+      </Grid>
+    </Grid>
   );
 
 };
