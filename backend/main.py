@@ -39,17 +39,3 @@ async def validation_error_handler(request: Request, exc: RequestValidationError
 @app.get("/")
 async def home():
     return {"message": "Hello from FastAPI!"}
-
-  
-class ChatRequest(BaseModel):
-    user_id: str
-    message: str
-
-      
-@app.post("/ask")
-async def ask_llm(request: ChatRequest):
-    if not request.message.strip():
-        raise HTTPException(status_code=400, detail="Message cannot be empty.")
-
-    response_text = await llm_service.send_message(request.user_id, request.message)
-    return {"response": response_text}
