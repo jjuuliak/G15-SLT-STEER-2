@@ -9,6 +9,16 @@
     "signUpHere": "Sign up here",
     "emailPlaceholder": "user@example.com",
     "name": "Name",
-    "confirmPassword": "Confirm password"
+    "confirmPassword": "Confirm password",
+    "settings": "Settings",
+    "close": "Close",
+    "settingsTabs": {
+        "general": "General",
+        "profile": "Profile",
+        "appearance": "Appearance",
+        "language": "Language",
+        "security": "Security"
+    },
+    "languageSettings": "Language settings"
 }
   

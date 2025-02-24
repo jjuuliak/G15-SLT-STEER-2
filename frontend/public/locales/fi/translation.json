@@ -9,6 +9,16 @@
     "signUpHere": "Rekisteröidy täältä",
     "emailPlaceholder": "esim@esimerkki.fi",
     "name": "Nimi",
-    "confirmPassword": "Vahvista salasana"
+    "confirmPassword": "Vahvista salasana",
+    "settings": "Asetukset",
+    "close": "Sulje",
+    "settingsTabs": {
+        "general": "Yleiset",
+        "profile": "Profiili",
+        "appearance": "Ulkoasu",
+        "language": "Kieli",
+        "security": "Turvallisuus"
+    },
+    "languageSettings": "Kieliasetukset"
 }
   
