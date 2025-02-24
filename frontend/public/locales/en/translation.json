@@ -1,15 +1,19 @@
 {
     "login": "Login",
-    "register": "Register",
+    "register": "Sign up",
     "email": "Email",
     "password": "Password",
     "passwordPlaceholder": "Enter your password",
     "loginNow": "Login now",
     "noAccount": "No account?",
+    "alreadyAccount": "Already have an account?",
     "signUpHere": "Sign up here",
     "emailPlaceholder": "user@example.com",
     "name": "Name",
     "confirmPassword": "Confirm password",
+    "matchPasswords": "Passwords do not match",
+    "registrationFailed": "Registration failed. Please try again.",
+    "registrationSuccessful": "Registration Successful!",
     "settings": "Settings",
     "close": "Close",
     "settingsTabs": {
@@ -19,6 +23,8 @@
         "language": "Language",
         "security": "Security"
     },
-    "languageSettings": "Language settings"
+    "languageSettings": "Language settings",
+    "back": "Back",
+    "404page": "Oops! The page you are looking for does not exist."
 }
   
