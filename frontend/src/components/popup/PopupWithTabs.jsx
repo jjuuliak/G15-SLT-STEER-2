@@ -1,7 +1,3 @@
-
-
-
-
 import React, { useState } from "react";
 import {
   Dialog,
@@ -16,6 +12,8 @@ import {
   Button,
 } from "@mui/material";
 
+import { useTranslation } from 'react-i18next';
+
 // Import the separate views
 import GeneralView from "./views/GeneralView";
 import ProfileView from "./views/ProfileView";
@@ -25,18 +23,20 @@ import SecurityView from "./views/SecurityView";
 
 const PopupWithTabs = ({ open, handleClose }) => {
   const [activeTab, setActiveTab] = useState("General");
+  const { t } = useTranslation();
+  const settingsTabs = t("settingsTabs")
 
   const tabs = [
-    { name: "General", component: <GeneralView /> },
-    { name: "Profile", component: <ProfileView /> },
-    { name: "Appearance", component: <AppearanceView /> },
-    { name: "Language", component: <LanguageView /> },
-    { name: "SecurityView", component: <SecurityView /> }
+    { name: settingsTabs.general, component: <GeneralView /> },
+    { name: settingsTabs.profile, component: <ProfileView /> },
+    { name: settingsTabs.appearance, component: <AppearanceView /> },
+    { name: settingsTabs.language, component: <LanguageView /> },
+    { name: settingsTabs.security, component: <SecurityView /> }
   ];
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-      <DialogTitle>Settings</DialogTitle>
+      <DialogTitle>{t("settings")}</DialogTitle>
       <DialogContent>
         <Box display="flex">
           {/* Sidebar Navigation */}
@@ -60,7 +60,7 @@ const PopupWithTabs = ({ open, handleClose }) => {
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>Close</Button>
+        <Button onClick={handleClose}>{t("close")}</Button>
       </DialogActions>
     </Dialog>
   );

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import i18n from "../../../i18n"; // Import i18n instance
+import i18n from "../../../i18n"; 
 import { Button, Box, Typography } from "@mui/material";
 
 const LanguageView = () => {
@@ -23,11 +23,9 @@ const LanguageView = () => {
 
   return (
     <Box>
-      <Typography sx={{margin: 2}}> Language settings </Typography>
+      <Typography sx={{margin: 2}}> {t("languageSettings")} </Typography>
       <Box sx={{ display: "flex", gap: 2, p: 2 }}>
       
-
-
       <Button 
         variant={language === "en" ? "contained" : "outlined"} 
         onClick={() => changeLanguage("en")}
