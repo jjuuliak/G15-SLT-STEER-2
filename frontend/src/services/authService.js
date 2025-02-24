@@ -1,6 +1,6 @@
-export const handleLogin = async (username, password) => {
-  if (!username || !password) {
-    throw new Error('Please enter username and password');
+export const handleLogin = async (email, password) => {
+  if (!email || !password) {
+    throw new Error('Please enter email and password');
   }
 
   try {
@@ -9,15 +9,12 @@ export const handleLogin = async (username, password) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email: username, password: password }),
+      body: JSON.stringify({ email: email, password: password }),
     });
 
     if (response.ok) {
       const data = await response.json();
-      const { access_token, user_data } = data;
-      localStorage.setItem('access_token', access_token);
-      localStorage.setItem('user_data', user_data);
-      return { success: true };
+      return data;
     } else {
       throw new Error('Invalid login credentials');
     }
