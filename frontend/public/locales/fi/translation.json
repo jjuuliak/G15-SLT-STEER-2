@@ -6,10 +6,14 @@
     "passwordPlaceholder": "Syötä salasanasi",
     "loginNow": "Kirjaudu sisään",
     "noAccount": "Uusi käyttäjä?",
+    "alreadyAccount": "Onko sinulla jo käyttäjätili?",
     "signUpHere": "Rekisteröidy täältä",
     "emailPlaceholder": "esim@esimerkki.fi",
     "name": "Nimi",
     "confirmPassword": "Vahvista salasana",
+    "matchPasswords": "Salasanat eivät täsmää",
+    "registrationFailed": "Rekisteröinti epäonnistui. Yritä uudelleen.",
+    "registrationSuccessful": "Rekisteröityminen onnistui!",
     "settings": "Asetukset",
     "close": "Sulje",
     "settingsTabs": {
@@ -19,6 +23,8 @@
         "language": "Kieli",
         "security": "Turvallisuus"
     },
-    "languageSettings": "Kieliasetukset"
+    "languageSettings": "Kieliasetukset",
+    "back": "Takaisin",
+    "404page": "Hups! Etsimääsi sivua ei ole olemassa."
 }
   
