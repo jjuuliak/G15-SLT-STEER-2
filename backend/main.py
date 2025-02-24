@@ -1,70 +1,41 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
-from pydantic import BaseModel
-from LLMService import LLMService
+import logging
+
 from dotenv import load_dotenv
-import os
-import json
+from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from requests import Request
+from starlette import status
+from starlette.responses import JSONResponse
+
+import database_connection
+from routes import login, chat
+
 
 load_dotenv()
 
-async def connect_mongodb():
-    db_user = os.getenv("MONGO_USER")
-    db_password = os.getenv("MONGO_PASSWORD")
-
-    print("Connecting to MongoDB")
-    global mongo
-    mongo = AsyncIOMotorClient(f"mongodb://{db_user}:{db_password}@database:27017/")
-    print(await mongo.server_info())
-    return
 
 app = FastAPI()
-
-api_key = os.getenv("API_KEY")
-if not api_key:
-    raise ValueError("API_KEY missing from environment variables")
-
-llm_service = LLMService(api_key=api_key)
-app.add_event_handler("startup", connect_mongodb)
-
+app.add_event_handler("startup", database_connection.connect_mongodb)
+app.include_router(chat.router)
+app.include_router(login.router)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # allow all origins for now
     allow_credentials=True,
+    allow_origins=["*"],
     allow_methods=["*"],
-    allow_headers=["*"],
-)
+    allow_headers=["*"])  # TODO
+
+
+# Test only: print more details on schema validation errors
+logger = logging.getLogger(__name__)
+@app.exception_handler(RequestValidationError)
+async def validation_error_handler(request: Request, exc: RequestValidationError):
+    logger.error(f"Validation error for: {await request.json()}")
+    logger.error(f"Errors: {exc.errors()}")
+    raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Schema validation failed")
 
 
 @app.get("/")
 async def home():
     return {"message": "Hello from FastAPI!"}
-
-class ChatRequest(BaseModel):
-    user_id: str
-    message: str
-
-@app.post("/ask")
-async def ask_llm(request: ChatRequest):
-    if not request.message.strip():
-        raise HTTPException(status_code=400, detail="Message cannot be empty.")
-    try:
-        response_text = llm_service.send_message(request.user_id, request.message)
-        return {"response": response_text}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-def get_mongo():
-    return app.state.mongo
-
-@app.get("/insert")
-async def insert_test():
-    test = await mongo.get_database("test_database").get_collection("test_collection").insert_one({"test": True})
-    created = await mongo.get_database("test_database").get_collection("test_collection").find_one({"_id": test.inserted_id})
-    return {"document": json.dumps( created, default=str)}
-
-@app.get("/list")
-async def list_test():
-    documents = await mongo.get_database("test_database").get_collection("test_collection").find().to_list(None)
-    return {"documents": json.dumps( [document for document in documents], default=str)}
