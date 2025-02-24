@@ -23,5 +23,5 @@ async def ask_llm(request: ChatModel, credentials: JwtAuthorizationCredentials =
     if not request.message.strip():
         raise HTTPException(status_code=400, detail="Message cannot be empty")
 
-    response_text = await llm_service.send_message(credentials["user_id"], request.message)
+    response_text = llm_service.send_message(credentials["user_id"], request.message)
     return {"response": response_text}
