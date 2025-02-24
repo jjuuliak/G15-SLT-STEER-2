@@ -27,10 +27,6 @@ async def connect_mongodb():
     return
 
 
-def get_test():
-    return mongo.get_database("test_database").get_collection("test_collection")
-
-
 def get_users():
     return mongo.get_database(USERS_DATABASE).get_collection(USERS_COLLECTION)
 

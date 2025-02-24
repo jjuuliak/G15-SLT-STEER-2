@@ -9,12 +9,17 @@ import {
 } from '@mui/material';
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import UserProfile from '../pages/userProfile/UserProfile';
+import { logout } from "../redux/actionCreators/authActions"
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
 const TopBar = () => {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [openProfile, setOpenProfile] = useState(false);
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -31,6 +36,11 @@ const TopBar = () => {
 
   const handleCloseProfile = () => {
     setOpenProfile(false);
+  }
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
   }
 
   return (
@@ -71,7 +81,7 @@ const TopBar = () => {
           }}
         >
           <MenuItem onClick={handleOpenProfile}>Profile</MenuItem>
-          <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
+          <MenuItem onClick={handleLogout}>Logout</MenuItem>
         </Menu>
       </Toolbar>
     </AppBar>
