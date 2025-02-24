@@ -7,22 +7,27 @@ import { handleLogin } from '../services/authService';
 import { useTranslation } from 'react-i18next';
 import Logo from '../components/Logo';
 import LifelineImage from '../components/LifelineImage';
+//redux imports
+import { useDispatch } from 'react-redux';
+import { loginSuccess } from '../redux/actionCreators/authActions';
 
 const LogIn = () => {
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
     const [error, setError] = useState('');
     const theme = useTheme(); // for responsive views
     const navigate = useNavigate();
     const { t } = useTranslation();
+    const dispatch = useDispatch();
 
     const loginUser = async () => {
       try {
-          const result = await handleLogin(username, password);
-          if (result.success) {
-              navigate('/');
-          }
+          const result = await handleLogin(email, password);
+          
+          dispatch(loginSuccess(result.user_data));
+          navigate('/');
+          
       } catch (err) {
           setError(err.message);
       }
@@ -87,8 +92,8 @@ const LogIn = () => {
           <TextField
             placeholder={t('emailPlaceholder')}
             variant="outlined"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             fullWidth
           />
           <Typography component="h1" gutterBottom align="start"
