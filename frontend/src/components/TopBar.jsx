@@ -13,6 +13,8 @@ import { logout } from "../redux/actionCreators/authActions"
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
+import PopupWithTabs from "./popup/PopupWithTabs";
+
 const TopBar = () => {
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -80,15 +82,17 @@ const TopBar = () => {
             horizontal: "right",
           }}
         >
-          <MenuItem onClick={handleOpenProfile}>Profile</MenuItem>
+          <MenuItem onClick={handleOpenProfile}>Settings</MenuItem>
           <MenuItem onClick={handleLogout}>Logout</MenuItem>
         </Menu>
       </Toolbar>
     </AppBar>
 
-    <UserProfile open={openProfile} handleClose={handleCloseProfile} />
+    <PopupWithTabs open={openProfile} onClose={() => setOpenProfile(false)}></PopupWithTabs>
+    
     </>
   );
 };
 
 export default TopBar;
+//<UserProfile open={openProfile} handleClose={handleCloseProfile} />
