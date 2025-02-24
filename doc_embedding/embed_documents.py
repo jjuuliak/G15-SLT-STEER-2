@@ -8,7 +8,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 import re
 import json
 
-DOCUMENT_URLS_PATH = "document_urls.json"
+DOCUMENT_URLS_PATH = "docs/doc_urls.json"
 DATABASE_PATH = "embedding_db"
 EMBEDDING_MODEL = "intfloat/multilingual-e5-small"
 
@@ -79,7 +79,6 @@ def main():
 
     urls = load_urls(DOCUMENT_URLS_PATH)
     process_and_store(vector_store, urls)
-
     vector_store.save_local(DATABASE_PATH)
 
 if __name__ == "__main__":
