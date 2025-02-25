@@ -48,7 +48,7 @@ const Register = () => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('matchPasswords'));
       return;
     }
     setError('');
@@ -58,10 +58,10 @@ const Register = () => {
 
       dispatch(loginSuccess(data.user_data));
 
-      alert('Registration Successful!');
-      navigate('/chat');
+      alert(t('registrationSuccessful'));
+      navigate('/');
     } catch (error) {
-      setError('Registration failed. Please try again.');
+      setError(t('registrationFailed'));
     }
   };
 
@@ -215,6 +215,20 @@ const Register = () => {
                 </Button>
               </Grid>
             </Grid>
+          </Box>
+
+          <Box sx={{ mt: 10, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Typography
+              sx={{ mr: 1, fontWeight: "bold", textTransform: "none", fontSize: "1.1rem" }}
+              variant="button">
+              {t('alreadyAccount')}
+            </Typography>
+            <Button
+              onClick={() => navigate('/register')}
+              sx={{ ml: 1 }}
+              variant="outlined">
+              {t('login')}
+            </Button>
           </Box>
         </Box>
       </Grid>
