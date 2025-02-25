@@ -45,3 +45,6 @@ service-account.json
 # Logs & Cache
 logs/
 *.log
+
+# Document embedding database
+doc_embedding/embedding_db
