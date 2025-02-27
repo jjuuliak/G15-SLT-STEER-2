@@ -67,7 +67,7 @@ def main():
     embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
 
     # Initialize FAISS index and flatten it based on the embedding vectors' dimensionality
-    index = faiss.IndexFlatL2(embedding_model.get_sentence_embedding_dimension())
+    index = faiss.IndexFlatIP(embedding_model.get_sentence_embedding_dimension())
 
     # LangChain's FAISS wrapper
     vector_store = FAISS(
