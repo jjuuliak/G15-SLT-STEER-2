@@ -1,24 +1,46 @@
 import React, { useState } from "react";
-import { TextField, Button, Container, Paper, Typography, CircularProgress } from "@mui/material";
+import { 
+  TextField, 
+  Button, 
+  Container, 
+  Paper,  
+  CircularProgress,
+  Stack,
+  useTheme
+} from "@mui/material";
+import SendIcon from "@mui/icons-material/Send";
+import { useSelector } from "react-redux";
 import Message from "./Message";
 
 const Chat = () => {
+  const theme = useTheme();
+  const initialMessage = {
+    text: "Hi and welcome to Lifeline Chat! How can I help you today?\n\n" +
+        "1. Create a workout plan\n" +
+        "2. Create a meal plan\n" +
+        "3. Help me understand my symptoms\n" +
+        "4. Create an overall lifestyle guide for 4 weeks\n\n" +
+        "Do any of these suit your needs? \n\n" +
+        "If not, feel free to write a message!",
+    options: [
+      "Create a workout plan",
+      "Create a meal plan",
+      "Help me understand my symptoms",
+    ],
+    sender: "bot"
+  };
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([ // Hard coding text examples
-    {text: "Who are you and what can you do?", sender: "test_user"}, 
-    {text: "I'm a helpful cardiovascular health expert specializing in lifestyle changes. \
-        I can answer your questions about improving your heart health through diet, exercise, \
-        stress management, and other lifestyle modifications. I can respond in either Finnish or \
-        English, depending on the language of your question. Ask me anything!", sender: "bot"}]);
+  const [messages, setMessages] = useState([initialMessage]);
   const [loading, setLoading] = useState(false);
+  const accessToken = useSelector((state) => state.auth?.access_token);
 
-  const sendMessage = async () => {
-    if (!message.trim()) {
+  const sendMessage = async (msg = message) => {
+    if (!msg.trim()) {
       return; // Message can't be empty
     }
 
     setLoading(true);
-    const userMessage = { text: message, sender: "test_user" }; 
+    const userMessage = { text: msg, sender: "test_user" }; 
     setMessages((prev) => [...prev, userMessage]);
     //setMessages((prev) => [...prev, { text: message, sender: "test_user" }]); 
 
@@ -28,9 +50,10 @@ const Chat = () => {
       const res = await fetch("http://localhost:8000/ask", {
         method: "POST",
         headers: {
+          "Authorization": `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ user_id: "test_user", message }) //TODO Fetch user_id in login page and store in context api/redux, and in this file use that user_id state
+        body: JSON.stringify({ message })
       });
 
       if (!res.ok) {
@@ -50,32 +73,30 @@ const Chat = () => {
 
   return (
     <Container maxWidth="md" style={{ display: "flex", flexDirection: "column", height: "80vh", padding: "20px" }}>
-      <Typography variant="h5" gutterBottom>ChatBot</Typography>
-      <Paper style={{ flex: 1, padding: "10px", overflowY: "auto", display: "flex", flexDirection: "column" }}>
+      <Paper style={{ flex: 1, padding: "10px", overflowY: "auto", display: "flex", flexDirection: "column", paddingBottom: 20 }}>
         {messages.map((msg, index) => (
-            <Message key={index} text={msg.text} sender={msg.sender} />
+            <Message key={index} msg={msg} sendOption={sendMessage} />
         ))}
-        
       </Paper>
-      <TextField
-        fullWidth
-        variant="outlined"
-        placeholder="Type a message..."
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault(); // prevent new empty row
-              sendMessage();
-            }
-          }}
-        multiline
-        maxRows={10}
-        style={{ marginTop: "10px", wordBreak: "break-word"}}
-      />
-      <Button variant="contained" color="primary" onClick={sendMessage} style={{ marginTop: "10px" }} disabled={loading}>
-        {loading ? <CircularProgress size={24} /> : "Send"}
-      </Button>
+      <Stack direction="row" alignItems="center">
+          <TextField
+            fullWidth
+            variant="outlined"
+            placeholder="Type a message..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault(); // prevent new empty row
+                  sendMessage();
+                }
+              }}
+            style={{ wordBreak: "break-word", backgroundColor: theme.palette.primary.secondary }}
+          />
+          <Button variant="contained" color="primary" onClick={sendMessage} style={{ height: 56 }} disabled={loading}>
+            {loading ? <CircularProgress size={24} /> : <SendIcon sx={{ alignSelf: 'center'}} />}
+          </Button>
+      </Stack>
     </Container>
   );
 };
