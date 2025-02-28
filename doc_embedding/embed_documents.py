@@ -7,9 +7,11 @@ from sentence_transformers import SentenceTransformer
 from langchain_huggingface import HuggingFaceEmbeddings
 import re
 import json
+from pathlib import Path
+import os
 
-DOCUMENT_URLS_PATH = "docs/doc_urls.json"
-DATABASE_PATH = "embedding_db"
+DOCUMENT_URLS_PATH = Path(os.getenv("DOCUMENT_URLS_PATH", "docs/doc_urls.json"))
+DATABASE_PATH = Path(os.getenv("DATABASE_PATH", "embedding_db"))
 EMBEDDING_MODEL = "intfloat/multilingual-e5-small"
 
 def load_urls(path):
