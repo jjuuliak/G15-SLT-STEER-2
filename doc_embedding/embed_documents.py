@@ -7,9 +7,11 @@ from sentence_transformers import SentenceTransformer
 from langchain_huggingface import HuggingFaceEmbeddings
 import re
 import json
+from pathlib import Path
+import os
 
-DOCUMENT_URLS_PATH = "docs/doc_urls.json"
-DATABASE_PATH = "embedding_db"
+DOCUMENT_URLS_PATH = Path(os.getenv("DOCUMENT_URLS_PATH", "docs/doc_urls.json"))
+DATABASE_PATH = Path(os.getenv("DATABASE_PATH", "embedding_db"))
 EMBEDDING_MODEL = "intfloat/multilingual-e5-small"
 
 def load_urls(path):
@@ -67,7 +69,7 @@ def main():
     embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
 
     # Initialize FAISS index and flatten it based on the embedding vectors' dimensionality
-    index = faiss.IndexFlatL2(embedding_model.get_sentence_embedding_dimension())
+    index = faiss.IndexFlatIP(embedding_model.get_sentence_embedding_dimension())
 
     # LangChain's FAISS wrapper
     vector_store = FAISS(
