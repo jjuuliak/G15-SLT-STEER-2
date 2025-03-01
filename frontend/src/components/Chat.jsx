@@ -53,7 +53,7 @@ const Chat = () => {
           "Authorization": `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message })
+        body: JSON.stringify({ message: msg })
       });
 
       if (!res.ok) {
@@ -72,8 +72,22 @@ const Chat = () => {
   };
 
   return (
-    <Container maxWidth="md" style={{ display: "flex", flexDirection: "column", height: "80vh", padding: "20px" }}>
-      <Paper style={{ flex: 1, padding: "10px", overflowY: "auto", display: "flex", flexDirection: "column", paddingBottom: 20 }}>
+    <Container 
+      style={{ 
+        display: "flex", 
+        flexDirection: "column", 
+        height: "80vh", 
+        padding: "20px" 
+      }}>
+      <Paper 
+        style={{ 
+          flex: 1, 
+          padding: "10px", 
+          overflowY: "auto", 
+          display: "flex", 
+          flexDirection: "column",
+          paddingBottom: 20
+        }}>
         {messages.map((msg, index) => (
             <Message key={index} msg={msg} sendOption={sendMessage} />
         ))}
@@ -93,8 +107,17 @@ const Chat = () => {
               }}
             style={{ wordBreak: "break-word", backgroundColor: theme.palette.primary.secondary }}
           />
-          <Button variant="contained" color="primary" onClick={sendMessage} style={{ height: 56 }} disabled={loading}>
-            {loading ? <CircularProgress size={24} /> : <SendIcon sx={{ alignSelf: 'center'}} />}
+          <Button 
+            variant="contained" 
+            color="primary" 
+            onClick={sendMessage} 
+            style={{ height: 56 }}
+            disabled={loading}
+          >
+            {loading 
+              ? <CircularProgress size={24} /> 
+              : <SendIcon sx={{ alignSelf: 'center'}} />
+            }
           </Button>
       </Stack>
     </Container>
