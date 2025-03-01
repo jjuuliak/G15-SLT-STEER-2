@@ -35,7 +35,7 @@ const Chat = () => {
   const accessToken = useSelector((state) => state.auth?.access_token);
 
   const sendMessage = async (msg = message) => {
-    if (!msg.trim()) {
+    if (typeof msg !== 'string' || !msg.trim()) {
       return; // Message can't be empty
     }
 
