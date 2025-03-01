@@ -10,8 +10,12 @@ class MedicalInfo(BaseModel):
     """
 
     id: Optional[PyObjectId] = Field(alias="_id", default=None, exclude=True)
-    user_id: PyObjectId = Field(...)
-    smoking: bool = Field(...)
+    user_id: Optional[PyObjectId] = Field(default=None, exclude=True)
+    age: Optional[int] = Field(default=None)
+    weight: Optional[int] = Field(default=None)
+    height: Optional[float] = Field(default=None)
+    gender: Optional[str] = Field(default=None)
+    smoking: Optional[bool] = Field(default=None)
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
