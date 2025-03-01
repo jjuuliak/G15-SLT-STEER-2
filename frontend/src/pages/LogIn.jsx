@@ -25,7 +25,7 @@ const LogIn = () => {
       try {
           const result = await handleLogin(email, password);
           
-          dispatch(loginSuccess(result.user_data));
+          dispatch(loginSuccess(result));
           navigate('/');
           
       } catch (err) {

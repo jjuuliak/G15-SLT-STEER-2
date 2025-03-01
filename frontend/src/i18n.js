@@ -10,6 +10,7 @@ i18n
   .init({
     supportedLngs: ["en", "fi"],
     fallbackLng: "en",
+    returnObjects: true,
     detection: {
       order: ["cookie", "localStorage", "navigator", "htmlTag"],
       caches: ["cookie", "localStorage"],
