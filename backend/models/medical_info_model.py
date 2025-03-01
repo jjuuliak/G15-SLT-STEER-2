@@ -15,7 +15,17 @@ class MedicalInfo(BaseModel):
     weight: Optional[int] = Field(default=None)
     height: Optional[float] = Field(default=None)
     gender: Optional[str] = Field(default=None)
+    systolic_blood_pressure: Optional[list[int]] = Field(default=None)
+    diastolic_blood_pressure: Optional[list[int]] = Field(default=None)
+    heart_rate: Optional[list[int]] = Field(default=None)
+    total_cholesterol: Optional[list[float]] = Field(default=None)
+    low_density_lipoprotein: Optional[list[float]] = Field(default=None)
+    high_density_lipoprotein: Optional[list[float]] = Field(default=None)
+    triglycerides: Optional[list[float]] = Field(default=None)
     smoking: Optional[bool] = Field(default=None)
+    alcohol_consumption: Optional[int] = Field(default=None)
+    amount_of_sleep: Optional[float] = Field(default=None)
+    other_medical_conditions: Optional[list[str]] = Field(default=None)
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
