@@ -56,7 +56,7 @@ const Register = () => {
     try {
       const data = await registerUser(formData);
 
-      dispatch(loginSuccess(data.user_data));
+      dispatch(loginSuccess(data));
 
       alert(t('registrationSuccessful'));
       navigate('/');

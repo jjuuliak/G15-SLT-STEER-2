@@ -12,10 +12,10 @@ import NotFound from "../pages/NotFound";
 //import ForgotPassword from "../pages/ForgotPassword";
 
 const AppRoutes = () => {
-  const user = useSelector((state) => state.auth?.user); // Check if user is logged in
+  const isAuthenticated = useSelector((state) => state.auth?.isAuthenticated); // Check if user is logged in
 
   function ProtectedRoute() {
-    return user ? <Outlet /> : <Navigate to="/login" replace />;
+    return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
   }
 
   return (

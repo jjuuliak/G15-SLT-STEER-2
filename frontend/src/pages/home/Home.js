@@ -5,7 +5,10 @@ import TopBar from "../../components/TopBar";
 
 const Home = () => {
     return (
-        <Container>
+        <Container
+          id='view-container'
+          maxWidth={false}
+          sx={{ height: "100vh", width: "100vw", padding: 0,  }}>
           <TopBar />
           <Chat/>
         </Container>
