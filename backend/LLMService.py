@@ -77,6 +77,8 @@ class LLMService:
             return {"response": answer, "attributes": attributes}
 
         elif response and response.text:
+            chat_history.store_history(user_id, question, response.text)
+
             return {"response": response.text}
 
         else:
