@@ -1,6 +1,6 @@
 fastapi==0.115.8
 uvicorn==0.34.0
-langchain==0.3.17
+langchain==0.3.19
 google-generativeai==0.8.4
 requests==2.32.3
 pydantic[email]==2.10.6
@@ -12,3 +12,7 @@ starlette==0.45.3
 protobuf==5.29.3
 fastapi-jwt==0.3.0
 authlib==1.4.1
+langchain_community==0.3.18
+langchain-huggingface==0.1.2
+sentence-transformers==3.4.1
+faiss-cpu==1.10.0
