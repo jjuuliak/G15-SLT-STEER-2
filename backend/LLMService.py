@@ -1,8 +1,9 @@
 import google.generativeai as genai
 from typing import Dict
-
+from rag_service import RAGService
 import chat_history
 
+rag = RAGService()
 
 class LLMService:
     def __init__(self, api_key: str, model_name: str = 'gemini-1.5-flash'):
@@ -37,7 +38,9 @@ class LLMService:
 
     async def send_message(self, user_id: str, message: str) -> str:
         session = await self.get_session(user_id)
-        response = session.send_message(message)
+
+        rag_prompt = rag.build_prompt(message)
+        response = session.send_message(rag_prompt)
         if response:
             chat_history.store_history(user_id, message, response.text)
             return response.text
