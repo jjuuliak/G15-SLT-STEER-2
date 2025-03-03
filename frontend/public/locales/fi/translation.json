@@ -25,6 +25,8 @@
     },
     "languageSettings": "Kieliasetukset",
     "back": "Takaisin",
-    "404page": "Hups! Etsimääsi sivua ei ole olemassa."
+    "404page": "Hups! Etsimääsi sivua ei ole olemassa.",
+    "invalidCredentials": "Väärä sähköposti tai salasana.",
+    "loginErrorOccurred": "Kirjautumisen yhteydessä tapahtui virhe. Yritä myöhemmin uudelleen."
 }
   

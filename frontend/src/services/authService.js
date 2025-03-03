@@ -12,14 +12,17 @@ export const handleLogin = async (email, password) => {
       body: JSON.stringify({ email: email, password: password }),
     });
 
-    if (response.ok) {
-      const data = await response.json();
-      return data;
-    } else {
-      throw new Error('Invalid login credentials');
+    const data = await response.json();
+    if (!response.ok) {
+      if(response.status === 401) {
+        throw new Error('Invalid login credentials');
+      } else {
+        throw new Error('An error occurred during login');
+      }
     }
+    return data;
   } catch (error) {
-    throw new Error('An error occurred during login');
+    throw new Error(error.message || 'An error occurred during login');
   }
 };
 
