@@ -22,7 +22,7 @@ const Message = ({ msg, sendOption }) => {
       >
         <Typography 
           variant="body1" 
-          sx={{ color: "white", p: 1, my: 2, whiteSpace: "pre-line" }}
+          sx={{ color: "white", p: 1, my: 2 }}
         >
           <ReactMarkdown
             remarkPlugins={[remarkGfm]} // Enables tables, strikethrough, etc.
