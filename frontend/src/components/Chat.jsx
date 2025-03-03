@@ -76,7 +76,7 @@ const Chat = () => {
       style={{ 
         display: "flex", 
         flexDirection: "column", 
-        height: "80vh", 
+        height: "90vh", 
         padding: "20px" 
       }}>
       <Paper 
