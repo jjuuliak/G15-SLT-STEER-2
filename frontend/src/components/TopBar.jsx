@@ -11,16 +11,19 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import { logout } from "../redux/actionCreators/authActions"
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-
+import { useTranslation } from 'react-i18next';
 import PopupWithTabs from "./popup/PopupWithTabs";
+import Profile from "./popup/Profile";
 
 const TopBar = () => {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [openSettings, setOpenSettings] = useState(false);
+  const [openProfile, setOpenProfile] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const {t} = useTranslation();
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -29,6 +32,16 @@ const TopBar = () => {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
+
+  const handleOpenProfile = () => {
+    handleMenuClose();
+    setOpenProfile(true);
+  };
+
+  const handleCloseProfile = () => {
+    setOpenProfile(false);
+  }
+
 
   const handleOpenSettings = () => {
     handleMenuClose();
@@ -81,12 +94,14 @@ const TopBar = () => {
             horizontal: "right",
           }}
         >
-          <MenuItem onClick={handleOpenSettings}>Settings</MenuItem>
+          <MenuItem onClick={handleOpenProfile}>{t('profile')}</MenuItem>
+          <MenuItem onClick={handleOpenSettings}>{t('settings')}</MenuItem>
           <MenuItem onClick={handleLogout}>Logout</MenuItem>
         </Menu>
       </Toolbar>
     </AppBar>
 
+    <Profile open={openProfile} handleClose={handleCloseProfile}></Profile>
     <PopupWithTabs open={openSettings} handleClose={handleCloseSettings}></PopupWithTabs>
     
     </>

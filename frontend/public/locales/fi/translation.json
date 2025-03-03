@@ -14,11 +14,11 @@
     "matchPasswords": "Salasanat eivät täsmää",
     "registrationFailed": "Rekisteröinti epäonnistui. Yritä uudelleen.",
     "registrationSuccessful": "Rekisteröityminen onnistui!",
+    "profile": "Profiili",
     "settings": "Asetukset",
     "close": "Sulje",
     "settingsTabs": {
         "general": "Yleiset",
-        "profile": "Profiili",
         "appearance": "Ulkoasu",
         "language": "Kieli",
         "security": "Turvallisuus"

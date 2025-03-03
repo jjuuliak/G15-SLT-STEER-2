@@ -14,11 +14,11 @@
     "matchPasswords": "Passwords do not match",
     "registrationFailed": "Registration failed. Please try again.",
     "registrationSuccessful": "Registration Successful!",
+    "profile": "Profile",
     "settings": "Settings",
     "close": "Close",
     "settingsTabs": {
         "general": "General",
-        "profile": "Profile",
         "appearance": "Appearance",
         "language": "Language",
         "security": "Security"
