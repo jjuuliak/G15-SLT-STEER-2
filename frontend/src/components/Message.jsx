@@ -1,6 +1,10 @@
 import React from "react";
 import { Paper, Typography, useTheme, Button, Stack } from "@mui/material";
 import PropTypes from 'prop-types';
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { materialDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 const Message = ({ msg, sendOption }) => {
   const theme = useTheme();
@@ -20,7 +24,25 @@ const Message = ({ msg, sendOption }) => {
           variant="body1" 
           sx={{ color: "white", p: 1, my: 2, whiteSpace: "pre-line" }}
         >
-          {msg.text}
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]} // Enables tables, strikethrough, etc.
+            components={{
+              code({ inline, className, children, ...props }) {
+                const match = /language-(\w+)/.exec(className || "");
+                return !inline && match ? (
+                  <SyntaxHighlighter style={materialDark} language={match[1]} {...props}>
+                    {String(children).replace(/\n$/, "")}
+                  </SyntaxHighlighter>
+                ) : (
+                  <code className={className} {...props}>
+                    {children}
+                  </code>
+                );
+              },
+            }}
+          >
+            {msg.text}
+          </ReactMarkdown>
         </Typography>
       </Paper>
       {msg.options && (
