@@ -79,8 +79,8 @@ const Register = () => {
           flexDirection: "column",
           color: "white",
           textAlign: "center",
-          padding: 3,
-          flex: 1
+          flex: 1,
+          overflow: 'hidden'
         }}
       >
         <Logo />
@@ -98,7 +98,6 @@ const Register = () => {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          padding: 3,
           flex: 1
         }}
       >
@@ -224,7 +223,7 @@ const Register = () => {
               {t('alreadyAccount')}
             </Typography>
             <Button
-              onClick={() => navigate('/register')}
+              onClick={() => navigate('/login')}
               sx={{ ml: 1 }}
               variant="outlined">
               {t('login')}
