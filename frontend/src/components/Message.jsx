@@ -20,10 +20,8 @@ const Message = ({ msg, sendOption }) => {
           width: "70%"
         }}
       >
-        <Typography 
-          variant="body1" 
-          sx={{ color: "white", p: 1, my: 2 }}
-        >
+        {msg.sender === "bot" ? (
+          <div style={{ color: 'white', padding: '8px' }}>
           <ReactMarkdown
             remarkPlugins={[remarkGfm]} // Enables tables, strikethrough, etc.
             components={{
@@ -43,7 +41,15 @@ const Message = ({ msg, sendOption }) => {
           >
             {msg.text}
           </ReactMarkdown>
-        </Typography>
+          </div>
+        ) : (
+          <Typography
+            variant="body1"
+            sx={{ color: "white", p: 1, my: 2 }}
+          >
+            {msg.text}
+          </Typography>
+        )}
       </Paper>
       {msg.options && (
         <Stack direction="row" mb={2} flexWrap="wrap" gap={1}>

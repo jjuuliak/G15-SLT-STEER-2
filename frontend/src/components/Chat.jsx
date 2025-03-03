@@ -93,32 +93,32 @@ const Chat = () => {
         ))}
       </Paper>
       <Stack direction="row" alignItems="center">
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder="Type a message..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault(); // prevent new empty row
-                  sendMessage();
-                }
-              }}
-            style={{ wordBreak: "break-word", backgroundColor: theme.palette.primary.secondary }}
-          />
-          <Button 
-            variant="contained" 
-            color="primary" 
-            onClick={sendMessage} 
-            style={{ height: 56 }}
-            disabled={loading}
-          >
-            {loading 
-              ? <CircularProgress size={24} /> 
-              : <SendIcon sx={{ alignSelf: 'center'}} />
+        <TextField
+          fullWidth
+          variant="outlined"
+          placeholder="Type a message..."
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault(); // prevent new empty row
+              sendMessage();
             }
-          </Button>
+          }}
+          style={{ wordBreak: "break-word", backgroundColor: theme.palette.primary.secondary }}
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => sendMessage()}
+          style={{ height: 56 }}
+          disabled={loading}
+        >
+          {loading
+            ? <CircularProgress size={24} />
+            : <SendIcon sx={{ alignSelf: 'center' }} />
+          }
+        </Button>
       </Stack>
     </Container>
   );
