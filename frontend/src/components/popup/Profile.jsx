@@ -183,13 +183,74 @@ const UserProfile = ({ open, handleClose }) => {
           value={formData.amount_of_sleep}
           onChange={handleChange}
         />
-        <TextField label={profileTranslation.systolicBloodPressure} name="systolic_blood_pressure" type="text" fullWidth margin="dense" value={formData.systolic_blood_pressure} onChange={handleChange} />
-        <TextField label={profileTranslation.diastolicBloodPressure} name="diastolic_blood_pressure" type="text" fullWidth margin="dense" value={formData.diastolic_blood_pressure} onChange={handleChange} />
-        <TextField label={profileTranslation.heartRate} name="heart_rate" type="text" fullWidth margin="dense" value={formData.heart_rate} onChange={handleChange} />
-        <TextField label={profileTranslation.cholesterol} name="total_cholesterol" type="text" fullWidth margin="dense" value={formData.total_cholesterol} onChange={handleChange} />
-        <TextField label={profileTranslation.ldLipoprotein} name="low_density_lipoprotein" type="text" fullWidth margin="dense" value={formData.low_density_lipoprotein} onChange={handleChange} />
-        <TextField label={profileTranslation.hdLipoprotein} name="high_density_lipoprotein" type="text" fullWidth margin="dense" value={formData.high_density_lipoprotein} onChange={handleChange} />
-        <TextField label={profileTranslation.triglycerides} name="triglycerides" type="text" fullWidth margin="dense" value={formData.triglycerides} onChange={handleChange} />
+        <TextField 
+          label={profileTranslation.systolicBloodPressure} 
+          name="systolic_blood_pressure" 
+          type="text" fullWidth margin="dense" 
+          value={formData.systolic_blood_pressure} 
+          onChange={handleChange} 
+        />
+
+        <TextField 
+          label={profileTranslation.diastolicBloodPressure} 
+          name="diastolic_blood_pressure" type="text" 
+          fullWidth margin="dense" 
+          value={formData.diastolic_blood_pressure} 
+          onChange={handleChange} 
+        />
+
+        <TextField 
+          label={profileTranslation.heartRate} 
+          name="heart_rate" 
+          type="text" 
+          fullWidth 
+          margin="dense" 
+          value={formData.heart_rate} 
+          onChange={handleChange} 
+        />
+
+        <TextField 
+          label={profileTranslation.cholesterol} 
+          name="total_cholesterol" type="text" 
+          fullWidth margin="dense" 
+          value={formData.total_cholesterol} 
+          onChange={handleChange} 
+        />
+        <TextField 
+          label={profileTranslation.ldLipoprotein} 
+          name="low_density_lipoprotein" 
+          type="text" 
+          fullWidth margin="dense" 
+          value={formData.low_density_lipoprotein} 
+          onChange={handleChange} 
+          />
+        <TextField 
+          label={profileTranslation.hdLipoprotein} 
+          name="high_density_lipoprotein" 
+          type="text" 
+          fullWidth 
+          margin="dense" 
+          value={formData.high_density_lipoprotein} 
+          onChange={handleChange} 
+        />
+        <TextField 
+          label={profileTranslation.triglycerides} 
+          name="triglycerides" 
+          type="text" 
+          fullWidth 
+          margin="dense" 
+          value={formData.triglycerides} 
+          onChange={handleChange} 
+        />
+        <TextField 
+          label={profileTranslation.otherMedicalConditions} 
+          name="other_medical_conditions" 
+          type="text" 
+          fullWidth 
+          margin="dense" 
+          multiline rows={3} 
+          value={formData.other_medical_conditions} 
+          onChange={handleChange} />
         </DialogContent>
         <DialogActions>
             <Button onClick={handleClose}>{t("close")}</Button>

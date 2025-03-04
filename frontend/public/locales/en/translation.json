@@ -36,6 +36,7 @@
         "ldLipoprotein": "Low-Density Lipoprotein",
         "hdLipoprotein": "High-Density Lipoprotein",
         "triglycerides": "Triglycerides",
+        "otherMedicalConditions": "Other medical conditions",
         "save": "Save"
     },
     "settings": "Settings",

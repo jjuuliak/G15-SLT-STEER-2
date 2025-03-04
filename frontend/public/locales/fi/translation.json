@@ -36,6 +36,7 @@
         "ldLipoprotein": "LDL-kolesteroli",
         "hdLipoprotein": "HDL-kolesteroli",
         "triglycerides": "Triglyseridit",
+        "otherMedicalConditions": "Muut terveydentilaan liittyvät asiat",
         "save": "Tallenna"
     },
     "settings": "Asetukset",
