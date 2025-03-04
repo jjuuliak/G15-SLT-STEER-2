@@ -35,7 +35,8 @@
         "cholesterol": "Kokonaiskolesterolimäärä",
         "ldLipoprotein": "LDL-kolesteroli",
         "hdLipoprotein": "HDL-kolesteroli",
-        "triglycerides": "Triglyseridit"
+        "triglycerides": "Triglyseridit",
+        "save": "Tallenna"
     },
     "settings": "Asetukset",
     "close": "Sulje",

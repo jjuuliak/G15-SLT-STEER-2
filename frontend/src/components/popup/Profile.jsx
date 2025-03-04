@@ -16,10 +16,12 @@ import {
   FormControlLabel,
 } from "@mui/material";
 import { useTranslation } from 'react-i18next';
+import { useSelector } from "react-redux";
 
 const UserProfile = ({ open, handleClose }) => {
     const { t } = useTranslation();
     const profileTranslation = t('ProfilePopUp');
+    const accessToken = useSelector((state) => state.auth?.access_token);
 
     const [formData, setFormData] = useState({
         name: "",
@@ -49,9 +51,36 @@ const UserProfile = ({ open, handleClose }) => {
         }));
       };
 
+      // Get profile data upon mounting
       useEffect(() => {
-        // TODO fetch already existing userdata from backend
-      }, []);
+        /*
+        fetch("/get-profile", {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
+          .then((response) => response.json())
+          .then((data) => setFormData(data))
+          .catch((error) => console.error("Error fetching profile data:", error));
+          */
+      }, [accessToken]);
+
+      const handleSubmit = async () => {
+        try {
+          const response = await fetch("/update-profile", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify(formData),
+          });
+          if (!response.ok) {
+            throw new Error("Failed to update profile");
+          }
+          handleClose();
+        } catch (error) {
+          console.error("Error updating profile:", error);
+        }
+      };
 
     return (
         <Dialog
@@ -63,17 +92,9 @@ const UserProfile = ({ open, handleClose }) => {
         <DialogTitle>User Profile</DialogTitle>
         <DialogContent>
             {/* You can replace this Typography/ContentText with real data or forms */}
-            <DialogContentText>
-            <Typography variant="body1" gutterBottom>
+            <DialogContentText>       
                 This dialog can display user details, account info, or allow
                 editing profile data. For example:
-            </Typography>
-            <ul>
-                <li>Name</li>
-                <li>Email</li>
-                <li>Medical Records/Preferences</li>
-                {/* Add forms and logic for updating data here */}
-            </ul>
             </DialogContentText>
 
         <TextField
@@ -172,6 +193,9 @@ const UserProfile = ({ open, handleClose }) => {
         </DialogContent>
         <DialogActions>
             <Button onClick={handleClose}>{t("close")}</Button>
+            <Button onClick={handleSubmit} color="primary" variant="contained">
+          {profileTranslation.save}
+        </Button>
         </DialogActions>
         </Dialog>
     );

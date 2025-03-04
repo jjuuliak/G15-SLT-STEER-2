@@ -35,7 +35,8 @@
         "cholesterol": "Total Cholesterol",
         "ldLipoprotein": "Low-Density Lipoprotein",
         "hdLipoprotein": "High-Density Lipoprotein",
-        "triglycerides": "Triglycerides"
+        "triglycerides": "Triglycerides",
+        "save": "Save"
     },
     "settings": "Settings",
     "close": "Close",
