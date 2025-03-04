@@ -19,6 +19,8 @@ import { useTranslation } from 'react-i18next';
 
 const UserProfile = ({ open, handleClose }) => {
     const { t } = useTranslation();
+    const profileTranslation = t('ProfilePopUp');
+
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -47,6 +49,10 @@ const UserProfile = ({ open, handleClose }) => {
         }));
       };
 
+      useEffect(() => {
+        // TODO fetch already existing userdata from backend
+      }, []);
+
     return (
         <Dialog
         open={open}
@@ -71,7 +77,7 @@ const UserProfile = ({ open, handleClose }) => {
             </DialogContentText>
 
         <TextField
-          label={t("Name")}
+          label={profileTranslation.name}
           name="name"
           type="text"
           fullWidth
@@ -81,7 +87,7 @@ const UserProfile = ({ open, handleClose }) => {
         />
 
         <TextField
-          label={t("Email")}
+          label={profileTranslation.email}
           name="email"
           type="email"
           fullWidth
@@ -92,7 +98,7 @@ const UserProfile = ({ open, handleClose }) => {
 
 
             <TextField
-          label={t("Age")}
+          label={profileTranslation.age}
           name="age"
           type="text"
           fullWidth
@@ -101,7 +107,7 @@ const UserProfile = ({ open, handleClose }) => {
           onChange={handleChange}
         />
         <TextField
-          label={t("Weight (kg)")}
+          label={profileTranslation.weight}
           name="weight"
           type="text"
           fullWidth
@@ -110,7 +116,7 @@ const UserProfile = ({ open, handleClose }) => {
           onChange={handleChange}
         />
         <TextField
-          label={t("Height (cm)")}
+          label={profileTranslation.height}
           name="height"
           type="text"
           fullWidth
@@ -119,7 +125,7 @@ const UserProfile = ({ open, handleClose }) => {
           onChange={handleChange}
         />
         <FormControl fullWidth margin="none">
-          <InputLabel id="gender-label">Gender</InputLabel>
+          <InputLabel id="gender-label">{profileTranslation.gender}</InputLabel>
           <Select
           labelId="gender-label"
           id="gender-select"
@@ -127,19 +133,19 @@ const UserProfile = ({ open, handleClose }) => {
           label="gender"
           value={formData.gender}
           onChange={handleChange}>
-            <MenuItem value="">{t("None")}</MenuItem>
-            <MenuItem value="male">{t("Male")}</MenuItem>
-            <MenuItem value="female">{t("Female")}</MenuItem>
-            <MenuItem value="other">{t("Other")}</MenuItem>
+            <MenuItem value="">{profileTranslation.none}</MenuItem>
+            <MenuItem value="male">{profileTranslation.male}</MenuItem>
+            <MenuItem value="female">{profileTranslation.female}</MenuItem>
+            <MenuItem value="other">{profileTranslation.other}</MenuItem>
           </Select>
         </FormControl>
 
         <FormControlLabel
           control={<Checkbox checked={formData.smoking} onChange={handleChange} name="smoking" />}
-          label={t("Smoking")}
+          label={profileTranslation.smoking}
         />
         <TextField
-          label={t("Alcohol Consumption (per week)")}
+          label={profileTranslation.weeklyAlcoholConsumption}
           name="alcohol_consumption"
           type="text"
           fullWidth
@@ -148,7 +154,7 @@ const UserProfile = ({ open, handleClose }) => {
           onChange={handleChange}
         />
         <TextField
-          label={t("Amount of Sleep (hours)")}
+          label={profileTranslation.sleepQuantityHours}
           name="amount_of_sleep"
           type="text"
           fullWidth
@@ -156,13 +162,13 @@ const UserProfile = ({ open, handleClose }) => {
           value={formData.amount_of_sleep}
           onChange={handleChange}
         />
-        <TextField label={t("Systolic Blood Pressure") } name="systolic_blood_pressure" type="text" fullWidth margin="dense" value={formData.systolic_blood_pressure} onChange={handleChange} />
-        <TextField label={t("Diastolic Blood Pressure")} name="diastolic_blood_pressure" type="text" fullWidth margin="dense" value={formData.diastolic_blood_pressure} onChange={handleChange} />
-        <TextField label={t("Resting heart Rate")} name="heart_rate" type="text" fullWidth margin="dense" value={formData.heart_rate} onChange={handleChange} />
-        <TextField label={t("Total Cholesterol")} name="total_cholesterol" type="text" fullWidth margin="dense" value={formData.total_cholesterol} onChange={handleChange} />
-        <TextField label={t("Low-Density Lipoprotein") } name="low_density_lipoprotein" type="text" fullWidth margin="dense" value={formData.low_density_lipoprotein} onChange={handleChange} />
-        <TextField label={t("High-Density Lipoprotein") } name="high_density_lipoprotein" type="text" fullWidth margin="dense" value={formData.high_density_lipoprotein} onChange={handleChange} />
-        <TextField label={t("Triglycerides")} name="triglycerides" type="text" fullWidth margin="dense" value={formData.triglycerides} onChange={handleChange} />
+        <TextField label={profileTranslation.systolicBloodPressure} name="systolic_blood_pressure" type="text" fullWidth margin="dense" value={formData.systolic_blood_pressure} onChange={handleChange} />
+        <TextField label={profileTranslation.diastolicBloodPressure} name="diastolic_blood_pressure" type="text" fullWidth margin="dense" value={formData.diastolic_blood_pressure} onChange={handleChange} />
+        <TextField label={profileTranslation.heartRate} name="heart_rate" type="text" fullWidth margin="dense" value={formData.heart_rate} onChange={handleChange} />
+        <TextField label={profileTranslation.cholesterol} name="total_cholesterol" type="text" fullWidth margin="dense" value={formData.total_cholesterol} onChange={handleChange} />
+        <TextField label={profileTranslation.ldLipoprotein} name="low_density_lipoprotein" type="text" fullWidth margin="dense" value={formData.low_density_lipoprotein} onChange={handleChange} />
+        <TextField label={profileTranslation.hdLipoprotein} name="high_density_lipoprotein" type="text" fullWidth margin="dense" value={formData.high_density_lipoprotein} onChange={handleChange} />
+        <TextField label={profileTranslation.triglycerides} name="triglycerides" type="text" fullWidth margin="dense" value={formData.triglycerides} onChange={handleChange} />
         </DialogContent>
         <DialogActions>
             <Button onClick={handleClose}>{t("close")}</Button>
