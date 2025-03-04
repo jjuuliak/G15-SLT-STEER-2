@@ -72,6 +72,10 @@ class LLMService:
                 attributes.append(attribute)
 
             answer = response.candidates[0].content.parts[0].text
+
+            if not answer.strip():
+                return {"response": "Error: No response from model."}
+
             chat_history.store_history(user_id, question, answer)
 
             return {"response": answer, "attributes": attributes}
