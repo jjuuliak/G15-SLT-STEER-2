@@ -33,7 +33,7 @@ async def register(user_info: User, response: Response):
     access_token = AuthService.get_access_security().create_access_token(subject={"user_id": user_id})
     AuthService.get_access_security().set_access_cookie(response, access_token)
 
-    return {"status": "success", "access_token": access_token, "user_data": user_data.model_dump(exclude={"id"})}
+    return {"status": "success", "access_token": access_token, "user_data": user_data.model_dump(exclude={"id", "user_id"})}
 
 
 @router.post("/login")
@@ -50,7 +50,7 @@ async def login(user_info: UserLogin, response: Response):
     access_token = AuthService.get_access_security().create_access_token(subject={"user_id": user_id})
     AuthService.get_access_security().set_access_cookie(response, access_token)
 
-    return {"status": "success", "access_token": access_token, "user_data": {k: v for k, v in user_data.items() if k != "_id"}}
+    return {"status": "success", "access_token": access_token, "user_data": {k: v for k, v in user_data.items() if k != "_id" and k != "user_id"}}
 
 
 @router.post("/logout")
