@@ -14,17 +14,21 @@ CHAT_HISTORY_COLLECTION = "chat_history"
 
 
 async def connect_mongodb():
+    create_mongo_client()
+    print(await mongo.server_info())
+    await get_users().create_index([("email", 1)], unique=True)
+    await get_user_data().create_index([("user_id", 1)], unique=True)
+    await get_chat_history().create_index([("user_id", 1)], unique=True)
+    return
+
+
+def create_mongo_client():
     db_user = os.getenv("MONGO_USER")
     db_password = os.getenv("MONGO_PASSWORD")
 
     print("Connecting to MongoDB")
     global mongo
     mongo = AsyncIOMotorClient(f"mongodb://{db_user}:{db_password}@database:27017/")
-    print(await mongo.server_info())
-    await get_users().create_index([("email", 1)], unique=True)
-    await get_user_data().create_index([("user_id", 1)], unique=True)
-    await get_chat_history().create_index([("user_id", 1)], unique=True)
-    return
 
 
 def get_users():

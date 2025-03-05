@@ -2,7 +2,7 @@ name: Test Backend
 
 on:
   push:
-    branches: [ "main", "staging" ]
+    branches: [ "main", "staging", "pytest-clean" ]
   pull_request:
     branches: [ "main", "staging" ]
 
