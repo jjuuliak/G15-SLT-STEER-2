@@ -9,6 +9,13 @@ from models.medical_info_model import MedicalInfo
 router = APIRouter()
 
 
+@router.post("/get-profile")
+async def update_user_profile(credentials: JwtAuthorizationCredentials = Security(AuthService.get_access_security())):
+    user_data = await database_connection.get_user_data().find_one({"user_id": credentials["user_id"]})
+
+    return {"status": "success", "user_data": {k: v for k, v in user_data.items() if k != "_id" and k != "user_id"}}
+
+
 @router.post("/update-profile")
 async def update_user_profile(request: MedicalInfo, credentials: JwtAuthorizationCredentials = Security(AuthService.get_access_security())):
     # Don't replace existing values with null if not present
