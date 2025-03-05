@@ -15,14 +15,13 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set Up Docker
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y docker.io docker-compose
-    - name: Start Services
-      run: docker-compose up -d
+       uses: hoverkraft-tech/compose-action@v2.2.0
+        with:
+          compose-file: "./docker-compose.yml"
+          services: |
+            database
+            backend
     - name: Install Pytest
       run: docker-compose exec backend pip install pytest==8.3.5
     - name: Backend Tests
       run: docker-compose exec backend pytest tests
-    - name: Stop Services
-      run: docker-compose down
