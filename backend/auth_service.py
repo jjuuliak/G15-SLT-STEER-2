@@ -1,14 +1,16 @@
 import secrets
 import string
+from datetime import timedelta
 
 import bcrypt
-from fastapi_jwt import JwtAccessBearer
-
+from fastapi_jwt import JwtAccessBearer, JwtRefreshBearer
 
 # TODO: Maybe this should not be random to work over server restart
 characters = string.ascii_letters + string.digits + string.punctuation
-access_security = JwtAccessBearer(secret_key="".join(secrets.choice(characters) for _ in range(32)), auto_error=True)
-del characters
+secret = "".join(secrets.choice(characters) for _ in range(32))
+access_security = JwtAccessBearer(secret_key=secret, auto_error=True, access_expires_delta=timedelta(hours=1))
+refresh_security = JwtRefreshBearer(secret_key=secret, auto_error=True, refresh_expires_delta=timedelta(days=30))
+del characters, secret
 
 
 class AuthService:
@@ -16,6 +18,11 @@ class AuthService:
     @staticmethod
     def get_access_security():
         return access_security
+
+
+    @staticmethod
+    def get_refresh_security():
+        return refresh_security
 
 
     @staticmethod
