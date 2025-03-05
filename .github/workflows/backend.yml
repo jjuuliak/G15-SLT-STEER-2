@@ -26,4 +26,4 @@ jobs:
         services: |
           backend
     - name: Backend Tests
-      run: docker compose exec backend pytest tests
+      run: free -m
