@@ -16,7 +16,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Create .env File
       run: |
-        echo "API_KEY=" >> .env
+        echo "API_KEY=test" >> .env
         echo "MONGO_USER=test" >> .env
         echo "MONGO_PASSWORD=test" >> .env
     - name: Set Up Docker
