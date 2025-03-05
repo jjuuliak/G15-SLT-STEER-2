@@ -1,5 +1,4 @@
-from fastapi import APIRouter, HTTPException, Security
-from fastapi_jwt import JwtAuthorizationCredentials
+from fastapi import APIRouter, HTTPException
 from starlette import status
 
 import database_connection
@@ -31,9 +30,8 @@ async def register(user_info: User):
     await database_connection.get_user_data().insert_one(user_data.model_dump(exclude={"id"}))
 
     access_token = AuthService.get_access_security().create_access_token(subject={"user_id": user_id})
-    refresh_token = AuthService.get_refresh_security().create_refresh_token(subject={"user_id": user_id})
 
-    return {"status": "success", "access_token": access_token, "refresh_token": refresh_token,
+    return {"status": "success", "access_token": access_token,
             "user_data": user_data.model_dump(exclude={"id", "user_id"})}
 
 
@@ -52,15 +50,6 @@ async def login(user_info: UserLogin):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Missing user data")
 
     access_token = AuthService.get_access_security().create_access_token(subject={"user_id": user_id})
-    refresh_token = AuthService.get_refresh_security().create_refresh_token(subject={"user_id": user_id})
 
-    return {"status": "success", "access_token": access_token, "refresh_token": refresh_token,
+    return {"status": "success", "access_token": access_token,
             "user_data": {k: v for k, v in user_data.items() if k != "_id" and k != "user_id"}}
-
-
-@router.post("/refresh")
-def refresh(credentials: JwtAuthorizationCredentials = Security(AuthService.get_refresh_security())):
-    access_token = AuthService.get_access_security().create_access_token(subject=credentials.subject)
-    refresh_token = AuthService.get_refresh_security().create_refresh_token(subject=credentials.subject)
-
-    return {"status": "success", "access_token": access_token, "refresh_token": refresh_token}
