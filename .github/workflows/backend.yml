@@ -24,7 +24,6 @@ jobs:
       with:
         compose-file: "./docker-compose.yml"
         services: |
-          database
           backend
     - name: Backend Tests
       run: docker compose exec backend pytest tests
