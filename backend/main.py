@@ -1,4 +1,5 @@
 import logging
+import os
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -6,7 +7,6 @@ from fastapi.exceptions import RequestValidationError, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from requests import Request
 from starlette import status
-from starlette.responses import JSONResponse
 
 import database_connection
 from routes import login, chat
@@ -14,6 +14,8 @@ from routes import login, chat
 
 load_dotenv()
 
+if not os.getenv("API_KEY"):
+    raise ValueError("API_KEY missing from environment variables")
 
 app = FastAPI()
 app.add_event_handler("startup", database_connection.connect_mongodb)

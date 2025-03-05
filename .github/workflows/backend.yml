@@ -1,0 +1,32 @@
+name: Test Backend
+
+on:
+  push:
+    branches: [ "main", "staging" ]
+  pull_request:
+    branches: [ "main", "staging" ]
+
+jobs:
+
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Create .env
+      run: |
+        echo "API_KEY=test" >> .env
+        echo "MONGO_USER=test" >> .env
+        echo "MONGO_PASSWORD=test" >> .env
+    - name: Start Docker
+      uses: hoverkraft-tech/compose-action@v2.2.0
+      with:
+        compose-file: "./docker-compose.yml"
+        services: |
+          database
+          backend
+    - name: Install Pytest
+      run: docker compose exec backend pip install pytest==8.3.5
+    - name: Run Pytest
+      run: docker compose exec backend pytest tests
