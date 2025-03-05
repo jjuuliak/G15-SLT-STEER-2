@@ -14,17 +14,43 @@
     "matchPasswords": "Salasanat eivät täsmää",
     "registrationFailed": "Rekisteröinti epäonnistui. Yritä uudelleen.",
     "registrationSuccessful": "Rekisteröityminen onnistui!",
+    "profile": "Profiili",
+    "ProfilePopUp": {
+        "name": "Nimi",
+        "email": "Sähköposti",
+        "age": "Ikä",
+        "weight": "Paino (kg)",
+        "height": "Pituus (cm)",
+        "gender": "Sukupuoli",
+        "none": "Ei valintaa",
+        "male": "Mies",
+        "female": "Nainen",
+        "other": "Muu",
+        "smoking": "Tupakointi",
+        "weeklyAlcoholConsumption": "Viikottainen alkoholin kulutus",
+        "sleepQuantityHours": "Unen määrä tunneissa",
+        "systolicBloodPressure": "Systolinen verenpaine",
+        "diastolicBloodPressure": "Diastolinen verenpaine",
+        "heartRate": "Leposyke",
+        "cholesterol": "Kokonaiskolesterolimäärä",
+        "ldLipoprotein": "LDL-kolesteroli",
+        "hdLipoprotein": "HDL-kolesteroli",
+        "triglycerides": "Triglyseridit",
+        "otherMedicalConditions": "Muut terveydentilaan liittyvät asiat",
+        "save": "Tallenna"
+    },
     "settings": "Asetukset",
     "close": "Sulje",
     "settingsTabs": {
         "general": "Yleiset",
-        "profile": "Profiili",
         "appearance": "Ulkoasu",
         "language": "Kieli",
         "security": "Turvallisuus"
     },
     "languageSettings": "Kieliasetukset",
     "back": "Takaisin",
-    "404page": "Hups! Etsimääsi sivua ei ole olemassa."
+    "404page": "Hups! Etsimääsi sivua ei ole olemassa.",
+    "invalidCredentials": "Väärä sähköposti tai salasana.",
+    "loginErrorOccurred": "Kirjautumisen yhteydessä tapahtui virhe. Yritä myöhemmin uudelleen."
 }
   
