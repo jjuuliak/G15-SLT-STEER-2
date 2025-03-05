@@ -27,6 +27,6 @@ jobs:
           database
           backend
     - name: Install Pytest
-      run: docker-compose exec backend pip install pytest==8.3.5
+      run: docker compose exec backend pip install pytest==8.3.5
     - name: Backend Tests
-      run: docker-compose exec backend pytest tests
+      run: docker compose exec backend pytest tests
