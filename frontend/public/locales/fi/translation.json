@@ -14,17 +14,19 @@
     "matchPasswords": "Salasanat eivät täsmää",
     "registrationFailed": "Rekisteröinti epäonnistui. Yritä uudelleen.",
     "registrationSuccessful": "Rekisteröityminen onnistui!",
+    "profile": "Profiili",
     "settings": "Asetukset",
     "close": "Sulje",
     "settingsTabs": {
         "general": "Yleiset",
-        "profile": "Profiili",
         "appearance": "Ulkoasu",
         "language": "Kieli",
         "security": "Turvallisuus"
     },
     "languageSettings": "Kieliasetukset",
     "back": "Takaisin",
-    "404page": "Hups! Etsimääsi sivua ei ole olemassa."
+    "404page": "Hups! Etsimääsi sivua ei ole olemassa.",
+    "invalidCredentials": "Väärä sähköposti tai salasana.",
+    "loginErrorOccurred": "Kirjautumisen yhteydessä tapahtui virhe. Yritä myöhemmin uudelleen."
 }
   

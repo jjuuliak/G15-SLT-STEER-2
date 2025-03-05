@@ -40,7 +40,7 @@ async def login(user_info: UserLogin):
     existing_user = await database_connection.get_users().find_one({"email": user_info.email})
 
     if not existing_user or not AuthService.check_password(user_info.password, existing_user.get("password")):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect login")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect login")
 
     # Get userdata and send it back as part of the response
     user_id: str = str(existing_user.get("_id"))
