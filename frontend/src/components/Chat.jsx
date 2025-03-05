@@ -10,11 +10,13 @@ import {
   IconButton
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import Message from "./Message";
+import { setMealPlan } from "../redux/actionCreators/mealPlanActions"
 
 const Chat = () => {
   const theme = useTheme();
+  const dispatch = useDispatch();
   const initialMessage = {
     text: "Hi and welcome to Lifeline Chat! How can I help you today?\n\n" +
         "1. Create a workout plan\n" +
@@ -72,6 +74,10 @@ const Chat = () => {
       const data = await res.json();
       const botResponse = { text: data.response, sender: "bot" };
       setMessages((prev) => [...prev, botResponse]);
+
+      if (msg === 'Create a meal plan') {
+        dispatch(setMealPlan(data.response));
+      }
     } catch (error) {
       console.error("Error sending message:", error);
       setMessages((prev) => [...prev, { text: "Error communicating with the backend.", sender: "bot" }]);
