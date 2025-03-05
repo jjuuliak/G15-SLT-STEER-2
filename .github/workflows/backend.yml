@@ -19,10 +19,8 @@ jobs:
         echo "API_KEY=" >> .env
         echo "MONGO_USER=test" >> .env
         echo "MONGO_PASSWORD=test" >> .env
-    - name: test pwd
-      run: pwd
-    - name: test ls
-      run: ls
+    - name: test ls -a
+      run: ls -a
     - name: Set Up Docker
       uses: hoverkraft-tech/compose-action@v2.2.0
       with:
