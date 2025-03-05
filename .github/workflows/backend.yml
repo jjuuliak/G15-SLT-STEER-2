@@ -24,8 +24,7 @@ jobs:
       with:
         compose-file: "./docker-compose.yml"
         services: |
+          database
           backend
     - name: Backend Tests
       run: docker compose exec backend pytest tests
-    - name: Logs
-      run: docker logs $(docker ps -a --filter "name=backend" --format "{{.ID}}")
