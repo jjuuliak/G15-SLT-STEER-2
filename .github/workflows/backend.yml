@@ -26,4 +26,6 @@ jobs:
         services: |
           backend
     - name: Backend Tests
-      run: free -m
+      run: docker compose exec backend pytest tests
+    - name: Logs
+      run: docker logs $(docker ps -a --filter "name=backend" --format "{{.ID}}")
