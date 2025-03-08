@@ -5,7 +5,7 @@ import Home from "../pages/home/Home";
 import LogIn from "../pages/LogIn";
 import Register from "../pages/Register";
 import NotFound from "../pages/NotFound";
-import MealPlan from "../pages/MealPlan";
+import MealPlan from "../pages/mealPlan/MealPlan";
 //import Profile from "../pages/Profile";
 //import Chat from "../pages/Chat";
 //import History from "../pages/History";

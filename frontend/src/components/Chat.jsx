@@ -75,7 +75,7 @@ const Chat = () => {
       const botResponse = { text: data.response, sender: "bot" };
       setMessages((prev) => [...prev, botResponse]);
 
-      if (msg === 'Create a meal plan') {
+      if (data.response.includes('Sample Meal Plan')) {
         dispatch(setMealPlan(data.response));
       }
     } catch (error) {
