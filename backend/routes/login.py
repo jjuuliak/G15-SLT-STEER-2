@@ -1,6 +1,5 @@
 from fastapi import APIRouter, HTTPException
 from starlette import status
-from starlette.responses import Response
 
 import database_connection
 from auth_service import AuthService
@@ -13,7 +12,7 @@ router = APIRouter()
 
 
 @router.post("/register")
-async def register(user_info: User, response: Response):
+async def register(user_info: User):
     current_user = await database_connection.get_users().find_one({"email": user_info.email})
 
     if current_user:
@@ -31,13 +30,13 @@ async def register(user_info: User, response: Response):
     await database_connection.get_user_data().insert_one(user_data.model_dump(exclude={"id"}))
 
     access_token = AuthService.get_access_security().create_access_token(subject={"user_id": user_id})
-    AuthService.get_access_security().set_access_cookie(response, access_token)
 
-    return {"status": "success", "access_token": access_token, "user_data": user_data.model_dump(exclude={"id"})}
+    return {"status": "success", "access_token": access_token,
+            "user_data": user_data.model_dump(exclude={"id", "user_id"})}
 
 
 @router.post("/login")
-async def login(user_info: UserLogin, response: Response):
+async def login(user_info: UserLogin):
     existing_user = await database_connection.get_users().find_one({"email": user_info.email})
 
     if not existing_user or not AuthService.check_password(user_info.password, existing_user.get("password")):
@@ -47,14 +46,10 @@ async def login(user_info: UserLogin, response: Response):
     user_id: str = str(existing_user.get("_id"))
     user_data = await database_connection.get_user_data().find_one({"user_id": user_id})
 
+    if not user_data:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Missing user data")
+
     access_token = AuthService.get_access_security().create_access_token(subject={"user_id": user_id})
-    AuthService.get_access_security().set_access_cookie(response, access_token)
 
-    return {"status": "success", "access_token": access_token, "user_data": {k: v for k, v in user_data.items() if k != "_id"}}
-
-
-@router.post("/logout")
-async def logout(response: Response):
-    # TODO: This does not actually log out, look for better jwt implementation
-    AuthService.get_access_security().unset_access_cookie(response)
-    return {"status": "success"}
+    return {"status": "success", "access_token": access_token,
+            "user_data": {k: v for k, v in user_data.items() if k != "_id" and k != "user_id"}}
