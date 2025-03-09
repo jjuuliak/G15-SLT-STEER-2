@@ -14,17 +14,43 @@
     "matchPasswords": "Passwords do not match",
     "registrationFailed": "Registration failed. Please try again.",
     "registrationSuccessful": "Registration Successful!",
+    "profile": "Profile",
+    "ProfilePopUp": {
+        "name": "Name",
+        "email": "Email",
+        "age": "Age",
+        "weight": "Weight (kg)",
+        "height": "Height (cm)",
+        "gender": "Gender",
+        "none": "None",
+        "male": "Male",
+        "female": "Female",
+        "other": "Other",
+        "smoking": "Smoking",
+        "weeklyAlcoholConsumption": "Alcohol Consumption (per week)",
+        "sleepQuantityHours": "Amount of sleep (hours)",
+        "systolicBloodPressure": "Systolic Blood Pressure",
+        "diastolicBloodPressure": "Diastolic Blood Pressure",
+        "heartRate": "Resting Heart Rate",
+        "cholesterol": "Total Cholesterol",
+        "ldLipoprotein": "Low-Density Lipoprotein",
+        "hdLipoprotein": "High-Density Lipoprotein",
+        "triglycerides": "Triglycerides",
+        "otherMedicalConditions": "Other medical conditions",
+        "save": "Save"
+    },
     "settings": "Settings",
     "close": "Close",
     "settingsTabs": {
         "general": "General",
-        "profile": "Profile",
         "appearance": "Appearance",
         "language": "Language",
         "security": "Security"
     },
     "languageSettings": "Language settings",
     "back": "Back",
-    "404page": "Oops! The page you are looking for does not exist."
+    "404page": "Oops! The page you are looking for does not exist.",
+    "invalidCredentials": "Incorrect username or password.",
+    "loginErrorOccurred": "An error occured while logging in. Please try again."
 }
   

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { TextField, Button, Box, Typography, InputAdornment, IconButton, useTheme  } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
@@ -23,13 +24,17 @@ const LogIn = () => {
 
     const loginUser = async () => {
       try {
+          setError('');
           const result = await handleLogin(email, password);
-          
           dispatch(loginSuccess(result));
           navigate('/');
           
       } catch (err) {
-          setError(err.message);
+        if (err.message === 'Invalid login credentials') {
+          setError(t('invalidCredentials'));
+      } else {
+          setError(t('loginErrorOccurred'));
+      }
       }
       };
 
@@ -121,6 +126,7 @@ const LogIn = () => {
                 ),
               }}
           />
+          {error && <Typography color="error" sx={{ marginTop: 1 }}>{error}</Typography>}
           <Button
             onClick={loginUser}
             variant="contained"
@@ -150,5 +156,5 @@ const LogIn = () => {
         </Box>
     );
 }
- 
+
 export default LogIn;

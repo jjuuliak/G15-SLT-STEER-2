@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next';
 
 // Import the separate views
 import GeneralView from "./views/GeneralView";
-import ProfileView from "./views/ProfileView";
+
 import LanguageView from "./views/LanguageView";
 import AppearanceView from "./views/AppearanceView";
 import SecurityView from "./views/SecurityView";
@@ -28,7 +28,7 @@ const PopupWithTabs = ({ open, handleClose }) => {
 
   const tabs = [
     { name: settingsTabs.general, component: <GeneralView /> },
-    { name: settingsTabs.profile, component: <ProfileView /> },
+
     { name: settingsTabs.appearance, component: <AppearanceView /> },
     { name: settingsTabs.language, component: <LanguageView /> },
     { name: settingsTabs.security, component: <SecurityView /> }

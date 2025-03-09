@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { 
   TextField, 
-  Button, 
   Container, 
   Paper,  
   CircularProgress,
   Stack,
-  useTheme
+  useTheme,
+  InputAdornment,
+  IconButton
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import { useSelector } from "react-redux";
@@ -33,6 +34,14 @@ const Chat = () => {
   const [messages, setMessages] = useState([initialMessage]);
   const [loading, setLoading] = useState(false);
   const accessToken = useSelector((state) => state.auth?.access_token);
+
+  const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   const sendMessage = async (msg = message) => {
     if (typeof msg !== 'string' || !msg.trim()) {
@@ -76,7 +85,7 @@ const Chat = () => {
       style={{ 
         display: "flex", 
         flexDirection: "column", 
-        height: "80vh", 
+        height: "90vh", 
         padding: "20px" 
       }}>
       <Paper 
@@ -91,34 +100,64 @@ const Chat = () => {
         {messages.map((msg, index) => (
             <Message key={index} msg={msg} sendOption={sendMessage} />
         ))}
+        <div ref={messagesEndRef} /> {/* Invisible div to scroll into view */}
       </Paper>
-      <Stack direction="row" alignItems="center">
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder="Type a message..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault(); // prevent new empty row
-                  sendMessage();
-                }
-              }}
-            style={{ wordBreak: "break-word", backgroundColor: theme.palette.primary.secondary }}
-          />
-          <Button 
-            variant="contained" 
-            color="primary" 
-            onClick={sendMessage} 
-            style={{ height: 56 }}
-            disabled={loading}
-          >
-            {loading 
-              ? <CircularProgress size={24} /> 
-              : <SendIcon sx={{ alignSelf: 'center'}} />
+      <Stack 
+        direction="row" 
+        alignItems="center"
+        spacing={1}
+        sx={{ 
+          backgroundColor: theme.palette.background.paper, 
+          padding: "5px", 
+          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+          transition: "box-shadow 0.3s ease-in-out",
+          "&:hover": { boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)" } // Smooth hover effect
+        }}
+      >
+        <TextField
+          fullWidth
+          variant="outlined"
+          placeholder="Type a message..."
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault(); // prevent new empty row
+              sendMessage();
             }
-          </Button>
+          }}
+          multiline
+          maxRows={5}
+          sx={{ 
+            wordBreak: "break-word", 
+            backgroundColor: theme.palette.primary.secondary,
+          }}
+          slotProps={{
+            input: {
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  color="primary"
+                  onClick={() => sendMessage()}
+                  disabled={loading}
+                  sx={{
+                    backgroundColor: theme.palette.primary.main,
+                    color: "white",
+                    borderRadius: "50%",
+                    width: 45,
+                    height: 45,
+                    marginRight: "5px",
+                    transition: "transform 0.2s ease-in-out",
+                    "&:hover": { transform: "scale(1.1)" }, // Slight zoom on hover
+                  }}
+                >
+                  {loading ? <CircularProgress size={24} /> : <SendIcon />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        }
+        />
       </Stack>
     </Container>
   );
