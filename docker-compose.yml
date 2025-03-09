@@ -6,6 +6,9 @@ services:
     env_file: ".env"
     volumes:
       - embedding_db:/app/embedding_db  
+      - model_cache:/app/embedding_models
+    environment:
+      - HF_HOME=/app/embedding_models
   frontend:
     build: ./frontend
     ports:
@@ -32,3 +35,4 @@ services:
 volumes:
   database:
   embedding_db:
+  model_cache:
