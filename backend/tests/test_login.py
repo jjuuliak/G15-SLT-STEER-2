@@ -10,7 +10,7 @@ def test_register_then_login():
     sleep(15)
 
     # Register
-    conn = http.client.HTTPConnection("127.0.0.1", 8000)
+    conn = http.client.HTTPConnection("localhost", 8000)
     conn.request("POST", "/register",
                  body=json.dumps({"name": "Test", "email": "test@example.org", "password": "Test12345!"}),
                  headers={"Content-Type": "application/json"})
@@ -22,7 +22,7 @@ def test_register_then_login():
     assert "access_token" in response_json
 
     # Login
-    conn = http.client.HTTPConnection("127.0.0.1", 8000)
+    conn = http.client.HTTPConnection("localhost", 8000)
     conn.request("POST", "/login",
                  body=json.dumps({"email": "test@example.org", "password": "Test12345!"}),
                  headers={"Content-Type": "application/json"})
@@ -34,7 +34,7 @@ def test_register_then_login():
     assert "access_token" in response_json
 
     # Invalid password
-    conn = http.client.HTTPConnection("127.0.0.1", 8000)
+    conn = http.client.HTTPConnection("localhost", 8000)
     conn.request("POST", "/login",
                  body=json.dumps({"email": "test@example.org", "password": "Test12345?"}),
                  headers={"Content-Type": "application/json"})
@@ -47,7 +47,7 @@ def test_register_then_login():
 
 
 def test_login_account_not_exists():
-    conn = http.client.HTTPConnection("127.0.0.1", 8000)
+    conn = http.client.HTTPConnection("localhost", 8000)
     conn.request("POST", "/login",
                  body=json.dumps({"email": "unknown@example.org", "password": "Test12345!"}),
                  headers={"Content-Type": "application/json"})

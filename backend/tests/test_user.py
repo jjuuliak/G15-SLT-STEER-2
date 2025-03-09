@@ -8,7 +8,7 @@ def test_profile():
     sleep(15)
 
     # Register
-    conn = http.client.HTTPConnection("127.0.0.1", 8000)
+    conn = http.client.HTTPConnection("localhost", 8000)
     conn.request("POST", "/register",
                  body=json.dumps({"name": "User", "email": "user@example.org", "password": "Password123!"}),
                  headers={"Content-Type": "application/json"})
@@ -22,7 +22,7 @@ def test_profile():
     access_token = response_json["access_token"]
 
     # Get profile, should not have "smoking"
-    conn = http.client.HTTPConnection("127.0.0.1", 8000)
+    conn = http.client.HTTPConnection("localhost", 8000)
     conn.request("POST", "/get-profile",
                  headers={"Content-Type": "application/json",
                           "Authorization": f"Bearer {access_token}"})
@@ -35,7 +35,7 @@ def test_profile():
     assert "smoking" not in response_json["user_data"] or not response_json["user_data"]["smoking"]
 
     # Update profile, add "smoking"
-    conn = http.client.HTTPConnection("127.0.0.1", 8000)
+    conn = http.client.HTTPConnection("localhost", 8000)
     conn.request("POST", "/update-profile",
                  body=json.dumps({"smoking": True}),
                  headers={"Content-Type": "application/json",
@@ -45,7 +45,7 @@ def test_profile():
     conn.close()
 
     # Get profile, should have "smoking" now
-    conn = http.client.HTTPConnection("127.0.0.1", 8000)
+    conn = http.client.HTTPConnection("localhost", 8000)
     conn.request("POST", "/get-profile",
                  headers={"Content-Type": "application/json",
                           "Authorization": f"Bearer {access_token}"})
