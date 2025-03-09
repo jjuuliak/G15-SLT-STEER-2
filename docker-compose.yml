@@ -9,6 +9,9 @@ services:
       - model_cache:/app/embedding_models
     environment:
       - HF_HOME=/app/embedding_models
+    depends_on:
+      doc_embedding:
+        condition: service_completed_successfully
   frontend:
     build: ./frontend
     ports:
@@ -32,6 +35,7 @@ services:
     restart: "no"
     volumes:
       - embedding_db:/app/embedding_db   
+
 volumes:
   database:
   embedding_db:
