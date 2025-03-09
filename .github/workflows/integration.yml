@@ -28,7 +28,7 @@ jobs:
           database
           backend
           frontend
-    - name: Backend Unit Tests
+    - name: Backend Tests
       run: docker compose exec backend pytest tests
-    - name: Frontend Unit Tests
+    - name: Frontend Tests
       run: docker compose exec frontend npm test -- --watchAll=false

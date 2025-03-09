@@ -28,3 +28,28 @@ def test_register_then_login():
     conn.close()
     response_json = json.loads(response_data)
     assert "access_token" in response_json
+
+    # Invalid password
+    conn = http.client.HTTPConnection("localhost", 8000)
+    conn.request("POST", "/login",
+                 body=json.dumps({"email": "test@example.org", "password": "Test12345?"}),
+                 headers={"Content-Type": "application/json"})
+    response = conn.getresponse()
+    assert response.status == 401
+    response_data = response.read().decode()
+    conn.close()
+    response_json = json.loads(response_data)
+    assert "access_token" not in response_json
+
+
+def test_login_account_not_exists():
+    conn = http.client.HTTPConnection("localhost", 8000)
+    conn.request("POST", "/login",
+                 body=json.dumps({"email": "unknown@example.org", "password": "Test12345!"}),
+                 headers={"Content-Type": "application/json"})
+    response = conn.getresponse()
+    assert response.status == 401
+    response_data = response.read().decode()
+    conn.close()
+    response_json = json.loads(response_data)
+    assert "access_token" not in response_json
