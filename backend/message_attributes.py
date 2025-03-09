@@ -1,3 +1,6 @@
+from typing import Literal
+
+
 def save_user_age(age: int) -> int:
     """Call when user provides their age"""
     return age
@@ -13,7 +16,7 @@ def save_user_height(height: int) -> int:
     return height
 
 
-def save_user_gender(gender: str) -> str:
+def save_user_gender(gender: Literal["male", "female", "other"]) -> str:
     """Call when user provides their gender"""
     return gender
 
@@ -63,11 +66,41 @@ def save_user_alcohol_consumption(alcohol_consumption: int) -> int:
     return alcohol_consumption
 
 
-def save_user_sleep(amount_of_sleep: float) -> float:
+def save_user_amount_of_sleep(sleep: float) -> float:
     """Call when user provides their amount of sleep"""
-    return amount_of_sleep
+    return sleep
 
 
-def save_user_medical_conditions(other_medical_conditions: str) -> str:
-    """Call when user provides their other medical conditions"""
-    return other_medical_conditions
+def save_user_other_past_medical_conditions(past_conditions: str) -> str:
+    """Call when user provides their other past medical conditions"""
+    return past_conditions
+
+
+def save_user_other_current_medical_conditions(current_conditions: str) -> str:
+    """Call when user provides their other current medical conditions"""
+    return current_conditions
+
+
+def save_user_exercise_activity(exercise: Literal["sedentary", "lightly active", "moderately active", "very active", "athlete"]) -> str:
+    """Call when user provides their exercise activity"""
+    return exercise
+
+
+def save_user_medication(medication: str) -> str:
+    """Call when user provides their medication"""
+    return medication
+
+
+def save_user_pregnancy(pregnancy: bool) -> bool:
+    """Call when user provides whether they are pregnant"""
+    return pregnancy
+
+
+def save_user_waist_measurement(waist_measurement: int) -> int:
+    """Call when user provides their waist measurement"""
+    return waist_measurement
+
+
+def save_user_family_history_with_heart_disease(family_history_with_heart_disease: bool) -> bool:
+    """Call when user provides whether they have family history with heart disease"""
+    return family_history_with_heart_disease

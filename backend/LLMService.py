@@ -1,3 +1,5 @@
+import inspect
+
 import google.generativeai as genai
 from typing import Dict
 
@@ -36,22 +38,7 @@ class LLMService:
                 system_instruction=["""You are a helpful cardiovascular health expert, 
                         who focuses on lifestyle changes and can answer questions in 
                         Finnish or English depending on the question's language."""],
-                tools=[message_attributes.save_user_age,
-                       message_attributes.save_user_weight,
-                       message_attributes.save_user_height,
-                       message_attributes.save_user_gender,
-                       message_attributes.save_user_systolic_blood_pressure,
-                       message_attributes.save_user_diastolic_blood_pressure,
-                       message_attributes.save_user_heart_rate,
-                       message_attributes.save_user_total_cholesterol,
-                       message_attributes.save_user_low_density_lipoprotein,
-                       message_attributes.save_user_high_density_lipoprotein,
-                       message_attributes.save_user_triglycerides,
-                       message_attributes.save_user_smoking,
-                       message_attributes.save_user_alcohol_consumption,
-                       message_attributes.save_user_sleep,
-                       message_attributes.save_user_medical_conditions
-                       ],
+                tools=[function for name, function in inspect.getmembers(message_attributes) if inspect.isfunction(function)],
                 tool_config={"function_calling_config": {"mode": "auto"}}
             )
             self.sessions[user_id] = model.start_chat(history=await chat_history.load_history(user_id))
