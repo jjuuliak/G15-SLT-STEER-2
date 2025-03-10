@@ -13,6 +13,7 @@ import os
 DOCUMENT_URLS_PATH = Path(os.getenv("DOCUMENT_URLS_PATH", "docs/doc_urls.json"))
 DATABASE_PATH = Path(os.getenv("DATABASE_PATH", "embedding_db"))
 EMBEDDING_MODEL = "intfloat/multilingual-e5-small"
+MODEL_DIR = "/app/embedding_models"
 
 def load_urls(path):
     """Loads and returns urls from JSON file."""
@@ -64,9 +65,21 @@ def process_and_store(vector_store, urls):
     else:
         print("No valid chunks to store.")
 
+def index_exists(path):
+    """Check if a FAISS index already exists in the directory."""
+    embeddings_file = path / "index.faiss"
+    metadata_file = path / "index.pkl"
+
+    return embeddings_file.exists() and metadata_file.exists()
+
 def main():
+    # Don't run if an index already exists. TODO: 
+    if index_exists(DATABASE_PATH):
+        print("FAISS index already exists. Skipping embedding process.")
+        return
+    
     embedding_model = SentenceTransformer(EMBEDDING_MODEL)
-    embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
+    embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL, cache_folder=MODEL_DIR)
 
     # Initialize FAISS index and flatten it based on the embedding vectors' dimensionality
     index = faiss.IndexFlatIP(embedding_model.get_sentence_embedding_dimension())
