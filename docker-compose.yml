@@ -5,7 +5,13 @@ services:
       - "8000:8000"
     env_file: ".env"
     volumes:
-      - ./doc_embedding/embedding_db:/app/embedding_db  
+      - embedding_db:/app/embedding_db  
+      - model_cache:/app/embedding_models
+    environment:
+      - HF_HOME=/app/embedding_models
+    depends_on:
+      doc_embedding:
+        condition: service_completed_successfully
   frontend:
     build: ./frontend
     ports:
@@ -28,6 +34,9 @@ services:
     command: python embed_documents.py
     restart: "no"
     volumes:
-      - ./doc_embedding/embedding_db:/app/embedding_db  
+      - embedding_db:/app/embedding_db   
+
 volumes:
   database:
+  embedding_db:
+  model_cache:
