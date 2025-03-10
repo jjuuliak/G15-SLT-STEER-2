@@ -7,15 +7,11 @@ from LLMService import LLMService
 from auth_service import AuthService
 from models.chat_model import ChatModel
 
+
 router = APIRouter()
 
 
-api_key = os.getenv("API_KEY")
-if not api_key:
-    raise ValueError("API_KEY missing from environment variables")
-
-
-llm_service = LLMService(api_key=api_key)
+llm_service = LLMService(api_key=os.getenv("API_KEY"))
 
 
 @router.post("/ask")
