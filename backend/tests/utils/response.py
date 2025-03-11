@@ -8,7 +8,7 @@ PORT = 8000
 
 # Can't seem to get event loop started to be able to initialize database connection and directly test through FastAPI
 # but we have the whole thing running in Docker so we can just do actual requests to the backend
-class TestResponseFor:
+class ResponseFor:
 
     status = -1
     content = {}
