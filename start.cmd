@@ -1,2 +1,2 @@
-docker compose up --build backend frontend database
+docker compose up --build
 pause
