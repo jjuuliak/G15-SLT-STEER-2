@@ -1,14 +1,15 @@
-from langchain_community.document_loaders import WebBaseLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.docstore.in_memory import InMemoryDocstore
 from langchain_community.vectorstores import FAISS
 import faiss
 from sentence_transformers import SentenceTransformer
 from langchain_huggingface import HuggingFaceEmbeddings
-import re
 import json
 from pathlib import Path
 import os
+from readabilipy import simple_json_from_html_string
+import requests
+from bs4 import BeautifulSoup
 
 DOCUMENT_URLS_PATH = Path(os.getenv("DOCUMENT_URLS_PATH", "docs/doc_urls.json"))
 DATABASE_PATH = Path(os.getenv("DATABASE_PATH", "embedding_db"))
@@ -21,22 +22,34 @@ def load_urls(path):
         urls = json.load(url_json)
     return urls
 
-def clean_text(text):
-    """Cleans extracted webpage text by removing excessive newlines, tabs, and extra spaces."""
-    text = re.sub(r'\n+', '\n', text)
-    text = re.sub(r'\t+', ' ', text)
-    text = re.sub(r' +', ' ', text)
-    return text.strip()
+def clean_html(html):
+    soup = BeautifulSoup(html, 'html.parser')
+
+    # Remove certain tags from the HTML
+    for tag in soup(["nav", "footer", "aside", "header"]):
+        tag.decompose()
+
+    # Get the plain text from the remaining HTML
+    plain_text = soup.get_text(separator='\n', strip=True)
+    print(plain_text)
+    return plain_text
 
 def load_webpage(url):
-    """Loads, extracts, and cleans text from a webpage using LangChain's WebBaseLoader."""
-    loader = WebBaseLoader(url)
-    docs = loader.load()
+    """Loads, extracts, and cleans text from a webpage"""
 
-    # Join all document content and clean it
-    raw_text = "\n\n".join([doc.page_content for doc in docs])
-    cleaned_text = clean_text(raw_text)
-    return cleaned_text
+    # Gets HTML
+    response = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
+    html = simple_json_from_html_string(response.text, use_readability=True)
+
+
+    if html.get('plain_text') is not None:
+        raw_text = "\n".join([text['text'] for text in html['plain_text']])
+    else:
+        return None
+    
+    print(raw_text)
+
+    return raw_text
 
 def chunk_text(text, chunk_size=500, chunk_overlap=100):
     """Splits text into chunks without breaking sentences."""

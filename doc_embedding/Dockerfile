@@ -1,5 +1,11 @@
 FROM python:3.13
 WORKDIR /app
+
+RUN apt-get update && apt-get install -y curl \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && apt-get clean
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
