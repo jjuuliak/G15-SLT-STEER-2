@@ -47,8 +47,6 @@ def load_webpage(url):
     else:
         return None
     
-    print(raw_text)
-
     return raw_text
 
 def chunk_text(text, chunk_size=500, chunk_overlap=100):
