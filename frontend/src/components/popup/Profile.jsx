@@ -104,7 +104,11 @@ const UserProfile = ({ open, handleClose }) => {
                 })
                 .catch((error) => {
                     console.error("Error fetching profile data:", error);
-                    // TODO show an error message to the user here
+                    setSnackbar({
+                        open: true,
+                        message: profileTranslation.fetchErrorMessage || "Failed to fetch profile data",
+                        severity: 'error'
+                    });
                 });
         }
     }, [accessToken, open]);

@@ -57,6 +57,7 @@
         "currentMedications": "Käytössä olevat lääkkeet",
         "successMessage": "Profiilisi on tallennettu",
         "errorMessage": "Tallentamista ei voitu suorittaa",
+        "fetchErrorMessage": "Profiilin lataaminen epäonnistui",
         "enterEachConditionOnNewLine": "Syötä kukin sairaus uudella rivillä",
         "enterEachMedicationOnNewLine": "Syötä kukin lääke uudella rivillä"
        

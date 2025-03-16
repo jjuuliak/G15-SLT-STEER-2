@@ -57,6 +57,7 @@
         "currentMedications": "Current medications",
         "successMessage": "Profile saved successfully",
         "errorMessage": "Failed to save profile",
+        "fetchErrorMessage": "Failed to load profile data",
         "enterEachConditionOnNewLine": "Enter each condition on a new line",
         "enterEachMedicationOnNewLine": "Enter each medication on a new line"
     },
