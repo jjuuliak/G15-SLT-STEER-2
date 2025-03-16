@@ -14,6 +14,8 @@ import {
   MenuItem,
   Checkbox,
   FormControlLabel,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { useTranslation } from 'react-i18next';
 import { useSelector } from "react-redux";
@@ -22,6 +24,11 @@ const UserProfile = ({ open, handleClose }) => {
     const { t } = useTranslation();
     const profileTranslation = t('ProfilePopUp');
     const accessToken = useSelector((state) => state.auth?.access_token);
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: '',
+        severity: 'success'
+    });
 
     const [formData, setFormData] = useState({
       age: "",
@@ -52,14 +59,21 @@ const UserProfile = ({ open, handleClose }) => {
     setFormData((prev) => ({
         ...prev,
         [name]: type === "checkbox" ? checked :
+                // Handle multiline text fields that should be arrays
+                ["other_past_medical_conditions", "other_current_medical_conditions", "medication"].includes(name) ?
+                value.split('\n').filter(item => item.trim() !== '') :
+                // Handle numeric array fields (measurements)
                 ["systolic_blood_pressure", "diastolic_blood_pressure", "heart_rate"].includes(name) ? 
                 value ? [parseInt(value)] : [] :
                 ["total_cholesterol", "low_density_lipoprotein", "high_density_lipoprotein", "triglycerides"].includes(name) ?
                 value ? [parseFloat(value)] : [] :
+                // Handle integer fields
                 ["age", "weight", "waist_measurement", "alcohol_consumption"].includes(name) ?
-                value ? parseInt(value) : "" :
+                value ? parseInt(value) || value : "" :
+                // Handle float fields
                 ["height", "sleep"].includes(name) ?
-                value ? parseFloat(value) : "" :
+                value ? parseFloat(value) || value : "" :
+                // Handle all other fields as is
                 value
     }));
 };
@@ -95,16 +109,70 @@ const UserProfile = ({ open, handleClose }) => {
         }
     }, [accessToken, open]);
 
+    const handleSnackbarClose = () => {
+        setSnackbar(prev => ({ ...prev, open: false }));
+    };
+
     const handleSubmit = async () => {
       try {
-        // Filter out empty values before sending
-        const dataToSend = Object.fromEntries(
-          Object.entries(formData).filter(([_, value]) => 
-            value !== "" && 
-            value !== null && 
-            !(Array.isArray(value) && value.length === 0)
-          )
-        );
+        // Format the data according to the backend model requirements
+        const dataToSend = {};
+
+        // Handle numeric fields - convert empty strings to null
+        if (formData.age !== "") dataToSend.age = parseInt(formData.age) || null;
+        if (formData.weight !== "") dataToSend.weight = parseInt(formData.weight) || null;
+        if (formData.height !== "") dataToSend.height = parseFloat(formData.height) || null;
+        if (formData.waist_measurement !== "") dataToSend.waist_measurement = parseInt(formData.waist_measurement) || null;
+        if (formData.alcohol_consumption !== "") dataToSend.alcohol_consumption = parseInt(formData.alcohol_consumption) || null;
+        if (formData.sleep !== "") dataToSend.sleep = parseFloat(formData.sleep) || null;
+
+        // Handle measurement arrays - ensure they're valid numbers
+        const intArrayFields = ['systolic_blood_pressure', 'diastolic_blood_pressure', 'heart_rate'];
+        const floatArrayFields = ['total_cholesterol', 'low_density_lipoprotein', 'high_density_lipoprotein', 'triglycerides'];
+
+        intArrayFields.forEach(field => {
+          const value = formData[field][0];
+          if (value !== undefined && value !== "") {
+            const parsedValue = parseInt(value);
+            if (!isNaN(parsedValue)) {
+              dataToSend[field] = [parsedValue];
+            }
+          }
+        });
+
+        floatArrayFields.forEach(field => {
+          const value = formData[field][0];
+          if (value !== undefined && value !== "") {
+            const parsedValue = parseFloat(value);
+            if (!isNaN(parsedValue)) {
+              dataToSend[field] = [parsedValue];
+            }
+          }
+        });
+
+        // Handle string arrays - filter out empty strings
+        const stringArrayFields = ['other_past_medical_conditions', 'other_current_medical_conditions', 'medication'];
+        stringArrayFields.forEach(field => {
+          if (formData[field] && Array.isArray(formData[field])) {
+            const filteredArray = formData[field].filter(item => item && item.trim() !== '');
+            if (filteredArray.length > 0) {
+              dataToSend[field] = filteredArray;
+            }
+          }
+        });
+
+        // Handle boolean fields - always include them
+        dataToSend.smoking = Boolean(formData.smoking);
+        dataToSend.pregnancy = Boolean(formData.pregnancy);
+        dataToSend.family_history_with_heart_disease = Boolean(formData.family_history_with_heart_disease);
+
+        // Handle enum fields - only include if they have valid values
+        if (formData.gender && ['male', 'female', 'other'].includes(formData.gender)) {
+          dataToSend.gender = formData.gender;
+        }
+        if (formData.exercise && ['sedentary', 'lightly active', 'moderately active', 'very active', 'athlete'].includes(formData.exercise)) {
+          dataToSend.exercise = formData.exercise;
+        }
 
         const response = await fetch("http://localhost:8000/update-profile", {
           method: "POST",
@@ -115,19 +183,28 @@ const UserProfile = ({ open, handleClose }) => {
           body: JSON.stringify(dataToSend),
         });
             
-            if (!response.ok) {
-                throw new Error("Failed to update profile");
-            }
-            
-            // TODO show success message
-            handleClose();
-        } catch (error) {
-            console.error("Error updating profile:", error);
-            // TODO show an error message to the user here
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || profileTranslation.errorMessage);
         }
+            
+        setSnackbar({
+            open: true,
+            message: profileTranslation.successMessage,
+            severity: 'success'
+        });
+      } catch (error) {
+        console.error("Error updating profile:", error);
+        setSnackbar({
+            open: true,
+            message: profileTranslation.errorMessage,
+            severity: 'error'
+        });
+      }
     };
 
     return (
+        <>
         <Dialog
         open={open}
         onClose={handleClose}
@@ -210,7 +287,7 @@ const UserProfile = ({ open, handleClose }) => {
                 margin="dense" 
                 value={formData.systolic_blood_pressure[0] || ""} 
                 onChange={handleChange} 
-                helperText="Latest measurement"
+                helperText={profileTranslation.latestMeasurement}
             />
 
             <TextField 
@@ -221,7 +298,7 @@ const UserProfile = ({ open, handleClose }) => {
                 margin="dense" 
                 value={formData.diastolic_blood_pressure[0] || ""} 
                 onChange={handleChange} 
-                helperText="Latest measurement"
+                helperText={profileTranslation.latestMeasurement}
             />
 
             <TextField 
@@ -232,7 +309,7 @@ const UserProfile = ({ open, handleClose }) => {
                 margin="dense" 
                 value={formData.heart_rate[0] || ""} 
                 onChange={handleChange} 
-                helperText="Latest measurement (bpm)"
+                helperText={profileTranslation.latestMeasurement}
             />
 
             {/* Cholesterol Measurements */}
@@ -244,7 +321,7 @@ const UserProfile = ({ open, handleClose }) => {
                 margin="dense" 
                 value={formData.total_cholesterol[0] || ""} 
                 onChange={handleChange} 
-                helperText="Latest measurement"
+                helperText={profileTranslation.latestMeasurement}
             />
             <TextField 
                 label={profileTranslation.ldLipoprotein} 
@@ -254,7 +331,7 @@ const UserProfile = ({ open, handleClose }) => {
                 margin="dense" 
                 value={formData.low_density_lipoprotein[0] || ""} 
                 onChange={handleChange} 
-                helperText="Latest measurement"
+                helperText={profileTranslation.latestMeasurement}
             />
             <TextField 
                 label={profileTranslation.hdLipoprotein} 
@@ -264,7 +341,7 @@ const UserProfile = ({ open, handleClose }) => {
                 margin="dense" 
                 value={formData.high_density_lipoprotein[0] || ""} 
                 onChange={handleChange} 
-                helperText="Latest measurement"
+                helperText={profileTranslation.latestMeasurement}
             />
             <TextField 
                 label={profileTranslation.triglycerides} 
@@ -274,7 +351,7 @@ const UserProfile = ({ open, handleClose }) => {
                 margin="dense" 
                 value={formData.triglycerides[0] || ""} 
                 onChange={handleChange} 
-                helperText="Latest measurement"
+                helperText={profileTranslation.latestMeasurement}
             />
 
             {/* Lifestyle Factors */}
@@ -290,7 +367,7 @@ const UserProfile = ({ open, handleClose }) => {
                 margin="dense"
                 value={formData.alcohol_consumption}
                 onChange={handleChange}
-                helperText="Units per week"
+                helperText={profileTranslation.UnitsPerWeek}
             />
             <TextField
                 label={profileTranslation.sleepQuantityHours}
@@ -300,7 +377,7 @@ const UserProfile = ({ open, handleClose }) => {
                 margin="dense"
                 value={formData.sleep}
                 onChange={handleChange}
-                helperText="Hours per day"
+                helperText={profileTranslation.hoursPerDay}
             />
 
             <FormControl fullWidth margin="dense">
@@ -338,7 +415,7 @@ const UserProfile = ({ open, handleClose }) => {
                 rows={3} 
                 value={formData.other_past_medical_conditions.join("\n")} 
                 onChange={handleChange}
-                helperText="Enter each condition on a new line" 
+                helperText={profileTranslation.enterEachConditionOnNewLine} 
             />
 
             <TextField 
@@ -351,7 +428,7 @@ const UserProfile = ({ open, handleClose }) => {
                 rows={3} 
                 value={formData.other_current_medical_conditions.join("\n")} 
                 onChange={handleChange}
-                helperText="Enter each condition on a new line" 
+                helperText={profileTranslation.enterEachConditionOnNewLine} 
             />
 
             <TextField 
@@ -364,7 +441,7 @@ const UserProfile = ({ open, handleClose }) => {
                 rows={3} 
                 value={formData.medication.join("\n")} 
                 onChange={handleChange}
-                helperText="Enter each medication on a new line" 
+                helperText={profileTranslation.enterEachMedicationOnNewLine} 
             />
 
         </DialogContent>
@@ -375,6 +452,21 @@ const UserProfile = ({ open, handleClose }) => {
             </Button>
         </DialogActions>
         </Dialog>
+        <Snackbar 
+            open={snackbar.open}
+            autoHideDuration={6000}
+            onClose={handleSnackbarClose}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+            <Alert 
+                onClose={handleSnackbarClose} 
+                severity={snackbar.severity}
+                sx={{ width: '100%' }}
+            >
+                {snackbar.message}
+            </Alert>
+        </Snackbar>
+        </>
     );
 };
 
