@@ -2,6 +2,8 @@ import inspect
 
 import google.generativeai as genai
 from typing import Dict
+
+import database_connection
 from rag_service import RAGService
 import chat_history
 import message_attributes
@@ -51,7 +53,14 @@ class LLMService:
         Asks question from AI model and returns the answer + possible attributes
         """
         session = await self.get_session(user_id)
-        rag_prompt = rag.build_prompt(message)
+
+        user_data = await database_connection.get_user_data().find_one({"user_id": user_id})
+        if not user_data:
+            return {"response": "Error: Missing user data."}
+
+        user_info = {"user_data": {k: v for k, v in user_data.items() if k != "_id" and k != "user_id"}}
+
+        rag_prompt = rag.build_prompt(message, user_info)
         response = session.send_message(rag_prompt)
 
         # If response contains function calls, return them as attributes
