@@ -10,7 +10,7 @@ import json
 rag = RAGService()
 
 class LLMService:
-    def __init__(self, api_key: str, model_name: str = 'gemini-2.0-flash'):
+    def __init__(self, api_key: str, model_name: str = 'gemini-1.5-flash'):
         """
         Initialize LLMService with API key and the model
         """
@@ -93,9 +93,10 @@ class LLMService:
         enhancement_prompt_template = """Modify the user's message if required, to make it an independent question that can be answered without knowing the chat history.
             - Fix any spelling mistakes in the user's message.
             - If the chat history is empty, return it as is but with corrected spelling.
-            - If the user's message is gibberish, simply answer with "gibberish".
-            - Provide your answer in Finnish if the user's message is Finnish, and in English otherwise.
-            - If the message works as it is without requiring additional information, just fix any possible spelling errors.
+            - If the user's message is gibberish, keep it as it is.
+            - Provide the modified message in English.
+            - If the message works as it is without requiring additional information, just fix any possible spelling errors and answer nothing else.
+            - Most importantly don't give any explanations for your decisions, only provide the expected message.
 
             chat history: {history}
             user message: {user_message}
