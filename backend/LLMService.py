@@ -5,11 +5,12 @@ from typing import Dict
 from rag_service import RAGService
 import chat_history
 import message_attributes
+import json
 
 rag = RAGService()
 
 class LLMService:
-    def __init__(self, api_key: str, model_name: str = 'gemini-1.5-flash'):
+    def __init__(self, api_key: str, model_name: str = 'gemini-2.0-flash'):
         """
         Initialize LLMService with API key and the model
         """
@@ -18,10 +19,8 @@ class LLMService:
         self.sessions: Dict[str, genai.ChatSession] = {}
         self.prompt_correction_model = genai.GenerativeModel(
             self.model_name,
-            system_instruction=["""You are an assistant that corrects spelling, 
-                                grammatical, and punctuation errors in the user's
-                                prompt. Return only the corrected version of the
-                                prompt, without any additional text or explanation."""]
+            system_instruction=["""You provide a query preprocessing service for a retrieval augmented generation application. 
+                                Your task is to add required context for follow-up questions based on the chat history and fix possible spelling errors in the original queries."""]
         )
 
 
@@ -51,7 +50,8 @@ class LLMService:
         Asks question from AI model and returns the answer + possible attributes
         """
         session = await self.get_session(user_id)
-        rag_prompt = rag.build_prompt(message)
+        enhanced_query = await self.enhance_query(user_id, message)
+        rag_prompt = rag.build_prompt(enhanced_query)
         response = session.send_message(rag_prompt)
 
         # If response contains function calls, return them as attributes
@@ -82,9 +82,28 @@ class LLMService:
             return {"response": "Error: No response from model."}
 
 
-    def correct_prompt(self, prompt: str) -> str:
+    async def enhance_query(self, user_id: str, user_message: str) -> str:
         """
         Fixes spelling, grammatical and punctuation errors in the user given prompt
         """
-        response = self.prompt_correction_model.generate_content(prompt)
+        
+        history = await chat_history.load_history(user_id, limit=6)
+        history_json = json.dumps(history, ensure_ascii=False)
+
+        enhancement_prompt_template = """Modify the user's message if required, to make it an independent question that can be answered without knowing the chat history.
+            - Fix any spelling mistakes in the user's message.
+            - If the chat history is empty, return it as is but with corrected spelling.
+            - If the user's message is gibberish, simply answer with "gibberish".
+            - Provide your answer in Finnish if the user's message is Finnish, and in English otherwise.
+            - If the message works as it is without requiring additional information, just fix any possible spelling errors.
+
+            chat history: {history}
+            user message: {user_message}
+            modified message:
+            """
+        
+        print(f"History: {history_json}")
+        enhancement_prompt = enhancement_prompt_template.format(history=history_json, user_message=user_message)
+        response = self.prompt_correction_model.generate_content(enhancement_prompt)
+        print(f"Enhanced query: {response.text}")
         return response.text if response else None
