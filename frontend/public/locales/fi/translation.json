@@ -18,6 +18,11 @@
     "ProfilePopUp": {
         "title": "Profiili",
         "description": "Täytä terveydentilasi alla olevilla kentillä",
+        "basicInfo": "Perustiedot",
+        "vitalSigns": "Elintoiminnot",
+        "cholesterolMeasurements": "Kolesteroli mittaukset",
+        "lifestyle": "Elämäntavat",
+        "medicalHistory": "Terveyshistoria",
         "name": "Nimi",
         "email": "Sähköposti",
         "age": "Ikä",
