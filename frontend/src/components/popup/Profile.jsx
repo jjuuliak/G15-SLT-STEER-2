@@ -162,7 +162,7 @@ const UserProfile = ({ open, handleClose }) => {
         if (Object.keys(changedFields).length === 0) {
             setSnackbar({
                 open: true,
-                message: "No changes to save",
+                message: profileTranslation.noChanges || "No changes to save",
                 severity: 'info'
             });
             return;

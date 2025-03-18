@@ -58,6 +58,7 @@
         "successMessage": "Profiilisi on tallennettu",
         "errorMessage": "Tallentamista ei voitu suorittaa",
         "fetchErrorMessage": "Profiilin lataaminen epäonnistui",
+        "noChanges": "Ei muutoksia tallennettavaksi",
         "enterEachConditionOnNewLine": "Syötä kukin sairaus uudella rivillä",
         "enterEachMedicationOnNewLine": "Syötä kukin lääke uudella rivillä"
        

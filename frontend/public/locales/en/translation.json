@@ -58,6 +58,7 @@
         "successMessage": "Profile saved successfully",
         "errorMessage": "Failed to save profile",
         "fetchErrorMessage": "Failed to load profile data",
+        "noChanges": "No changes to save",
         "enterEachConditionOnNewLine": "Enter each condition on a new line",
         "enterEachMedicationOnNewLine": "Enter each medication on a new line"
     },
