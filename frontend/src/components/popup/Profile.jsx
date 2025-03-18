@@ -54,6 +54,9 @@ const UserProfile = ({ open, handleClose }) => {
       family_history_with_heart_disease: false
   });
 
+  // Track initial form data
+  const [initialFormData, setInitialFormData] = useState(null);
+
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
     setFormData((prev) => ({
@@ -78,7 +81,7 @@ const UserProfile = ({ open, handleClose }) => {
     }));
 };
 
-    // Get profile data upon mounting
+    // Update initial form data when profile is loaded
     useEffect(() => {
         if (open && accessToken) {
             fetch("http://localhost:8000/get-profile", {
@@ -96,10 +99,12 @@ const UserProfile = ({ open, handleClose }) => {
                 })
                 .then((data) => {
                     if (data.user_data) {
-                        setFormData(prevData => ({
-                            ...prevData,
+                        const newData = {
+                            ...formData,
                             ...data.user_data
-                        }));
+                        };
+                        setFormData(newData);
+                        setInitialFormData(newData); // Store initial data
                     }
                 })
                 .catch((error) => {
@@ -119,64 +124,50 @@ const UserProfile = ({ open, handleClose }) => {
 
     const handleSubmit = async () => {
       try {
-        // Format the data according to the backend model requirements
-        const dataToSend = {};
-
-        // Handle numeric fields - convert empty strings to null
-        if (formData.age !== "") dataToSend.age = parseInt(formData.age) || null;
-        if (formData.weight !== "") dataToSend.weight = parseInt(formData.weight) || null;
-        if (formData.height !== "") dataToSend.height = parseFloat(formData.height) || null;
-        if (formData.waist_measurement !== "") dataToSend.waist_measurement = parseInt(formData.waist_measurement) || null;
-        if (formData.alcohol_consumption !== "") dataToSend.alcohol_consumption = parseInt(formData.alcohol_consumption) || null;
-        if (formData.sleep !== "") dataToSend.sleep = parseFloat(formData.sleep) || null;
-
-        // Handle measurement arrays - ensure they're valid numbers
-        const intArrayFields = ['systolic_blood_pressure', 'diastolic_blood_pressure', 'heart_rate'];
-        const floatArrayFields = ['total_cholesterol', 'low_density_lipoprotein', 'high_density_lipoprotein', 'triglycerides'];
-
-        intArrayFields.forEach(field => {
-          const value = formData[field][0];
-          if (value !== undefined && value !== "") {
-            const parsedValue = parseInt(value);
-            if (!isNaN(parsedValue)) {
-              dataToSend[field] = [parsedValue];
+        // Only include fields that have changed from their initial values
+        const changedFields = {};
+        
+        // Helper function to check if a value has changed
+        const hasChanged = (key, value) => {
+            if (!initialFormData) return true; // If no initial data, consider all fields changed
+            if (Array.isArray(value)) {
+                return JSON.stringify(value) !== JSON.stringify(initialFormData[key]);
             }
-          }
+            return value !== initialFormData[key];
+        };
+
+        // Check each field and only include if changed
+        Object.entries(formData).forEach(([key, value]) => {
+            if (hasChanged(key, value)) {
+                // Format the value according to the backend model requirements
+                if (key === 'age' || key === 'weight' || key === 'waist_measurement' || key === 'alcohol_consumption') {
+                    changedFields[key] = value !== "" ? parseInt(value) || null : null;
+                } else if (key === 'height' || key === 'sleep') {
+                    changedFields[key] = value !== "" ? parseFloat(value) || null : null;
+                } else if (key === 'gender' || key === 'exercise') {
+                    changedFields[key] = value || null;
+                } else if (['systolic_blood_pressure', 'diastolic_blood_pressure', 'heart_rate'].includes(key)) {
+                    changedFields[key] = value[0] ? [parseInt(value[0])] : null;
+                } else if (['total_cholesterol', 'low_density_lipoprotein', 'high_density_lipoprotein', 'triglycerides'].includes(key)) {
+                    changedFields[key] = value[0] ? [parseFloat(value[0])] : null;
+                } else if (['other_past_medical_conditions', 'other_current_medical_conditions', 'medication'].includes(key)) {
+                    changedFields[key] = value?.length > 0 ? value : null;
+                } else if (['smoking', 'pregnancy', 'family_history_with_heart_disease'].includes(key)) {
+                    changedFields[key] = value ?? null;
+                }
+            }
         });
 
-        floatArrayFields.forEach(field => {
-          const value = formData[field][0];
-          if (value !== undefined && value !== "") {
-            const parsedValue = parseFloat(value);
-            if (!isNaN(parsedValue)) {
-              dataToSend[field] = [parsedValue];
-            }
-          }
-        });
-
-        // Handle string arrays - filter out empty strings
-        const stringArrayFields = ['other_past_medical_conditions', 'other_current_medical_conditions', 'medication'];
-        stringArrayFields.forEach(field => {
-          if (formData[field] && Array.isArray(formData[field])) {
-            const filteredArray = formData[field].filter(item => item && item.trim() !== '');
-            if (filteredArray.length > 0) {
-              dataToSend[field] = filteredArray;
-            }
-          }
-        });
-
-        // Handle boolean fields - always include them
-        dataToSend.smoking = Boolean(formData.smoking);
-        dataToSend.pregnancy = Boolean(formData.pregnancy);
-        dataToSend.family_history_with_heart_disease = Boolean(formData.family_history_with_heart_disease);
-
-        // Handle enum fields - only include if they have valid values
-        if (formData.gender && ['male', 'female', 'other'].includes(formData.gender)) {
-          dataToSend.gender = formData.gender;
+        // If no fields have changed, show a message and return
+        if (Object.keys(changedFields).length === 0) {
+            setSnackbar({
+                open: true,
+                message: "No changes to save",
+                severity: 'info'
+            });
+            return;
         }
-        if (formData.exercise && ['sedentary', 'lightly active', 'moderately active', 'very active', 'athlete'].includes(formData.exercise)) {
-          dataToSend.exercise = formData.exercise;
-        }
+
 
         const response = await fetch("http://localhost:8000/update-profile", {
           method: "POST",
@@ -184,13 +175,16 @@ const UserProfile = ({ open, handleClose }) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
           },
-          body: JSON.stringify(dataToSend),
+          body: JSON.stringify(changedFields),
         });
             
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.detail || profileTranslation.errorMessage);
         }
+            
+        // After successful save, update initialFormData to match current formData
+        setInitialFormData({...formData});
             
         setSnackbar({
             open: true,
@@ -201,7 +195,7 @@ const UserProfile = ({ open, handleClose }) => {
         console.error("Error updating profile:", error);
         setSnackbar({
             open: true,
-            message: profileTranslation.errorMessage,
+            message: error.message || profileTranslation.errorMessage,
             severity: 'error'
         });
       }
