@@ -51,12 +51,10 @@ const Chat = () => {
     setLoading(true);
     const userMessage = { text: msg, sender: "test_user" }; 
     setMessages((prev) => [...prev, userMessage]);
-    //setMessages((prev) => [...prev, { text: message, sender: "test_user" }]); 
-
     setMessage("");
 
     try {
-      const res = await fetch("http://localhost:8000/ask", {
+      const response = await fetch("http://localhost:8000/ask", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${accessToken}`,
@@ -65,13 +63,42 @@ const Chat = () => {
         body: JSON.stringify({ message: msg })
       });
 
-      if (!res.ok) {
-        throw new Error(`Error: ${res.statusText}`);
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
       }
 
-      const data = await res.json();
-      const botResponse = { text: data.response, sender: "bot" };
-      setMessages((prev) => [...prev, botResponse]);
+      // Add an empty bot message that we'll update as we receive chunks
+      setMessages((prev) => [...prev, { text: "", sender: "bot" }]);
+      
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedText = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        // Decode the chunk and parse the JSON
+        const chunk = decoder.decode(value);
+        try {
+          const jsonChunk = JSON.parse(chunk);
+          accumulatedText += jsonChunk.response;
+        } catch (e) {
+          // If JSON parsing fails, just append the raw chunk
+          console.warn("Failed to parse chunk as JSON:", e);
+          accumulatedText += chunk;
+        }
+
+        // Update the last message (bot's message) with accumulated text
+        setMessages((prev) => {
+          const newMessages = [...prev];
+          newMessages[newMessages.length - 1] = {
+            text: accumulatedText,
+            sender: "bot"
+          };
+          return newMessages;
+        });
+      }
     } catch (error) {
       console.error("Error sending message:", error);
       setMessages((prev) => [...prev, { text: "Error communicating with the backend.", sender: "bot" }]);
