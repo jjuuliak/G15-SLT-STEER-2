@@ -43,7 +43,7 @@ class LLMService:
                 tools=[function for name, function in inspect.getmembers(message_attributes) if inspect.isfunction(function)],
                 tool_config={"function_calling_config": {"mode": "auto"}}
             )
-            self.sessions[user_id] = model.start_chat()
+            self.sessions[user_id] = model.start_chat(history=await chat_history.load_history(user_id))
         return self.sessions[user_id]
 
 
