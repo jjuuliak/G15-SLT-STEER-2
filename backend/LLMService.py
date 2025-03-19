@@ -117,7 +117,6 @@ class LLMService:
         Asks for meal plan formatted as a MealPlan model from the AI
         """
 
-        # TODO: to be safe we need a message counter for messages since last plan generation or a way to get the plan
         contents = await chat_history.load_history(user_id)
         contents.append({
             "role": "user",
@@ -131,7 +130,7 @@ class LLMService:
                                               })
 
         if response and response.text:
-            # TODO: we likely want the plans in different database or at least a way to separate them from normal chat
+            # TODO: a way to separate plans from normal chat
             chat_history.store_history(user_id, message, response.text)
             chat_history.store_meal_plan(user_id, response.text)
             session = await self.get_session(user_id)
@@ -145,7 +144,6 @@ class LLMService:
         Asks for workout plan formatted as a WorkoutPlan model from the AI
         """
 
-        # TODO: to be safe we need a message counter for messages since last plan generation or a way to get the plan
         contents = await chat_history.load_history(user_id)
         contents.append({
             "role": "user",
@@ -159,7 +157,7 @@ class LLMService:
                                               })
 
         if response and response.text:
-            # TODO: we likely want the plans in different database or at least a way to separate them from normal chat
+            # TODO: a way to separate plans from normal chat
             chat_history.store_history(user_id, message, response.text)
             chat_history.store_workout_plan(user_id, response.text)
             session = await self.get_session(user_id)
