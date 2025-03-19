@@ -29,6 +29,22 @@ async def ask_llm(request: ChatModel, credentials: JwtAuthorizationCredentials =
     return StreamingResponse(llm_service.send_message(credentials["user_id"], request.message))
 
 
+@router.post("/ask-meal-plan")
+async def ask_llm(request: ChatModel, credentials: JwtAuthorizationCredentials = Security(AuthService.get_access_security())):
+    if not request.message.strip():
+        raise HTTPException(status_code=400, detail="Message cannot be empty")
+
+    return await llm_service.ask_meal_plan(credentials["user_id"], request.message)
+
+
+@router.post("/ask-workout-plan")
+async def ask_llm(request: ChatModel, credentials: JwtAuthorizationCredentials = Security(AuthService.get_access_security())):
+    if not request.message.strip():
+        raise HTTPException(status_code=400, detail="Message cannot be empty")
+
+    return await llm_service.ask_workout_plan(credentials["user_id"], request.message)
+
+
 @router.post("/history")
 async def get_chat_history(request: HistoryRequestModel, credentials: JwtAuthorizationCredentials = Security(AuthService.get_access_security())):
     return {"history": await chat_history.read_history(credentials["user_id"], request.start_index, request.count)}
