@@ -13,10 +13,15 @@ import json
 rag = RAGService()
 
 
-async def get_prompt(user_id: str, message: str):
+async def get_prompt(user_id: str, message: str, use_temporary_context: bool = False):
+    """
+    Create prompt with the question and all relevant information
+    """
     user_data = await database_connection.get_user_data().find_one({"user_id": user_id})
     user_info = {"user_data": {k: v for k, v in user_data.items() if k != "_id" and k != "user_id"}}
-    return rag.build_prompt(message, user_info)
+
+    return rag.build_prompt(message, user_info,
+                            chat_history.get_temporary_context(user_id) if use_temporary_context else None)
 
 
 class LLMService:
@@ -74,7 +79,7 @@ class LLMService:
         session = await self.get_session(user_id)
 
         try:
-            response = session.send_message(await get_prompt(user_id, message), stream=True)
+            response = session.send_message(await get_prompt(user_id, message, True), stream=True)
         except Exception:
             yield json.dumps({"response": "Error: No response from model."})
             return
@@ -112,14 +117,24 @@ class LLMService:
         """
         Asks for meal plan formatted as a MealPlan model from the AI
         """
-        response = self.plan_model.generate_content(await get_prompt(user_id, message),
+
+        # TODO: to be safe we need a message counter for messages since last plan generation or a way to get the plan
+        contents = await chat_history.read_history(user_id, 0, 10, should_format_history=True)
+        contents.append({
+            "role": "user",
+            "parts": [{"text": await get_prompt(user_id, message)}]
+        })
+
+        response = self.plan_model.generate_content(contents,
                                               generation_config={
                                                   'response_mime_type': 'application/json',
                                                   'response_schema': MealPlan,
                                               })
 
         if response and response.text:
-            # TODO: save meal plans and make sure main AI session can see them so user can ask follow up questions
+            # TODO: we likely want the plans in different database or at least a way to separate them from normal chat
+            chat_history.store_history(user_id, message, response.text)
+            chat_history.store_temporary_contex(user_id, "meal plan", response.text)
             return {"response": response.text}
         else:
             return {"response": "Error: No response from model."}
@@ -128,14 +143,24 @@ class LLMService:
         """
         Asks for workout plan formatted as a WorkoutPlan model from the AI
         """
-        response = self.plan_model.generate_content(await get_prompt(user_id, message),
+
+        # TODO: to be safe we need a message counter for messages since last plan generation or a way to get the plan
+        contents = await chat_history.read_history(user_id, 0, 10, should_format_history=True)
+        contents.append({
+            "role": "user",
+            "parts": [{"text": await get_prompt(user_id, message)}]
+        })
+
+        response = self.plan_model.generate_content(contents,
                                               generation_config={
                                                   'response_mime_type': 'application/json',
                                                   'response_schema': WorkoutPlan,
                                               })
 
         if response and response.text:
-            # TODO: save workout plans and make sure main AI session can see them so user can ask follow up questions
+            # TODO: we likely want the plans in different database or at least a way to separate them from normal chat
+            chat_history.store_history(user_id, message, response.text)
+            chat_history.store_temporary_contex(user_id, "workout plan", response.text)
             return {"response": response.text}
         else:
             return {"response": "Error: No response from model."}
