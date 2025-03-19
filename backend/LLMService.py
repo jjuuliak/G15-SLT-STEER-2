@@ -12,6 +12,13 @@ import json
 
 rag = RAGService()
 
+
+async def get_prompt(user_id: str, message: str):
+    user_data = await database_connection.get_user_data().find_one({"user_id": user_id})
+    user_info = {"user_data": {k: v for k, v in user_data.items() if k != "_id" and k != "user_id"}}
+    return rag.build_prompt(message, user_info)
+
+
 class LLMService:
     def __init__(self, api_key: str, model_name: str = 'gemini-1.5-flash'):
         """
@@ -66,16 +73,8 @@ class LLMService:
         """
         session = await self.get_session(user_id)
 
-        user_data = await database_connection.get_user_data().find_one({"user_id": user_id})
-        if not user_data:
-            yield json.dumps({"response": "Error: Missing user data."})
-            return
-
-        user_info = {"user_data": {k: v for k, v in user_data.items() if k != "_id" and k != "user_id"}}
-        rag_prompt = rag.build_prompt(message, user_info)
-
         try:
-            response = session.send_message(rag_prompt, stream=True)
+            response = session.send_message(await get_prompt(user_id, message), stream=True)
         except Exception:
             yield json.dumps({"response": "Error: No response from model."})
             return
@@ -113,11 +112,7 @@ class LLMService:
         """
         Asks for meal plan formatted as a MealPlan model from the AI
         """
-        # TODO: user_id for build_prompt
-        rag_prompt = rag.build_prompt(message)
-
-        # TODO: does generate_content() for sure not remember history between requests
-        response = self.plan_model.generate_content(rag_prompt,
+        response = self.plan_model.generate_content(await get_prompt(user_id, message),
                                               generation_config={
                                                   'response_mime_type': 'application/json',
                                                   'response_schema': MealPlan,
@@ -133,11 +128,7 @@ class LLMService:
         """
         Asks for workout plan formatted as a WorkoutPlan model from the AI
         """
-        # TODO: user_id for build_prompt
-        rag_prompt = rag.build_prompt(message)
-
-        # TODO: does generate_content() for sure not remember history between requests
-        response = self.plan_model.generate_content(rag_prompt,
+        response = self.plan_model.generate_content(await get_prompt(user_id, message),
                                               generation_config={
                                                   'response_mime_type': 'application/json',
                                                   'response_schema': WorkoutPlan,
