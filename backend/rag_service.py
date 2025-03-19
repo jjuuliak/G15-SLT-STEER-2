@@ -34,7 +34,7 @@ class RAGService:
 
         return contents
 
-    def build_prompt(self, query, user_info, temporary_context, top_k=5):
+    def build_prompt(self, query, user_info, top_k=5):
         """
         Builds the final prompt by combining the user's query with retrieved context and user info.
         """
@@ -57,7 +57,6 @@ class RAGService:
 
             Question: {query}
             User provided info: {user_info}
-            {"Previously discussed: " if temporary_context else ""}{temporary_context if temporary_context else ""}
             {"Context: " if context_chunks else ""}{"\n\n".join(context_chunks) if context_chunks else ""}
             Answer: [/INST]"""
 

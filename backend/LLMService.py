@@ -13,15 +13,14 @@ import json
 rag = RAGService()
 
 
-async def get_prompt(user_id: str, message: str, use_temporary_context: bool = False):
+async def get_prompt(user_id: str, message: str):
     """
     Create prompt with the question and all relevant information
     """
     user_data = await database_connection.get_user_data().find_one({"user_id": user_id})
     user_info = {"user_data": {k: v for k, v in user_data.items() if k != "_id" and k != "user_id"}}
 
-    return rag.build_prompt(message, user_info,
-                            chat_history.get_temporary_context(user_id) if use_temporary_context else None)
+    return rag.build_prompt(message, user_info)
 
 
 class LLMService:
@@ -79,7 +78,7 @@ class LLMService:
         session = await self.get_session(user_id)
 
         try:
-            response = session.send_message(await get_prompt(user_id, message, True), stream=True)
+            response = session.send_message(await get_prompt(user_id, message), stream=True)
         except Exception:
             yield json.dumps({"response": "Error: No response from model."})
             return
@@ -134,7 +133,8 @@ class LLMService:
         if response and response.text:
             # TODO: we likely want the plans in different database or at least a way to separate them from normal chat
             chat_history.store_history(user_id, message, response.text)
-            chat_history.store_temporary_contex(user_id, "meal plan", response.text)
+            session = await self.get_session(user_id)
+            session.history.append(response.candidates[0].content)
             return {"response": response.text}
         else:
             return {"response": "Error: No response from model."}
@@ -160,7 +160,8 @@ class LLMService:
         if response and response.text:
             # TODO: we likely want the plans in different database or at least a way to separate them from normal chat
             chat_history.store_history(user_id, message, response.text)
-            chat_history.store_temporary_contex(user_id, "workout plan", response.text)
+            session = await self.get_session(user_id)
+            session.history.append(response.candidates[0].content)
             return {"response": response.text}
         else:
             return {"response": "Error: No response from model."}

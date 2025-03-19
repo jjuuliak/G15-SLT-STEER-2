@@ -5,9 +5,6 @@ from typing import Literal
 import database_connection
 
 
-temporary_plans = {}
-
-
 def format_history(history):
     """
     Format history to what the model expects
@@ -39,9 +36,6 @@ async def load_history(user_id, limit = 100):
     if not document:
         database_connection.get_chat_history().insert_one({"user_id": user_id, "history": []})
         return []
-    else:
-        # AI has the plans in form of normal chat history now
-        temporary_plans.pop(user_id)
 
     return format_history(document.get("history", []))
 
@@ -84,27 +78,3 @@ def store_history(user_id, question, answer):
     database_connection.get_chat_history().update_one(
         {"user_id": user_id}, {"$push": {"history": {"$each": [question_msg, answer_msg]}}}
     )
-
-
-def store_temporary_contex(user_id: str, plan_type: Literal["meal plan", "workout plan"], plan: {}):
-    """
-    Stores additional context which does not exist in medical info nor in chat history the model sees yet. For example
-    when generating a meal plan, generative model's output is given as temporary context for the chat model until next
-    time user's full chat history is loaded for the model.
-    """
-    if user_id not in temporary_plans:
-        temporary_plans[user_id] = {}
-
-    temporary_plans[user_id][plan_type] = plan
-
-
-def get_temporary_context(user_id:str) -> {}:
-    """
-    Stores additional context which does not exist in medical info nor in chat history the model sees yet. For example
-    when generating a meal plan, generative model's output is given as temporary context for the chat model until next
-    time user's full chat history is loaded for the model.
-    """
-    if user_id not in temporary_plans:
-        return None
-
-    return temporary_plans[user_id]
