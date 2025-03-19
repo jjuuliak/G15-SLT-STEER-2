@@ -40,14 +40,13 @@ async def load_history(user_id, limit = 100):
     return format_history(document.get("history", []))
 
 
-async def read_history(user_id, skip = 0, limit = 10, should_format_history: bool = False):
+async def read_history(user_id, skip = 0, limit = 10):
     """
     Gets a chunk of chat history to be sent to frontend
 
     :param user_id: user id
     :param skip: first message index
     :param limit: count of messages
-    :param should_format_history: whether history should be formatted for the AI
     :return: chat history
     """
 
@@ -56,9 +55,6 @@ async def read_history(user_id, skip = 0, limit = 10, should_format_history: boo
 
     if not document:
         return []
-
-    if should_format_history:
-        return format_history(document.get("history", []))
 
     return document.get("history", [])
 
@@ -77,4 +73,46 @@ def store_history(user_id, question, answer):
 
     database_connection.get_chat_history().update_one(
         {"user_id": user_id}, {"$push": {"history": {"$each": [question_msg, answer_msg]}}}
+    )
+
+
+async def get_meal_plan(user_id):
+    """
+    Gets latest meal plan
+    """
+    document = await database_connection.get_chat_history().find_one({"user_id": user_id})
+
+    if not document:
+        return None
+
+    return document.get("meal_plan", None)
+
+
+def store_meal_plan(user_id, meal_plan):
+    """
+    Stores latest meal plan
+    """
+    database_connection.get_chat_history().update_one(
+        {"user_id": user_id}, {"$set": {"meal_plan": meal_plan}}, upsert=True
+    )
+
+
+async def get_workout_plan(user_id):
+    """
+    Gets latest workout plan
+    """
+    document = await database_connection.get_chat_history().find_one({"user_id": user_id})
+
+    if not document:
+        return None
+
+    return document.get("workout_plan", None)
+
+
+def store_workout_plan(user_id, workout_plan):
+    """
+    Stores latest workout plan
+    """
+    database_connection.get_chat_history().update_one(
+        {"user_id": user_id}, {"$set": {"workout_plan": workout_plan}}, upsert=True
     )

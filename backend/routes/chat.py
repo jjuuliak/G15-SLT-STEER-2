@@ -48,3 +48,16 @@ async def ask_llm(request: ChatModel, credentials: JwtAuthorizationCredentials =
 @router.post("/history")
 async def get_chat_history(request: HistoryRequestModel, credentials: JwtAuthorizationCredentials = Security(AuthService.get_access_security())):
     return {"history": await chat_history.read_history(credentials["user_id"], request.start_index, request.count)}
+
+
+# TODO: do we want user to be able to edit the plans manually?
+
+
+@router.post("/last-meal-plan")
+async def get_chat_history(credentials: JwtAuthorizationCredentials = Security(AuthService.get_access_security())):
+    return {"meal_plan": await chat_history.get_meal_plan(credentials["user_id"])}
+
+
+@router.post("/last-workout-plan")
+async def get_chat_history(credentials: JwtAuthorizationCredentials = Security(AuthService.get_access_security())):
+    return {"workout_plan": await chat_history.get_workout_plan(credentials["user_id"])}

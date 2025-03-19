@@ -118,7 +118,7 @@ class LLMService:
         """
 
         # TODO: to be safe we need a message counter for messages since last plan generation or a way to get the plan
-        contents = await chat_history.read_history(user_id, 0, 10, should_format_history=True)
+        contents = await chat_history.load_history(user_id)
         contents.append({
             "role": "user",
             "parts": [{"text": await get_prompt(user_id, message)}]
@@ -133,6 +133,7 @@ class LLMService:
         if response and response.text:
             # TODO: we likely want the plans in different database or at least a way to separate them from normal chat
             chat_history.store_history(user_id, message, response.text)
+            chat_history.store_meal_plan(user_id, response.text)
             session = await self.get_session(user_id)
             session.history.append(response.candidates[0].content)
             return {"response": response.text}
@@ -145,7 +146,7 @@ class LLMService:
         """
 
         # TODO: to be safe we need a message counter for messages since last plan generation or a way to get the plan
-        contents = await chat_history.read_history(user_id, 0, 10, should_format_history=True)
+        contents = await chat_history.load_history(user_id)
         contents.append({
             "role": "user",
             "parts": [{"text": await get_prompt(user_id, message)}]
@@ -160,6 +161,7 @@ class LLMService:
         if response and response.text:
             # TODO: we likely want the plans in different database or at least a way to separate them from normal chat
             chat_history.store_history(user_id, message, response.text)
+            chat_history.store_workout_plan(user_id, response.text)
             session = await self.get_session(user_id)
             session.history.append(response.candidates[0].content)
             return {"response": response.text}
