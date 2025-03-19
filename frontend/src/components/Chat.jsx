@@ -51,12 +51,10 @@ const Chat = () => {
     setLoading(true);
     const userMessage = { text: msg, sender: "test_user" }; 
     setMessages((prev) => [...prev, userMessage]);
-    //setMessages((prev) => [...prev, { text: message, sender: "test_user" }]); 
-
     setMessage("");
 
     try {
-      const res = await fetch("http://localhost:8000/ask", {
+      const response = await fetch("http://localhost:8000/ask", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${accessToken}`,
@@ -65,13 +63,97 @@ const Chat = () => {
         body: JSON.stringify({ message: msg })
       });
 
-      if (!res.ok) {
-        throw new Error(`Error: ${res.statusText}`);
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
       }
 
-      const data = await res.json();
-      const botResponse = { text: data.response, sender: "bot" };
-      setMessages((prev) => [...prev, botResponse]);
+      // Add an empty bot message that we'll update as we receive chunks
+      setMessages((prev) => [...prev, { text: "", sender: "bot" }]);
+      
+      // Set up streaming response handling
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedText = ""; // Stores the complete response text
+      let pendingWords = []; // Buffer for words waiting to be displayed
+      let lastRenderTime = 0;
+      const RENDER_INTERVAL = 10;
+
+      // Function to render pending words
+      const renderWords = (timestamp) => {
+        // Check if enough time has passed since last render
+        if (timestamp - lastRenderTime >= RENDER_INTERVAL && pendingWords.length > 0) {
+          // Take up to 3 words from pending buffer
+          const wordsToAdd = pendingWords.splice(0, 3).join('');
+          accumulatedText += wordsToAdd;
+          
+          // Update the message
+          setMessages((prev) => {
+            const newMessages = [...prev];
+            newMessages[newMessages.length - 1] = {
+              text: accumulatedText,
+              sender: "bot"
+            };
+            return newMessages;
+          });
+          
+          lastRenderTime = timestamp;
+        }
+        
+        // Continue animation if there are more words to render
+        if (pendingWords.length > 0) {
+          requestAnimationFrame(renderWords);
+        }
+      };
+
+      // Read chunks of data as they arrive
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break; // Exit if stream is finished
+
+        // Decode the binary chunk into text and parse the JSONs
+        const chunk = decoder.decode(value);
+        
+
+        // Split concatenated JSON objects and parse them 
+        // since one chunk can contain multiple JSON objects
+        const jsonStrings = chunk
+          .split('}{')
+          .map((str, i, arr) => {
+            if (i === 0) return str + (arr.length > 1 ? '}' : '');
+            if (i === arr.length - 1) return '{' + str;
+            return '{' + str + '}';
+          });
+
+        // Process each JSON object
+        for (const jsonString of jsonStrings) {
+          try {
+            const jsonChunk = JSON.parse(jsonString);
+
+            // Handle text responses for streaming
+            if (jsonChunk.response) {
+              const newText = jsonChunk.response;
+              // Split by whitespace but keep the separators
+              const words = newText.split(/(\s+)/);
+              
+              // Add words to pending buffer
+              pendingWords.push(...words);
+              
+              // Start rendering if not already started
+              if (pendingWords.length === words.length) {
+                requestAnimationFrame(renderWords);
+              }
+            }
+            
+            // Handle attributes that come
+            if (jsonChunk.attributes) {
+              console.log('Received message attributes:', jsonChunk.attributes);
+            }
+          } catch (e) {
+            console.warn("Failed to parse JSON string:", e);
+            console.warn("Problematic JSON string:", jsonString);
+          }
+        }
+      }
     } catch (error) {
       console.error("Error sending message:", error);
       setMessages((prev) => [...prev, { text: "Error communicating with the backend.", sender: "bot" }]);

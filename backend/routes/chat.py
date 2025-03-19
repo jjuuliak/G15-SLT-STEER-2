@@ -2,6 +2,7 @@ import os
 
 from fastapi import APIRouter, HTTPException, Security
 from fastapi_jwt import JwtAuthorizationCredentials
+from fastapi.responses import StreamingResponse
 
 import chat_history
 from LLMService import LLMService
@@ -25,13 +26,7 @@ async def ask_llm(request: ChatModel, credentials: JwtAuthorizationCredentials =
     if not request.message.strip():
         raise HTTPException(status_code=400, detail="Message cannot be empty")
 
-    #if request.message == "Create a meal plan":  # TODO: remove this and use /ask-meal-plan
-    #    return await llm_service.ask_meal_plan(credentials["user_id"], "Create me a meal plan for next 3 days")
-
-    #if request.message == "Create a workout plan":  # TODO: remove this and use /ask-workout-plan
-    #    return await llm_service.ask_workout_plan(credentials["user_id"], "Create me a workout plan for next 3 days")
-
-    return await llm_service.send_message(credentials["user_id"], request.message)
+    return StreamingResponse(llm_service.send_message(credentials["user_id"], request.message))
 
 
 @router.post("/ask-meal-plan")
