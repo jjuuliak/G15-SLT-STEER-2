@@ -1,9 +1,6 @@
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from pathlib import Path
-from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
-from pathlib import Path
 
 DATABASE_PATH = Path("/app/embedding_db") 
 EMBEDDING_MODEL = "intfloat/multilingual-e5-small"

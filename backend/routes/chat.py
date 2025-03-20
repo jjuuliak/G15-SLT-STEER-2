@@ -3,6 +3,7 @@ import os
 from fastapi import APIRouter, HTTPException, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 from fastapi.responses import StreamingResponse
+from starlette import status
 
 import chat_history
 from LLMService import LLMService
@@ -24,7 +25,7 @@ llm_service = LLMService(api_key=api_key)
 @router.post("/ask")
 async def ask_llm(request: ChatModel, credentials: JwtAuthorizationCredentials = Security(AuthService.get_access_security())):
     if not request.message.strip():
-        raise HTTPException(status_code=400, detail="Message cannot be empty")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Message cannot be empty")
 
     return StreamingResponse(llm_service.send_message(credentials["user_id"], request.message))
 
@@ -32,7 +33,7 @@ async def ask_llm(request: ChatModel, credentials: JwtAuthorizationCredentials =
 @router.post("/ask-meal-plan")
 async def ask_llm(request: ChatModel, credentials: JwtAuthorizationCredentials = Security(AuthService.get_access_security())):
     if not request.message.strip():
-        raise HTTPException(status_code=400, detail="Message cannot be empty")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Message cannot be empty")
 
     return await llm_service.ask_meal_plan(credentials["user_id"], request.message)
 
@@ -40,7 +41,7 @@ async def ask_llm(request: ChatModel, credentials: JwtAuthorizationCredentials =
 @router.post("/ask-workout-plan")
 async def ask_llm(request: ChatModel, credentials: JwtAuthorizationCredentials = Security(AuthService.get_access_security())):
     if not request.message.strip():
-        raise HTTPException(status_code=400, detail="Message cannot be empty")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Message cannot be empty")
 
     return await llm_service.ask_workout_plan(credentials["user_id"], request.message)
 
