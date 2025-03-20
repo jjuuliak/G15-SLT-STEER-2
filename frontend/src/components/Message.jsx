@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { materialDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { materialDark } from "react-syntax-highlighter/dist/cjs/styles/prism"; 
 
 const Message = ({ msg, sendOption }) => {
   const theme = useTheme();

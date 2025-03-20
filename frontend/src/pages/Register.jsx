@@ -12,7 +12,7 @@ import {
 import Grid from '@mui/material/Grid2';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { registerUser } from '../services/authService';

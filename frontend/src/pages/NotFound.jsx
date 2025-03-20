@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from '@mui/material';
 import { useSelector } from "react-redux";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
 export default function NotFound() {

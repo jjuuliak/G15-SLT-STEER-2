@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import { logout } from "../redux/actionCreators/authActions"
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { useDispatch } from "react-redux";
 import { useTranslation } from 'react-i18next';
 import PopupWithTabs from "./popup/PopupWithTabs";
