@@ -10,6 +10,8 @@ services:
     environment:
       - HF_HOME=/app/embedding_models
     depends_on:
+      database:
+        condition: service_started
       doc_embedding:
         condition: service_completed_successfully
   frontend:

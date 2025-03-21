@@ -1,9 +1,6 @@
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from pathlib import Path
-from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
-from pathlib import Path
 
 DATABASE_PATH = Path("/app/embedding_db") 
 EMBEDDING_MODEL = "intfloat/multilingual-e5-small"
@@ -36,16 +33,10 @@ class RAGService:
 
     def build_prompt(self, query, user_info, top_k=5):
         """
-        Builds the final prompt by combining the user's query with retrieved context.
+        Builds the final prompt by combining the user's query with retrieved context and user info.
         """
         context_chunks = self.retrieve_relevant_chunks(query, top_k)
 
-        if not context_chunks:
-            context_text = "No additional context."
-        else:
-            context_text = "\n\n".join(context_chunks)
-
-        print(f"Query: {query}\nContext: {context_text}")
         prompt = f"""
             [INST]<<SYS>>  
             You are an expert assistant specializing in cardiovascular health.  
@@ -63,6 +54,8 @@ class RAGService:
 
             Question: {query}
             User provided info: {user_info}
-            Context: {context_text}
+            {"Context: " if context_chunks else ""}{"\n\n".join(context_chunks) if context_chunks else ""}
             Answer: [/INST]"""
+
+        print(prompt)
         return prompt
