@@ -1,6 +1,7 @@
 import {
     LOGIN_SUCCESS,
-    LOGOUT
+    LOGOUT,
+    SET_NEW_ACCESS_TOKEN
   } from "../actionTypes";
 
 export const loginSuccess = (user) => ({
@@ -11,3 +12,8 @@ export const loginSuccess = (user) => ({
   export const logout = () => ({
     type: LOGOUT,
   });
+
+export const setNewAccessToken = (token) => ({
+  type: SET_NEW_ACCESS_TOKEN,
+  payload: token
+});

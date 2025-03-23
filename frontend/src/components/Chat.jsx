@@ -10,11 +10,15 @@ import {
   IconButton
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from 'react-router-dom';
 import Message from "./Message";
 
 const Chat = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const initialMessage = {
     text: "Hi and welcome to Lifeline Chat! How can I help you today?\n\n" +
         "1. Create a workout plan\n" +
@@ -34,6 +38,7 @@ const Chat = () => {
   const [messages, setMessages] = useState([initialMessage]);
   const [loading, setLoading] = useState(false);
   const accessToken = useSelector((state) => state.auth?.access_token);
+  const refreshToken = useSelector((state) => state.auth?.refresh_token);
 
   const messagesEndRef = useRef(null);
 
@@ -42,6 +47,11 @@ const Chat = () => {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
+
+  const refreshChat = async (msg) => {
+    await refreshToken(refreshToken, navigate, dispatch);
+    sendMessage(msg);
+  };
 
   const sendMessage = async (msg = message) => {
     if (typeof msg !== 'string' || !msg.trim()) {
@@ -64,6 +74,10 @@ const Chat = () => {
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          refreshChat(msg);
+          return;
+        }
         throw new Error(`Error: ${response.statusText}`);
       }
 

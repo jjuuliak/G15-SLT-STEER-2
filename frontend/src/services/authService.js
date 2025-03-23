@@ -1,3 +1,5 @@
+import { setNewAccessToken, logout } from '../redux/actionCreators/authActions';
+
 export const handleLogin = async (email, password) => {
   if (!email || !password) {
     throw new Error('Please enter email and password');
@@ -51,3 +53,24 @@ export const registerUser  = async (formData) => {
     throw new Error('Registration failed. Please try again.');
   }
 };
+
+export const refreshToken = async (refreshToken, navigate, dispatch) => {
+
+  const res = await fetch("http://localhost:8000/refresh", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${refreshToken}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    console.log('Refresh token expired.')
+    dispatch(logout());
+    navigate('/login')
+    return;
+  }
+
+  const refreshData = await res.json();
+  dispatch(setNewAccessToken(refreshData.access_token));
+}
