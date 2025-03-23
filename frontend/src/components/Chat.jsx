@@ -56,7 +56,8 @@ const Chat = () => {
     setMessage("");
 
     try {
-      const response = await fetch("http://localhost:8000/ask", {
+      const url = msg.includes('meal plan') ? 'http://localhost:8000/ask-meal-plan' : 'http://localhost:8000/ask';
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${accessToken}`,
@@ -67,6 +68,11 @@ const Chat = () => {
 
       if (!response.ok) {
         throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      if (data.response.includes('meal plan')) {
+        dispatch(setMealPlan(data.response));
       }
 
       // Add an empty bot message that we'll update as we receive chunks
