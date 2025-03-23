@@ -54,6 +54,9 @@ const UserProfile = ({ open, handleClose }) => {
       family_history_with_heart_disease: false
   });
 
+  // Track initial form data
+  const [initialFormData, setInitialFormData] = useState(null);
+
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
     setFormData((prev) => ({
@@ -78,7 +81,7 @@ const UserProfile = ({ open, handleClose }) => {
     }));
 };
 
-    // Get profile data upon mounting
+    // Update initial form data when profile is loaded
     useEffect(() => {
         if (open && accessToken) {
             fetch("http://localhost:8000/get-profile", {
@@ -96,10 +99,12 @@ const UserProfile = ({ open, handleClose }) => {
                 })
                 .then((data) => {
                     if (data.user_data) {
-                        setFormData(prevData => ({
-                            ...prevData,
+                        const newData = {
+                            ...formData,
                             ...data.user_data
-                        }));
+                        };
+                        setFormData(newData);
+                        setInitialFormData(newData); // Store initial data
                     }
                 })
                 .catch((error) => {
@@ -119,64 +124,50 @@ const UserProfile = ({ open, handleClose }) => {
 
     const handleSubmit = async () => {
       try {
-        // Format the data according to the backend model requirements
-        const dataToSend = {};
-
-        // Handle numeric fields - convert empty strings to null
-        if (formData.age !== "") dataToSend.age = parseInt(formData.age) || null;
-        if (formData.weight !== "") dataToSend.weight = parseInt(formData.weight) || null;
-        if (formData.height !== "") dataToSend.height = parseFloat(formData.height) || null;
-        if (formData.waist_measurement !== "") dataToSend.waist_measurement = parseInt(formData.waist_measurement) || null;
-        if (formData.alcohol_consumption !== "") dataToSend.alcohol_consumption = parseInt(formData.alcohol_consumption) || null;
-        if (formData.sleep !== "") dataToSend.sleep = parseFloat(formData.sleep) || null;
-
-        // Handle measurement arrays - ensure they're valid numbers
-        const intArrayFields = ['systolic_blood_pressure', 'diastolic_blood_pressure', 'heart_rate'];
-        const floatArrayFields = ['total_cholesterol', 'low_density_lipoprotein', 'high_density_lipoprotein', 'triglycerides'];
-
-        intArrayFields.forEach(field => {
-          const value = formData[field][0];
-          if (value !== undefined && value !== "") {
-            const parsedValue = parseInt(value);
-            if (!isNaN(parsedValue)) {
-              dataToSend[field] = [parsedValue];
+        // Only include fields that have changed from their initial values
+        const changedFields = {};
+        
+        // Helper function to check if a value has changed
+        const hasChanged = (key, value) => {
+            if (!initialFormData) return true; // If no initial data, consider all fields changed
+            if (Array.isArray(value)) {
+                return JSON.stringify(value) !== JSON.stringify(initialFormData[key]);
             }
-          }
+            return value !== initialFormData[key];
+        };
+
+        // Check each field and only include if changed
+        Object.entries(formData).forEach(([key, value]) => {
+            if (hasChanged(key, value)) {
+                // Format the value according to the backend model requirements
+                if (key === 'age' || key === 'weight' || key === 'waist_measurement' || key === 'alcohol_consumption') {
+                    changedFields[key] = value !== "" ? parseInt(value) || null : null;
+                } else if (key === 'height' || key === 'sleep') {
+                    changedFields[key] = value !== "" ? parseFloat(value) || null : null;
+                } else if (key === 'gender' || key === 'exercise') {
+                    changedFields[key] = value || null;
+                } else if (['systolic_blood_pressure', 'diastolic_blood_pressure', 'heart_rate'].includes(key)) {
+                    changedFields[key] = value[0] ? [parseInt(value[0])] : null;
+                } else if (['total_cholesterol', 'low_density_lipoprotein', 'high_density_lipoprotein', 'triglycerides'].includes(key)) {
+                    changedFields[key] = value[0] ? [parseFloat(value[0])] : null;
+                } else if (['other_past_medical_conditions', 'other_current_medical_conditions', 'medication'].includes(key)) {
+                    changedFields[key] = value?.length > 0 ? value : null;
+                } else if (['smoking', 'pregnancy', 'family_history_with_heart_disease'].includes(key)) {
+                    changedFields[key] = value ?? null;
+                }
+            }
         });
 
-        floatArrayFields.forEach(field => {
-          const value = formData[field][0];
-          if (value !== undefined && value !== "") {
-            const parsedValue = parseFloat(value);
-            if (!isNaN(parsedValue)) {
-              dataToSend[field] = [parsedValue];
-            }
-          }
-        });
-
-        // Handle string arrays - filter out empty strings
-        const stringArrayFields = ['other_past_medical_conditions', 'other_current_medical_conditions', 'medication'];
-        stringArrayFields.forEach(field => {
-          if (formData[field] && Array.isArray(formData[field])) {
-            const filteredArray = formData[field].filter(item => item && item.trim() !== '');
-            if (filteredArray.length > 0) {
-              dataToSend[field] = filteredArray;
-            }
-          }
-        });
-
-        // Handle boolean fields - always include them
-        dataToSend.smoking = Boolean(formData.smoking);
-        dataToSend.pregnancy = Boolean(formData.pregnancy);
-        dataToSend.family_history_with_heart_disease = Boolean(formData.family_history_with_heart_disease);
-
-        // Handle enum fields - only include if they have valid values
-        if (formData.gender && ['male', 'female', 'other'].includes(formData.gender)) {
-          dataToSend.gender = formData.gender;
+        // If no fields have changed, show a message and return
+        if (Object.keys(changedFields).length === 0) {
+            setSnackbar({
+                open: true,
+                message: profileTranslation.noChanges || "No changes to save",
+                severity: 'info'
+            });
+            return;
         }
-        if (formData.exercise && ['sedentary', 'lightly active', 'moderately active', 'very active', 'athlete'].includes(formData.exercise)) {
-          dataToSend.exercise = formData.exercise;
-        }
+
 
         const response = await fetch("http://localhost:8000/update-profile", {
           method: "POST",
@@ -184,13 +175,16 @@ const UserProfile = ({ open, handleClose }) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
           },
-          body: JSON.stringify(dataToSend),
+          body: JSON.stringify(changedFields),
         });
             
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.detail || profileTranslation.errorMessage);
         }
+            
+        // After successful save, update initialFormData to match current formData
+        setInitialFormData({...formData});
             
         setSnackbar({
             open: true,
@@ -201,7 +195,7 @@ const UserProfile = ({ open, handleClose }) => {
         console.error("Error updating profile:", error);
         setSnackbar({
             open: true,
-            message: profileTranslation.errorMessage,
+            message: error.message || profileTranslation.errorMessage,
             severity: 'error'
         });
       }
@@ -214,244 +208,274 @@ const UserProfile = ({ open, handleClose }) => {
         onClose={handleClose}
         fullWidth
         maxWidth="md"
+        PaperProps={{
+            sx: {
+                borderRadius: 2,
+                maxHeight: '90vh'
+            }
+        }}
         >
-        <DialogTitle>{profileTranslation.title || "Medical Profile"}</DialogTitle>
-        <DialogContent>
-            <DialogContentText>
+        <DialogTitle sx={{ 
+            borderBottom: 1, 
+            borderColor: 'divider',
+            bgcolor: 'primary.main',
+            color: 'white',
+            py: 2
+        }}>
+            <Typography variant="h5" component="div">
+                {profileTranslation.title || "Medical Profile"}
+            </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ py: 3 }}>
+            <DialogContentText sx={{ my: 3 }}>
                 {profileTranslation.description || "Please fill in your medical information below:"}
             </DialogContentText>
 
-            {/* Basic Information */}
-            <TextField
-                label={profileTranslation.age}
-                name="age"
-                type="text"
-                fullWidth
-                margin="dense"
-                value={formData.age}
-                onChange={handleChange}
-            />
-            <TextField
-                label={profileTranslation.weight}
-                name="weight"
-                type="text"
-                fullWidth
-                margin="dense"
-                value={formData.weight}
-                onChange={handleChange}
-            />
-            <TextField
-                label={profileTranslation.height}
-                name="height"
-                type="text"
-                fullWidth
-                margin="dense"
-                value={formData.height}
-                onChange={handleChange}
-            />
-            <TextField
-                label={profileTranslation.waistMeasurement || "Waist Measurement (cm)"}
-                name="waist_measurement"
-                type="text"
-                fullWidth
-                margin="dense"
-                value={formData.waist_measurement}
-                onChange={handleChange}
-            />
-
-            {/* Gender and Pregnancy */}
-            <FormControl fullWidth margin="dense">
-                <InputLabel id="gender-label">{profileTranslation.gender}</InputLabel>
-                <Select
-                    labelId="gender-label"
-                    id="gender-select"
-                    name="gender"
-                    label={profileTranslation.gender}
-                    value={formData.gender || ""}
+            {/* Basic Information Section */}
+            <Typography variant="h6" color="primary" sx={{ mt: 2, mb: 1, fontWeight: 'medium' }}>
+                {profileTranslation.basicInfo || "Basic Information"}
+            </Typography>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                <TextField
+                    label={profileTranslation.age}
+                    name="age"
+                    type="text"
+                    margin="dense"
+                    value={formData.age}
                     onChange={handleChange}
-                >
-                    <MenuItem value="">{profileTranslation.none}</MenuItem>
-                    <MenuItem value="male">{profileTranslation.male}</MenuItem>
-                    <MenuItem value="female">{profileTranslation.female}</MenuItem>
-                    <MenuItem value="other">{profileTranslation.other}</MenuItem>
-                </Select>
-            </FormControl>
-
-            <FormControlLabel
-                control={<Checkbox checked={formData.pregnancy} onChange={handleChange} name="pregnancy" />}
-                label={profileTranslation.pregnancy || "Pregnancy"}
-            />
-
-            {/* Vital Signs */}
-            <TextField 
-                label={profileTranslation.systolicBloodPressure} 
-                name="systolic_blood_pressure" 
-                type="text"
-                fullWidth
-                margin="dense" 
-                value={formData.systolic_blood_pressure[0] || ""} 
-                onChange={handleChange} 
-                helperText={profileTranslation.latestMeasurement}
-            />
-
-            <TextField 
-                label={profileTranslation.diastolicBloodPressure} 
-                name="diastolic_blood_pressure"
-                type="text"
-                fullWidth
-                margin="dense" 
-                value={formData.diastolic_blood_pressure[0] || ""} 
-                onChange={handleChange} 
-                helperText={profileTranslation.latestMeasurement}
-            />
-
-            <TextField 
-                label={profileTranslation.heartRate} 
-                name="heart_rate" 
-                type="text"
-                fullWidth 
-                margin="dense" 
-                value={formData.heart_rate[0] || ""} 
-                onChange={handleChange} 
-                helperText={profileTranslation.latestMeasurement}
-            />
-
-            {/* Cholesterol Measurements */}
-            <TextField 
-                label={profileTranslation.cholesterol} 
-                name="total_cholesterol"
-                type="text"
-                fullWidth
-                margin="dense" 
-                value={formData.total_cholesterol[0] || ""} 
-                onChange={handleChange} 
-                helperText={profileTranslation.latestMeasurement}
-            />
-            <TextField 
-                label={profileTranslation.ldLipoprotein} 
-                name="low_density_lipoprotein" 
-                type="text"
-                fullWidth
-                margin="dense" 
-                value={formData.low_density_lipoprotein[0] || ""} 
-                onChange={handleChange} 
-                helperText={profileTranslation.latestMeasurement}
-            />
-            <TextField 
-                label={profileTranslation.hdLipoprotein} 
-                name="high_density_lipoprotein" 
-                type="text"
-                fullWidth 
-                margin="dense" 
-                value={formData.high_density_lipoprotein[0] || ""} 
-                onChange={handleChange} 
-                helperText={profileTranslation.latestMeasurement}
-            />
-            <TextField 
-                label={profileTranslation.triglycerides} 
-                name="triglycerides" 
-                type="text"
-                fullWidth 
-                margin="dense" 
-                value={formData.triglycerides[0] || ""} 
-                onChange={handleChange} 
-                helperText={profileTranslation.latestMeasurement}
-            />
-
-            {/* Lifestyle Factors */}
-            <FormControlLabel
-                control={<Checkbox checked={formData.smoking} onChange={handleChange} name="smoking" />}
-                label={profileTranslation.smoking}
-            />
-            <TextField
-                label={profileTranslation.weeklyAlcoholConsumption}
-                name="alcohol_consumption"
-                type="text"
-                fullWidth
-                margin="dense"
-                value={formData.alcohol_consumption}
-                onChange={handleChange}
-                helperText={profileTranslation.UnitsPerWeek}
-            />
-            <TextField
-                label={profileTranslation.sleepQuantityHours}
-                name="sleep"
-                type="text"
-                fullWidth
-                margin="dense"
-                value={formData.sleep}
-                onChange={handleChange}
-                helperText={profileTranslation.hoursPerDay}
-            />
-
-            <FormControl fullWidth margin="dense">
-                <InputLabel id="exercise-label">{profileTranslation.exercise || "Physical Activity Level"}</InputLabel>
-                <Select
-                    labelId="exercise-label"
-                    id="exercise-select"
-                    name="exercise"
-                    label={profileTranslation.exercise || "Physical Activity Level"}
-                    value={formData.exercise || ""}
+                />
+                <TextField
+                    label={profileTranslation.weight}
+                    name="weight"
+                    type="text"
+                    margin="dense"
+                    value={formData.weight}
                     onChange={handleChange}
-                >
-                    <MenuItem value="">{profileTranslation.none}</MenuItem>
-                    <MenuItem value="sedentary">{profileTranslation.sedentary || "Sedentary"}</MenuItem>
-                    <MenuItem value="lightly active">{profileTranslation.lightlyActive || "Lightly Active"}</MenuItem>
-                    <MenuItem value="moderately active">{profileTranslation.moderatelyActive || "Moderately Active"}</MenuItem>
-                    <MenuItem value="very active">{profileTranslation.veryActive || "Very Active"}</MenuItem>
-                    <MenuItem value="athlete">{profileTranslation.athlete || "Athlete"}</MenuItem>
-                </Select>
-            </FormControl>
+                />
+                <TextField
+                    label={profileTranslation.height}
+                    name="height"
+                    type="text"
+                    margin="dense"
+                    value={formData.height}
+                    onChange={handleChange}
+                />
+                <TextField
+                    label={profileTranslation.waistMeasurement || "Waist Measurement (cm)"}
+                    name="waist_measurement"
+                    type="text"
+                    margin="dense"
+                    value={formData.waist_measurement}
+                    onChange={handleChange}
+                />
+                <FormControl margin="dense">
+                    <InputLabel id="gender-label">{profileTranslation.gender}</InputLabel>
+                    <Select
+                        labelId="gender-label"
+                        id="gender-select"
+                        name="gender"
+                        label={profileTranslation.gender}
+                        value={formData.gender || ""}
+                        onChange={handleChange}
+                    >
+                        <MenuItem value="">{profileTranslation.none}</MenuItem>
+                        <MenuItem value="male">{profileTranslation.male}</MenuItem>
+                        <MenuItem value="female">{profileTranslation.female}</MenuItem>
+                        <MenuItem value="other">{profileTranslation.other}</MenuItem>
+                    </Select>
+                </FormControl>
+                <FormControlLabel
+                    control={<Checkbox checked={formData.pregnancy} onChange={handleChange} name="pregnancy" />}
+                    label={profileTranslation.pregnancy || "Pregnancy"}
+                    sx={{ mt: 1 }}
+                />
+            </div>
 
-            {/* Medical History */}
+            {/* Vital Signs Section */}
+            <Typography variant="h6" color="primary" sx={{ mt: 4, mb: 1, fontWeight: 'medium' }}>
+                {profileTranslation.vitalSigns || "Vital Signs"}
+            </Typography>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                <TextField 
+                    label={profileTranslation.systolicBloodPressure} 
+                    name="systolic_blood_pressure" 
+                    type="text"
+                    margin="dense" 
+                    value={formData.systolic_blood_pressure[0] || ""} 
+                    onChange={handleChange} 
+                    helperText={profileTranslation.latestMeasurement}
+                />
+                <TextField 
+                    label={profileTranslation.diastolicBloodPressure} 
+                    name="diastolic_blood_pressure"
+                    type="text"
+                    margin="dense" 
+                    value={formData.diastolic_blood_pressure[0] || ""} 
+                    onChange={handleChange} 
+                    helperText={profileTranslation.latestMeasurement}
+                />
+                <TextField 
+                    label={profileTranslation.heartRate} 
+                    name="heart_rate" 
+                    type="text"
+                    margin="dense" 
+                    value={formData.heart_rate[0] || ""} 
+                    onChange={handleChange} 
+                    helperText={profileTranslation.latestMeasurement}
+                />
+            </div>
+
+            {/* Cholesterol Section */}
+            <Typography variant="h6" color="primary" sx={{ mt: 4, mb: 1, fontWeight: 'medium' }}>
+                {profileTranslation.cholesterolMeasurements || "Cholesterol Measurements"}
+            </Typography>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                <TextField 
+                    label={profileTranslation.cholesterol} 
+                    name="total_cholesterol"
+                    type="text"
+                    margin="dense" 
+                    value={formData.total_cholesterol[0] || ""} 
+                    onChange={handleChange} 
+                    helperText={profileTranslation.latestMeasurement}
+                />
+                <TextField 
+                    label={profileTranslation.ldLipoprotein} 
+                    name="low_density_lipoprotein" 
+                    type="text"
+                    margin="dense" 
+                    value={formData.low_density_lipoprotein[0] || ""} 
+                    onChange={handleChange} 
+                    helperText={profileTranslation.latestMeasurement}
+                />
+                <TextField 
+                    label={profileTranslation.hdLipoprotein} 
+                    name="high_density_lipoprotein" 
+                    type="text"
+                    margin="dense" 
+                    value={formData.high_density_lipoprotein[0] || ""} 
+                    onChange={handleChange} 
+                    helperText={profileTranslation.latestMeasurement}
+                />
+                <TextField 
+                    label={profileTranslation.triglycerides} 
+                    name="triglycerides" 
+                    type="text"
+                    margin="dense" 
+                    value={formData.triglycerides[0] || ""} 
+                    onChange={handleChange} 
+                    helperText={profileTranslation.latestMeasurement}
+                />
+            </div>
+
+            {/* Lifestyle Section */}
+            <Typography variant="h6" color="primary" sx={{ mt: 4, mb: 1, fontWeight: 'medium' }}>
+                {profileTranslation.lifestyle || "Lifestyle Factors"}
+            </Typography>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                
+                <TextField
+                    label={profileTranslation.weeklyAlcoholConsumption}
+                    name="alcohol_consumption"
+                    type="text"
+                    margin="dense"
+                    value={formData.alcohol_consumption}
+                    onChange={handleChange}
+                    helperText={profileTranslation.UnitsPerWeek}
+                />
+                <TextField
+                    label={profileTranslation.sleepQuantityHours}
+                    name="sleep"
+                    type="text"
+                    margin="dense"
+                    value={formData.sleep}
+                    onChange={handleChange}
+                    helperText={profileTranslation.hoursPerDay}
+                />
+                <FormControl margin="dense">
+                    <InputLabel id="exercise-label">{profileTranslation.exercise || "Physical Activity Level"}</InputLabel>
+                    <Select
+                        labelId="exercise-label"
+                        id="exercise-select"
+                        name="exercise"
+                        label={profileTranslation.exercise || "Physical Activity Level"}
+                        value={formData.exercise || ""}
+                        onChange={handleChange}
+                    >
+                        <MenuItem value="">{profileTranslation.none}</MenuItem>
+                        <MenuItem value="sedentary">{profileTranslation.sedentary || "Sedentary"}</MenuItem>
+                        <MenuItem value="lightly active">{profileTranslation.lightlyActive || "Lightly Active"}</MenuItem>
+                        <MenuItem value="moderately active">{profileTranslation.moderatelyActive || "Moderately Active"}</MenuItem>
+                        <MenuItem value="very active">{profileTranslation.veryActive || "Very Active"}</MenuItem>
+                        <MenuItem value="athlete">{profileTranslation.athlete || "Athlete"}</MenuItem>
+                    </Select>
+                </FormControl>
+                <FormControlLabel
+                    control={<Checkbox checked={formData.smoking} onChange={handleChange} name="smoking" />}
+                    label={profileTranslation.smoking}
+                />
+            </div>
+
+            {/* Medical History Section */}
+            <Typography variant="h6" color="primary" sx={{ mt: 4, mb: 1, fontWeight: 'medium' }}>
+                {profileTranslation.medicalHistory || "Medical History"}
+            </Typography>
             <FormControlLabel
                 control={<Checkbox checked={formData.family_history_with_heart_disease} onChange={handleChange} name="family_history_with_heart_disease" />}
                 label={profileTranslation.familyHistoryHeartDisease || "Family History of Heart Disease"}
+                sx={{ mb: 2 }}
             />
-
-            <TextField 
-                label={profileTranslation.pastMedicalConditions || "Past Medical Conditions"} 
-                name="other_past_medical_conditions" 
-                type="text" 
-                fullWidth 
-                margin="dense" 
-                multiline
-                rows={3} 
-                value={formData.other_past_medical_conditions.join("\n")} 
-                onChange={handleChange}
-                helperText={profileTranslation.enterEachConditionOnNewLine} 
-            />
-
-            <TextField 
-                label={profileTranslation.currentMedicalConditions || "Current Medical Conditions"} 
-                name="other_current_medical_conditions" 
-                type="text" 
-                fullWidth 
-                margin="dense" 
-                multiline
-                rows={3} 
-                value={formData.other_current_medical_conditions.join("\n")} 
-                onChange={handleChange}
-                helperText={profileTranslation.enterEachConditionOnNewLine} 
-            />
-
-            <TextField 
-                label={profileTranslation.medication || "Current Medications"} 
-                name="medication" 
-                type="text" 
-                fullWidth 
-                margin="dense" 
-                multiline
-                rows={3} 
-                value={formData.medication.join("\n")} 
-                onChange={handleChange}
-                helperText={profileTranslation.enterEachMedicationOnNewLine} 
-            />
-
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <TextField 
+                    label={profileTranslation.pastMedicalConditions || "Past Medical Conditions"} 
+                    name="other_past_medical_conditions" 
+                    type="text"
+                    multiline
+                    rows={3} 
+                    value={formData.other_past_medical_conditions.join("\n")} 
+                    onChange={handleChange}
+                    helperText={profileTranslation.enterEachConditionOnNewLine}
+                />
+                <TextField 
+                    label={profileTranslation.currentMedicalConditions || "Current Medical Conditions"} 
+                    name="other_current_medical_conditions" 
+                    type="text"
+                    multiline
+                    rows={3} 
+                    value={formData.other_current_medical_conditions.join("\n")} 
+                    onChange={handleChange}
+                    helperText={profileTranslation.enterEachConditionOnNewLine}
+                />
+                <TextField 
+                    label={profileTranslation.currentMedications || "Current Medications"} 
+                    name="medication" 
+                    type="text"
+                    multiline
+                    rows={3} 
+                    value={formData.medication.join("\n")} 
+                    onChange={handleChange}
+                    helperText={profileTranslation.enterEachMedicationOnNewLine}
+                />
+            </div>
         </DialogContent>
-        <DialogActions>
-            <Button onClick={handleClose}>{t("close")}</Button>
-            <Button onClick={handleSubmit} color="primary" variant="contained">
+        <DialogActions sx={{ 
+            borderTop: 1, 
+            borderColor: 'divider',
+            px: 3,
+            py: 2
+        }}>
+            <Button 
+                onClick={handleClose}
+                variant="outlined"
+                sx={{ mr: 1 }}
+            >
+                {t("close")}
+            </Button>
+            <Button 
+                onClick={handleSubmit} 
+                variant="contained" 
+                color="primary"
+            >
                 {profileTranslation.save}
             </Button>
         </DialogActions>
