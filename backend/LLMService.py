@@ -22,10 +22,8 @@ class LLMService:
         self.sessions: Dict[str, genai.ChatSession] = {}
         self.prompt_correction_model = genai.GenerativeModel(
             self.model_name,
-            system_instruction=["""You are an assistant that corrects spelling, 
-                                grammatical, and punctuation errors in the user's
-                                prompt. Return only the corrected version of the
-                                prompt, without any additional text or explanation."""]
+            system_instruction=["""You provide a query preprocessing service for a retrieval augmented generation application. 
+                                Your task is to add required context for follow-up questions based on the chat history and fix possible spelling errors in the original queries."""]
         )
         self.plan_model = genai.GenerativeModel(
             self.model_name,
@@ -72,7 +70,8 @@ class LLMService:
             return
 
         user_info = {"user_data": {k: v for k, v in user_data.items() if k != "_id" and k != "user_id"}}
-        rag_prompt = rag.build_prompt(message, user_info)
+        enhanced_query = await self.enhance_query(user_id, message)
+        rag_prompt = rag.build_prompt(enhanced_query, user_info)
 
         try:
             response = session.send_message(rag_prompt, stream=True)
@@ -102,11 +101,29 @@ class LLMService:
 
         chat_history.store_history(user_id, message, full_answer)
 
-    def correct_prompt(self, prompt: str) -> str:
+    async def enhance_query(self, user_id: str, user_message: str) -> str:
         """
         Fixes spelling, grammatical and punctuation errors in the user given prompt
         """
-        response = self.prompt_correction_model.generate_content(prompt)
+        history = await chat_history.load_history(user_id, limit=6)
+        history_json = json.dumps(history, ensure_ascii=False)
+
+        enhancement_prompt_template = """Modify the user's message if required, to make it an independent question that can be answered without knowing the chat history.
+            - Fix any spelling mistakes in the user's message.
+            - If the chat history is empty, return it as is but with corrected spelling.
+            - If the user's message is gibberish, keep it as it is.
+            - Provide the modified message in English.
+            - If the message works as it is without requiring additional information, just fix any possible spelling errors and answer nothing else.
+            - Most importantly don't give any explanations for your decisions, only provide the expected message.
+
+            chat history: {history}
+            user message: {user_message}
+            modified message:
+            """
+
+        enhancement_prompt = enhancement_prompt_template.format(history=history_json, user_message=user_message)
+        response = self.prompt_correction_model.generate_content(enhancement_prompt)
+        print(f"Original message: {user_message}\nRewritten message: {response.text}")
         return response.text if response else None
 
     async def ask_meal_plan(self, user_id: str, message: str) -> {}:
