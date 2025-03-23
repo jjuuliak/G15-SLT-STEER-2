@@ -20,9 +20,9 @@ def format_history(history):
     return formatted_history
 
 
-async def load_history(user_id, limit = 999):
+async def load_history(user_id, limit = 100):
     """
-    Gets chat history or creates it if it doesn't exist
+    Gets chat history or creates it if it doesn't exist and formats it for the AI
 
     :param user_id: user id
     :param limit: max history length to return
@@ -36,6 +36,25 @@ async def load_history(user_id, limit = 999):
         return []
 
     return format_history(document.get("history", []))
+
+
+async def read_history(user_id, skip = 0, limit = 10):
+    """
+    Gets a chunk of chat history to be sent to frontend
+
+    :param user_id: user id
+    :param skip: first message index
+    :param limit: count of messages
+    :return: chat history
+    """
+
+    document = await database_connection.get_chat_history().find_one({"user_id": user_id},
+                                                                     {"history": {"$slice": [-limit - skip, limit]}})
+
+    if not document:
+        return []
+
+    return document.get("history", [])
 
 
 def store_history(user_id, question, answer):
