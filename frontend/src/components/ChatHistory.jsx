@@ -187,7 +187,7 @@ const ChatHistory = () => {
         }}
       >
         <Typography variant="h6" component="h2">
-          Chat history
+            {t("chatHistory")}
         </Typography>
       </Box>
 
@@ -220,7 +220,7 @@ const ChatHistory = () => {
               color: theme.palette.text.secondary,
             }}
           >
-            <Typography>No history found</Typography>
+            <Typography>{t("noHistoryFound")}</Typography>
           </Box>
         ) : (
           // Message list
