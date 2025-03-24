@@ -12,17 +12,42 @@ import { useTranslation } from 'react-i18next';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import PersonIcon from '@mui/icons-material/Person';
 
+
 const ChatHistory = () => {
+  // Theme and translation hooks
   const theme = useTheme();
   const { t } = useTranslation();
+  
   const accessToken = useSelector((state) => state.auth?.access_token);
-  const [messages, setMessages] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const containerRef = useRef(null);
-  const messagesEndRef = useRef(null);
+  
+  // State management
+  const [messages, setMessages] = useState([]); // Array of chat messages
+  const [loading, setLoading] = useState(true); // Loading state for initial load
+  const [loadingMore, setLoadingMore] = useState(false); // Loading state for pagination
+  const [hasMore, setHasMore] = useState(true); // Whether more messages are available
+  const [currentStartIndex, setCurrentStartIndex] = useState(0); // Current pagination index
+  const [isInitialLoad, setIsInitialLoad] = useState(true); // Track if this is the first load
+  const [scrollHeight, setScrollHeight] = useState(0); // Track container's scroll height for position maintenance
 
-  const fetchHistory = async () => {
+  // Refs for DOM elements
+  const containerRef = useRef(null); // Reference to the scrollable container
+  const messagesEndRef = useRef(null); // Reference to the bottom of messages
+  const firstMessageRef = useRef(null); // Reference to the first message
+
+  /**
+   * Fetches chat history from the backend with pagination support
+   * @param {number} startIndex - Starting index for pagination
+   * @param {number} count - Number of messages to fetch
+   */
+  const fetchHistory = async (startIndex = 0, count = 10) => {
     try {
+      // Store current scroll height before loading more messages
+      // This is used to maintain scroll position after loading
+      if (startIndex > 0 && containerRef.current) {
+        setScrollHeight(containerRef.current.scrollHeight);
+      }
+
+
       const response = await fetch("http://localhost:8000/history", {
         method: "POST",
         headers: {
@@ -30,8 +55,8 @@ const ChatHistory = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          start_index: 0,
-          count: 50  
+          start_index: startIndex,
+          count: count
         })
       });
 
@@ -40,31 +65,89 @@ const ChatHistory = () => {
       }
 
       const data = await response.json();
-      setMessages(data.history || []);
+      const newMessages = data.history || [];
+      
+      if (startIndex === 0) {
+        // Initial load: Set messages directly
+        setMessages(newMessages);
+        setIsInitialLoad(true);
+      } else {
+        // Pagination: Prepend older messages to existing ones
+        setMessages(prevMessages => [...newMessages, ...prevMessages]);
+        setIsInitialLoad(false);
+        
+        // After loading more messages, adjust scroll position to maintain view
+        setTimeout(() => {
+          if (containerRef.current) {
+            const newScrollHeight = containerRef.current.scrollHeight;
+            const scrollDiff = newScrollHeight - scrollHeight;
+            containerRef.current.scrollTop = scrollDiff;
+            setScrollHeight(newScrollHeight);
+          }
+        }, 0);
+      }
+      
+      // Update pagination state
+      setHasMore(newMessages.length === count);
+      setCurrentStartIndex(startIndex + newMessages.length);
     } catch (error) {
       console.error('Error fetching chat history:', error);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
+  // Initial load of chat history when component mounts
   useEffect(() => {
     if (accessToken) {
       fetchHistory();
     }
   }, [accessToken]);
 
+  // Scroll to bottom only on initial load
   useEffect(() => {
-    if (messagesEndRef.current) {
+    if (messages.length > 0 && messagesEndRef.current && isInitialLoad) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      setIsInitialLoad(false);
     }
-  }, [messages]);
+  }, [messages.length, isInitialLoad]);
 
+  /**
+   * Handles scroll events to detect when to load more messages
+   * Triggers when user scrolls near the top of the container
+   */
+  const handleScroll = () => {
+    if (containerRef.current) {
+      const { scrollTop } = containerRef.current;
+      // Load more messages when near the top (within 100px)
+      if (scrollTop < 100 && !loadingMore && hasMore) {
+        setLoadingMore(true);
+        fetchHistory(currentStartIndex);
+      }
+    }
+  };
+
+  // Add scroll event listener to container
+  useEffect(() => {
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+      return () => container.removeEventListener('scroll', handleScroll);
+    }
+  }, [currentStartIndex, loadingMore, hasMore]);
+
+  /**
+   * Formats Unix timestamp to local date string
+   * @param {number} timestamp - Unix timestamp in seconds
+   * @returns {string} Formatted date string
+   */
   const formatTimestamp = (timestamp) => {
     const date = new Date(timestamp * 1000);
     return date.toLocaleString();
   };
 
+  // Loading state UI
   if (loading) {
     return (
       <Box 
@@ -91,7 +174,7 @@ const ChatHistory = () => {
         bgcolor: theme.palette.background.default,
       }}
     >
-      {/* Sticky Header */}
+      {/* Chat history title */}
       <Box
         sx={{
           position: 'sticky',
@@ -108,7 +191,7 @@ const ChatHistory = () => {
         </Typography>
       </Box>
 
-      {/* Messages Container */}
+      {/* Messages container */}
       <Box
         ref={containerRef}
         sx={{
@@ -119,6 +202,14 @@ const ChatHistory = () => {
           flexDirection: 'column'
         }}
       >
+        {/* Loading indicator for pagination */}
+        {loadingMore && (
+          <Box display="flex" justifyContent="center" py={2}>
+            <CircularProgress size={24} />
+          </Box>
+        )}
+        
+        {/* If no messages, show empty state */}
         {messages.length === 0 ? (
           <Box
             sx={{
@@ -132,9 +223,11 @@ const ChatHistory = () => {
             <Typography>No history found</Typography>
           </Box>
         ) : (
+          // Message list
           messages.map((message, index) => (
             <Box
               key={index}
+              ref={index === 0 ? firstMessageRef : null}
               sx={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -152,6 +245,7 @@ const ChatHistory = () => {
                   width: '100%',
                 }}
               >
+                {/* User/AI avatar */}
                 <Avatar
                   sx={{
                     bgcolor: message.role === 'user' 
@@ -163,6 +257,8 @@ const ChatHistory = () => {
                 >
                   {message.role === 'user' ? <PersonIcon /> : <SmartToyIcon />}
                 </Avatar>
+                
+                {/* Message bubble */}
                 <Paper
                   elevation={0}
                   sx={{
@@ -201,6 +297,7 @@ const ChatHistory = () => {
             </Box>
           ))
         )}
+        {/* Scroll anchor for bottom scroll */}
         <div ref={messagesEndRef} />
       </Box>
     </Box>
