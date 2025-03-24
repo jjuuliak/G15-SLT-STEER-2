@@ -11,6 +11,7 @@ class MedicalInfo(BaseModel):
 
     id: Optional[PyObjectId] = Field(alias="_id", default=None, exclude=True)
     user_id: Optional[PyObjectId] = Field(default=None, exclude=True)
+    name: Optional[str] = Field(default=None)
     age: Optional[int] = Field(default=None)
     weight: Optional[int] = Field(default=None)
     height: Optional[float] = Field(default=None)
