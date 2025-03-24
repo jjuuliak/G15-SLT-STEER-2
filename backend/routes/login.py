@@ -20,14 +20,14 @@ async def register(user_info: User):
 
     user_info.password = AuthService.hash_password(user_info.password)
 
-    add_user = await database_connection.get_users().insert_one(user_info.model_dump(exclude={"id"}))
+    add_user = await database_connection.get_users().insert_one(user_info.model_dump(exclude={"id", "name"}))
 
     if not add_user:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Could not create user")
 
     user_id: str = str(add_user.inserted_id)
 
-    user_data = await database_connection.get_user_data().insert_one({"user_id": user_id})
+    user_data = await database_connection.get_user_data().insert_one({"user_id": user_id, "name": user_info.name})
 
     if not user_data:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Could not create user data")
