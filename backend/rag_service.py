@@ -45,7 +45,8 @@ class RAGService:
         else:
             context_text = "\n\n".join(context_chunks)
 
-        print(f"Query: {query}\nContext: {context_text}")
+        print(f"Retrieved context: {context_text}")
+        
         prompt = f"""
             [INST]<<SYS>>  
             You are an expert assistant specializing in cardiovascular health.  
