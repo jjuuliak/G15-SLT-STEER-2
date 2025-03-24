@@ -1,5 +1,4 @@
 import time
-from google.genai import types
 
 import database_connection
 
@@ -14,9 +13,10 @@ def format_history(history):
 
     formatted_history = []
     for message in history:
-        formatted_history.append(
-            types.Content(role=message["role"], parts=[types.Part.from_text(text=message["text"])])
-        )
+        formatted_history.append({
+            "role": message["role"],
+            "parts": [{"text": message["text"]}]
+        })
     return formatted_history
 
 
