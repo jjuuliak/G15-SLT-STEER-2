@@ -10,11 +10,13 @@ import {
   IconButton
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import Message from "./Message";
+import { setMealPlan } from "../redux/actionCreators/mealPlanActions"
 
 const Chat = () => {
   const theme = useTheme();
+  const dispatch = useDispatch();
   const initialMessage = {
     text: "Hi and welcome to Lifeline Chat! How can I help you today?\n\n" +
         "1. Create a workout plan\n" +
@@ -54,103 +56,113 @@ const Chat = () => {
     setMessage("");
 
     try {
-      const response = await fetch("http://localhost:8000/ask", {
+      const url = msg.includes('meal plan') ? 'http://localhost:8000/ask-meal-plan' : 'http://localhost:8000/ask';
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: msg })
+        body: msg.includes('meal plan') ? JSON.stringify({ message: 'Create me a meal plan for a week' }) : JSON.stringify({ message: msg })
       });
 
       if (!response.ok) {
         throw new Error(`Error: ${response.statusText}`);
       }
 
-      // Add an empty bot message that we'll update as we receive chunks
-      setMessages((prev) => [...prev, { text: "", sender: "bot" }]);
+
+      if (msg.includes('meal plan')) {
+        const data = await response.json();
+        dispatch(setMealPlan(JSON.parse(data.response)));
+        setMessages((prev) => [...prev, { text: JSON.parse(data.response).explanation, sender: "bot" }]);
       
-      // Set up streaming response handling
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let accumulatedText = ""; // Stores the complete response text
-      let pendingWords = []; // Buffer for words waiting to be displayed
-      let lastRenderTime = 0;
-      const RENDER_INTERVAL = 10;
+      } else {
 
-      // Function to render pending words
-      const renderWords = (timestamp) => {
-        // Check if enough time has passed since last render
-        if (timestamp - lastRenderTime >= RENDER_INTERVAL && pendingWords.length > 0) {
-          // Take up to 3 words from pending buffer
-          const wordsToAdd = pendingWords.splice(0, 3).join('');
-          accumulatedText += wordsToAdd;
-          
-          // Update the message
-          setMessages((prev) => {
-            const newMessages = [...prev];
-            newMessages[newMessages.length - 1] = {
-              text: accumulatedText,
-              sender: "bot"
-            };
-            return newMessages;
-          });
-          
-          lastRenderTime = timestamp;
-        }
+        // Add an empty bot message that we'll update as we receive chunks
+        setMessages((prev) => [...prev, { text: "", sender: "bot" }]);
         
-        // Continue animation if there are more words to render
-        if (pendingWords.length > 0) {
-          requestAnimationFrame(renderWords);
-        }
-      };
+        // Set up streaming response handling
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let accumulatedText = ""; // Stores the complete response text
+        let pendingWords = []; // Buffer for words waiting to be displayed
+        let lastRenderTime = 0;
+        const RENDER_INTERVAL = 10;
 
-      // Read chunks of data as they arrive
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break; // Exit if stream is finished
-
-        // Decode the binary chunk into text and parse the JSONs
-        const chunk = decoder.decode(value);
-        
-
-        // Split concatenated JSON objects and parse them 
-        // since one chunk can contain multiple JSON objects
-        const jsonStrings = chunk
-          .split('}{')
-          .map((str, i, arr) => {
-            if (i === 0) return str + (arr.length > 1 ? '}' : '');
-            if (i === arr.length - 1) return '{' + str;
-            return '{' + str + '}';
-          });
-
-        // Process each JSON object
-        for (const jsonString of jsonStrings) {
-          try {
-            const jsonChunk = JSON.parse(jsonString);
-
-            // Handle text responses for streaming
-            if (jsonChunk.response) {
-              const newText = jsonChunk.response;
-              // Split by whitespace but keep the separators
-              const words = newText.split(/(\s+)/);
-              
-              // Add words to pending buffer
-              pendingWords.push(...words);
-              
-              // Start rendering if not already started
-              if (pendingWords.length === words.length) {
-                requestAnimationFrame(renderWords);
-              }
-            }
+        // Function to render pending words
+        const renderWords = (timestamp) => {
+          // Check if enough time has passed since last render
+          if (timestamp - lastRenderTime >= RENDER_INTERVAL && pendingWords.length > 0) {
+            // Take up to 3 words from pending buffer
+            const wordsToAdd = pendingWords.splice(0, 3).join('');
+            accumulatedText += wordsToAdd;
             
-            // Handle attributes that come
-            if (jsonChunk.attributes) {
-              console.log('Received message attributes:', jsonChunk.attributes);
+            // Update the message
+            setMessages((prev) => {
+              const newMessages = [...prev];
+              newMessages[newMessages.length - 1] = {
+                text: accumulatedText,
+                sender: "bot"
+              };
+              return newMessages;
+            });
+            
+            lastRenderTime = timestamp;
+          }
+          
+          // Continue animation if there are more words to render
+          if (pendingWords.length > 0) {
+            requestAnimationFrame(renderWords);
+          }
+        };
+
+        // Read chunks of data as they arrive
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break; // Exit if stream is finished
+
+          // Decode the binary chunk into text and parse the JSONs
+          const chunk = decoder.decode(value);
+          
+
+          // Split concatenated JSON objects and parse them 
+          // since one chunk can contain multiple JSON objects
+          const jsonStrings = chunk
+            .split('}{')
+            .map((str, i, arr) => {
+              if (i === 0) return str + (arr.length > 1 ? '}' : '');
+              if (i === arr.length - 1) return '{' + str;
+              return '{' + str + '}';
+            });
+
+          // Process each JSON object
+          for (const jsonString of jsonStrings) {
+            try {
+              const jsonChunk = JSON.parse(jsonString);
+
+              // Handle text responses for streaming
+              if (jsonChunk.response) {
+                const newText = jsonChunk.response;
+                // Split by whitespace but keep the separators
+                const words = newText.split(/(\s+)/);
+                
+                // Add words to pending buffer
+                pendingWords.push(...words);
+                
+                // Start rendering if not already started
+                if (pendingWords.length === words.length) {
+                  requestAnimationFrame(renderWords);
+                }
+              }
+              
+              // Handle attributes that come
+              if (jsonChunk.attributes) {
+                console.log('Received message attributes:', jsonChunk.attributes);
+              }
+            } catch (e) {
+              console.warn("Failed to parse JSON string:", e);
+              console.warn("Problematic JSON string:", jsonString);
             }
-          } catch (e) {
-            console.warn("Failed to parse JSON string:", e);
-            console.warn("Problematic JSON string:", jsonString);
           }
         }
       }
