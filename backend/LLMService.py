@@ -30,6 +30,10 @@ class LLMService:
         """
         Initialize LLMService with API key and the model
         """
+
+        if api_key == "test":
+            return
+
         genai.configure(api_key=api_key)
         self.model_name = model_name
         self.sessions: Dict[str, ChatSession] = {}
