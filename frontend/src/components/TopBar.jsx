@@ -5,9 +5,12 @@ import {
   Typography,
   IconButton,
   Menu,
-  MenuItem
+  MenuItem,
+  Box,
+  Button
 } from '@mui/material';
 import AccountCircle from "@mui/icons-material/AccountCircle";
+import MenuIcon from '@mui/icons-material/Menu';
 import { logout } from "../redux/actionCreators/authActions"
 import { useNavigate } from "react-router";
 import { useDispatch } from "react-redux";
@@ -15,11 +18,15 @@ import { useTranslation } from 'react-i18next';
 import PopupWithTabs from "./popup/PopupWithTabs";
 import Profile from "./popup/Profile";
 
+const pages = ['chat', 'meal-plan'];
+
 const TopBar = () => {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [openSettings, setOpenSettings] = useState(false);
   const [openProfile, setOpenProfile] = useState(false);
+
+  const [anchorElNav, setAnchorElNav] = React.useState(null);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -57,14 +64,76 @@ const TopBar = () => {
     navigate('/login');
   }
 
+  const handleOpenNavMenu = (event) => {
+    setAnchorElNav(event.currentTarget);
+  };
+
+  const handleCloseNavMenu = () => {
+    setAnchorElNav(null);
+  };
+
+  const handleNavigate = (page) => {
+    navigate(page === 'chat' ? '/' : `/${page}`);
+    handleCloseNavMenu();
+  };
+
   return (
     <>
     <AppBar position="static">
       <Toolbar>
+        {/*Mobile navigation */}
+        <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+          <IconButton
+            size="large"
+            aria-label="account of current user"
+            aria-controls="menu-appbar"
+            aria-haspopup="true"
+            onClick={handleOpenNavMenu}
+            color="inherit"
+          >
+            <MenuIcon />
+          </IconButton>
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorElNav}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'left',
+            }}
+            open={Boolean(anchorElNav)}
+            onClose={handleCloseNavMenu}
+            sx={{ display: { xs: 'block', md: 'none' } }}
+          >
+            {pages.map((page) => (
+              <MenuItem key={page} onClick={() => handleNavigate(page)}>
+                <Typography sx={{ textAlign: 'center' }}>{t(page)}</Typography>
+              </MenuItem>
+            ))}
+          </Menu>
+        </Box>
+
         {/* Title or Logo */}
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           Heart Disease MVP
         </Typography>
+
+        {/* Navigation links on desktop */}
+        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex', justifyContent: 'right' }, mr: 2 }}>
+          {pages.map((page) => (
+            <Button
+              key={page}
+              onClick={() => handleNavigate(page)}
+              sx={{ my: 2, color: 'white', display: 'block' }}
+            >
+              {t(page)}
+            </Button>
+          ))}
+        </Box>
 
         {/* User Profile Button */}
         <IconButton
