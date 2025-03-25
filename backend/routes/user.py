@@ -21,8 +21,7 @@ async def get_user_profile(credentials: JwtAuthorizationCredentials = Security(A
 
 @router.post("/update-profile")
 async def update_user_profile(request: MedicalInfo, credentials: JwtAuthorizationCredentials = Security(AuthService.get_access_security())):
-    # Don't replace existing values with null if not present
-    update_data = {"$set": {k: v for k, v in request.model_dump(exclude_unset=True, exclude={"id"}).items() if v is not None}}
+    update_data = {"$set": {k: v for k, v in request.model_dump(exclude_unset=True, exclude={"id"}).items()}}
 
     result = await database_connection.get_user_data().update_one({"user_id": credentials["user_id"]}, update_data)
 
