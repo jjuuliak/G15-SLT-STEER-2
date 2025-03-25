@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { 
   Typography, 
@@ -15,6 +15,8 @@ import { parseMealPlanData } from "./mealPlanFunctions";
 
 const MealPlan = () => {
   const mealPlanData = useSelector((state) => state.mealPlan.mealPlanResponse);
+  const accessToken = useSelector((state) => state.auth?.access_token);
+  
   console.log(mealPlanData)
 
   // Example Usage:
@@ -22,6 +24,33 @@ const MealPlan = () => {
   const structuredData = parseMealPlanData(mealPlanData);
   console.log(structuredData);
   console.log(Object.entries(structuredData))
+
+  useEffect(() => {
+    if (accessToken) {
+      fetch("http://localhost:8000/last-meal-plan", {
+        method: "POST",
+        headers: { 
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json"
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to fetch profile data");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          if (data) {
+            console.log(data)
+            //setInitialFormData(newData); // Store initial data
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching meal plans:", error);
+        });
+    }
+  }, []);
 
   return (
     <Container
