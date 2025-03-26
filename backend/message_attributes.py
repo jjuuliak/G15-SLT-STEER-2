@@ -104,3 +104,16 @@ def save_user_waist_measurement(waist_measurement: int) -> int:
 def save_user_family_history_with_heart_disease(family_history_with_heart_disease: bool) -> bool:
     """Call when user provides whether they have family history with heart disease"""
     return family_history_with_heart_disease
+
+
+### Technically not attributes but functions the chat model can call to automate things ###
+
+
+def set_meal_plan_changed(meal_plan_should_be_regenerated: bool) -> bool:
+    """Call when user asks changes for meal plan so updated plan can be generated"""
+    return meal_plan_should_be_regenerated
+
+
+def set_workout_plan_changed(workout_plan_should_be_regenerated: bool) -> bool:
+    """Call when user asks changes for workout plan so updated plan can be generated"""
+    return workout_plan_should_be_regenerated

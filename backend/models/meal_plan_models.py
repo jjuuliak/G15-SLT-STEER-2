@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel
 
 # Note: Adding extra fields here without prompt seems to worsen the accuracy of produced responses
@@ -6,7 +8,7 @@ class Meal(BaseModel):
     """
     One planned meal
     """
-    which_meal: str
+    meal: Literal["Breakfast", "Lunch", "Dinner", "Snack"]
     meal_description: str
     meal_content: list[str]
 

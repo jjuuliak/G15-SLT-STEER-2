@@ -57,20 +57,61 @@ async def read_history(user_id, skip = 0, limit = 10):
     return document.get("history", [])
 
 
-def store_history(user_id, question, answer):
+def store_history(user_id, question, answer, system: bool = False):
     """
     Stores a question-answer pair in chat history
 
     :param user_id: user id
     :param question: user question to ai
     :param answer: answer from ai
-    :return:
+    :param system: whether entry is not directly caused by user's chat input but for example meal plan generation
     """
 
-    # TODO: question may contain additional context for the ai which we don't want to save
-    question_msg = {"role": "user", "text": question, "time": time.time() - 1}
-    answer_msg = {"role": "model", "text": answer, "time": time.time()}
+    question_msg = {"system": system, "role": "user", "text": question, "time": time.time() - 1}
+    answer_msg = {"system": system, "role": "model", "text": answer, "time": time.time()}
 
     database_connection.get_chat_history().update_one(
         {"user_id": user_id}, {"$push": {"history": {"$each": [question_msg, answer_msg]}}}
+    )
+
+
+async def get_meal_plan(user_id):
+    """
+    Gets latest meal plan
+    """
+    document = await database_connection.get_chat_history().find_one({"user_id": user_id})
+
+    if not document:
+        return None
+
+    return document.get("meal_plan", None)
+
+
+def store_meal_plan(user_id, meal_plan):
+    """
+    Stores latest meal plan
+    """
+    database_connection.get_chat_history().update_one(
+        {"user_id": user_id}, {"$set": {"meal_plan": meal_plan}}, upsert=True
+    )
+
+
+async def get_workout_plan(user_id):
+    """
+    Gets latest workout plan
+    """
+    document = await database_connection.get_chat_history().find_one({"user_id": user_id})
+
+    if not document:
+        return None
+
+    return document.get("workout_plan", None)
+
+
+def store_workout_plan(user_id, workout_plan):
+    """
+    Stores latest workout plan
+    """
+    database_connection.get_chat_history().update_one(
+        {"user_id": user_id}, {"$set": {"workout_plan": workout_plan}}, upsert=True
     )
