@@ -7,6 +7,7 @@ from google.generativeai import ChatSession, GenerationConfig, protos
 import chat_history
 import database_connection
 import message_attributes
+import user_stats
 from models.meal_plan_models import MealPlan
 from models.workout_plan_models import WorkoutPlan
 from rag_service import RAGService
@@ -99,6 +100,8 @@ class LLMService:
 
         chat_history.store_history(user_id, message, full_answer)
 
+        user_stats.increment_message_counter(user_id)
+
 
     async def enhance_query(self, user_id: str, user_message: str) -> str:
         """
@@ -155,6 +158,8 @@ class LLMService:
             session.history.append(next_message)
             session.history.append(response.candidates[0].content)
 
+            user_stats.increment_meal_generate_counter(user_id)
+
             return {"response": response.text}
         else:
             return {"response": "Error: No response from model."}
@@ -186,6 +191,8 @@ class LLMService:
             session = await self.get_session(user_id)
             session.history.append(next_message)
             session.history.append(response.candidates[0].content)
+
+            user_stats.increment_workout_generate_counter(user_id)
 
             return {"response": response.text}
         else:
