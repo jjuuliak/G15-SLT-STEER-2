@@ -7,9 +7,9 @@ from auth_service import AuthService
 router = APIRouter()
 
 
-# TODO: let frontend mark plans as completed
-
-
 @router.post("/get-stats")
 async def get_user_stats(credentials: JwtAuthorizationCredentials = Security(AuthService.get_access_security())):
-    return user_stats.get_stats(credentials["user_id"])
+    """
+    Returns all stats and user's progress (See user_stats.calculate_stat)
+    """
+    return {"user_stats": await user_stats.get_stats(credentials["user_id"])}

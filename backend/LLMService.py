@@ -94,13 +94,13 @@ class LLMService:
                         # Function call always has one pair so take first
                         key, value = list(part.function_call.args.items())[0]
                         attributes.append({key: value})
-        
+
         if attributes:
             yield json.dumps({"attributes": attributes})
 
-        chat_history.store_history(user_id, message, full_answer)
+        yield json.dumps({"progress": await user_stats.increment_message_counter(user_id)})
 
-        user_stats.increment_message_counter(user_id)
+        chat_history.store_history(user_id, message, full_answer)
 
 
     async def enhance_query(self, user_id: str, user_message: str) -> str:
@@ -158,9 +158,7 @@ class LLMService:
             session.history.append(next_message)
             session.history.append(response.candidates[0].content)
 
-            user_stats.increment_meal_generate_counter(user_id)
-
-            return {"response": response.text}
+            return {"response": response.text, "progress": await user_stats.increment_meal_generate_counter(user_id)}
         else:
             return {"response": "Error: No response from model."}
 
@@ -192,8 +190,6 @@ class LLMService:
             session.history.append(next_message)
             session.history.append(response.candidates[0].content)
 
-            user_stats.increment_workout_generate_counter(user_id)
-
-            return {"response": response.text}
+            return {"response": response.text, "progress": await user_stats.increment_workout_generate_counter(user_id)}
         else:
             return {"response": "Error: No response from model."}
