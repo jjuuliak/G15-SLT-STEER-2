@@ -98,7 +98,7 @@ class LLMService:
         if attributes:
             yield json.dumps({"attributes": attributes})
 
-        yield json.dumps({"progress": await user_stats.increment_message_counter(user_id)})
+        yield json.dumps({"progress": await user_stats.update_stat(user_id, "messages")})
 
         chat_history.store_history(user_id, message, full_answer)
 
@@ -158,7 +158,7 @@ class LLMService:
             session.history.append(next_message)
             session.history.append(response.candidates[0].content)
 
-            return {"response": response.text, "progress": await user_stats.increment_meal_generate_counter(user_id)}
+            return {"response": response.text, "progress": await user_stats.update_stat(user_id, "meal_plans")}
         else:
             return {"response": "Error: No response from model."}
 
@@ -190,6 +190,6 @@ class LLMService:
             session.history.append(next_message)
             session.history.append(response.candidates[0].content)
 
-            return {"response": response.text, "progress": await user_stats.increment_workout_generate_counter(user_id)}
+            return {"response": response.text, "progress": await user_stats.update_stat(user_id, "workout_plans")}
         else:
             return {"response": "Error: No response from model."}

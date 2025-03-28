@@ -13,6 +13,9 @@ LEVELS = {
 
 
 def calculate_current_and_next_level(stat: str, counter: int) -> (int, int, int):
+    """
+    Calculates current and next level based on stst counter
+    """
     levels = LEVELS[stat]
 
     level = 0
@@ -31,6 +34,8 @@ def calculate_current_and_next_level(stat: str, counter: int) -> (int, int, int)
 
 def calculate_stat(stat: str, counter: int, increment: int = 1) -> {}:
     """
+    Calculates progress after increment
+
     stat: stat name
     counter: current count of events
     increment: how many events were added to the stat
@@ -49,6 +54,9 @@ def calculate_stat(stat: str, counter: int, increment: int = 1) -> {}:
 
 
 async def get_stats(user_id: str) -> []:
+    """
+    Get all stats and user's progress for them
+    """
     user_completed = await database_connection.get_user_stats().find_one({"user_id": user_id})
 
     stats = []
@@ -62,51 +70,12 @@ async def get_stats(user_id: str) -> []:
     return stats
 
 
-async def increment_message_counter(user_id: str) -> {}:
+async def update_stat(user_id: str, stat: str, increment: int = 1) -> {}:
     """
-    Increase user's sent messages counter by 1
-    """
-    result = await database_connection.get_user_stats().find_one_and_update(
-        {"user_id": user_id}, {"$inc": {"messages": 1}}, upsert=True, return_document=ReturnDocument.AFTER
-    )
-    return calculate_stat("messages", result.get("messages"))
-
-
-async def increment_meal_generate_counter(user_id: str) -> {}:
-    """
-    Increase user's generated meal plans counter by 1
+    Update user's stat counter
     """
     result = await database_connection.get_user_stats().find_one_and_update(
-        {"user_id": user_id}, {"$inc": {"meal_plans": 1}}, upsert=True, return_document=ReturnDocument.AFTER
+        {"user_id": user_id}, {"$inc": {stat: increment}}, upsert=True, return_document=ReturnDocument.AFTER
     )
-    return calculate_stat("meal_plans", result.get("meal_plans"))
+    return calculate_stat(stat, result.get(stat))
 
-
-async def increment_meal_complete_counter(user_id: str) -> {}:
-    """
-    Increase user's completed meal plans counter by 1
-    """
-    result = await database_connection.get_user_stats().find_one_and_update(
-        {"user_id": user_id}, {"$inc": {"meals": 1}}, upsert=True, return_document=ReturnDocument.AFTER
-    )
-    return calculate_stat("meals", result.get("meals"))
-
-
-async def increment_workout_generate_counter(user_id: str) -> {}:
-    """
-    Increase user's generated workout plans counter by 1
-    """
-    result = await database_connection.get_user_stats().find_one_and_update(
-        {"user_id": user_id}, {"$inc": {"workout_plans": 1}}, upsert=True, return_document=ReturnDocument.AFTER
-    )
-    return calculate_stat("workout_plans", result.get("workout_plans"))
-
-
-async def increment_workout_complete_counter(user_id: str) -> {}:
-    """
-    Increase user's completed workout plans counter by 1
-    """
-    result = await database_connection.get_user_stats().find_one_and_update(
-        {"user_id": user_id}, {"$inc": {"workouts": 1}}, upsert=True, return_document=ReturnDocument.AFTER
-    )
-    return calculate_stat("workouts", result.get("workouts"))

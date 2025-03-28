@@ -32,7 +32,7 @@ async def complete_meal_plan(credentials: JwtAuthorizationCredentials = Security
     """
     Announce meal plan item completion to update stats (TODO: integrate this to update-meal-plan if ever implemented)
     """
-    return {"progress": await user_stats.increment_meal_complete_counter(credentials["user_id"])}
+    return {"progress": await user_stats.update_stat(credentials["user_id"], "meals")}
 
 
 @router.post("/last-workout-plan")
@@ -59,4 +59,4 @@ async def complete_workout_plan(credentials: JwtAuthorizationCredentials = Secur
     """
     Announce workout plan item completion to update stats (TODO: integrate this to update-workout-plan if ever implemented)
     """
-    return {"progress": await user_stats.increment_workout_complete_counter(credentials["user_id"])}
+    return {"progress": await user_stats.update_stat(credentials["user_id"], "workouts")}
