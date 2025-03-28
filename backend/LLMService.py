@@ -7,6 +7,7 @@ from google.generativeai import ChatSession, GenerationConfig, protos
 import chat_history
 import database_connection
 import message_attributes
+import user_stats
 from models.meal_plan_models import MealPlan
 from models.workout_plan_models import WorkoutPlan
 from rag_service import RAGService
@@ -93,9 +94,11 @@ class LLMService:
                         # Function call always has one pair so take first
                         key, value = list(part.function_call.args.items())[0]
                         attributes.append({key: value})
-        
+
         if attributes:
             yield json.dumps({"attributes": attributes})
+
+        yield json.dumps({"progress": await user_stats.update_stat(user_id, "messages")})
 
         chat_history.store_history(user_id, message, full_answer)
 
@@ -155,7 +158,7 @@ class LLMService:
             session.history.append(next_message)
             session.history.append(response.candidates[0].content)
 
-            return {"response": response.text}
+            return {"response": response.text, "progress": await user_stats.update_stat(user_id, "meal_plans")}
         else:
             return {"response": "Error: No response from model."}
 
@@ -187,6 +190,6 @@ class LLMService:
             session.history.append(next_message)
             session.history.append(response.candidates[0].content)
 
-            return {"response": response.text}
+            return {"response": response.text, "progress": await user_stats.update_stat(user_id, "workout_plans")}
         else:
             return {"response": "Error: No response from model."}
