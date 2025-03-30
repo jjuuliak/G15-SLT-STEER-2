@@ -8,8 +8,21 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from auth_service import AuthService
 
 
+def test_refresh_security():
+    assert AuthService.get_refresh_security() is not None
+
+
 def test_access_security():
     assert AuthService.get_access_security() is not None
+
+
+def test_refresh_token_expiry():
+    # Token not marked as expired shouldn't return as expired
+    assert not AuthService.is_refresh_token_expired("test")
+
+    # Token marked as expired should return as expired
+    AuthService.set_refresh_token_expired("test")
+    assert AuthService.is_refresh_token_expired("test")
 
 
 def test_password_hashing():
