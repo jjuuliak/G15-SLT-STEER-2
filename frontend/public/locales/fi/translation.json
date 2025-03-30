@@ -80,6 +80,10 @@
     "back": "Takaisin",
     "404page": "Hups! Etsimääsi sivua ei ole olemassa.",
     "invalidCredentials": "Väärä sähköposti tai salasana.",
-    "loginErrorOccurred": "Kirjautumisen yhteydessä tapahtui virhe. Yritä myöhemmin uudelleen."
+    "loginErrorOccurred": "Kirjautumisen yhteydessä tapahtui virhe. Yritä myöhemmin uudelleen.",
+    "chatHistory": "Chat historia",
+    "noHistoryFound": "Ei viestejä historiassa",
+    "chat": "Chat",
+    "meal-plan": "Ateriasuunnitelma"
 }
   
