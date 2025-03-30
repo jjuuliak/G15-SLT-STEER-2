@@ -10,7 +10,15 @@ import message_attributes
 from models.meal_plan_models import MealPlan
 from models.workout_plan_models import WorkoutPlan
 from rag_service import RAGService
-
+from google.api_core.exceptions import (
+    NotFound,
+    ResourceExhausted,
+    PermissionDenied,
+    ServiceUnavailable,
+    ServerError,
+    BadRequest
+)
+import asyncio
 
 rag = RAGService()
 
@@ -65,16 +73,73 @@ class LLMService:
         """
         Asks question from AI model and returns the streamed answer and possible attributes
         """
+
+        async def get_response():
+            """
+            Gets the streamed response from the API
+            """
+            enhanced_query = await self.enhance_query(user_id, message)
+
+            return session.send_message(
+                await get_prompt(user_id, enhanced_query),
+                stream=True,
+                tools=[function for name, function in inspect.getmembers(message_attributes) if inspect.isfunction(function)],
+                tool_config=protos.ToolConfig(function_calling_config={"mode": "AUTO"})
+            )
+        
         session = await self.get_session(user_id)
-        enhanced_query = await self.enhance_query(user_id, message)
+        response = None
 
         try:
-            response = session.send_message(await get_prompt(user_id, enhanced_query), stream=True,
-                                            tools=[function for name, function in inspect.getmembers(message_attributes) if inspect.isfunction(function)],
-                                            tool_config=protos.ToolConfig(function_calling_config={"mode": "AUTO"}))
+            response = await get_response()
+
+        except BadRequest as e:
+            yield json.dumps({"response": f"Error: Bad request.\n\nDetails: {e.message}"})
+            return
+
+        except NotFound as e:
+            yield json.dumps({"response": f"Error: The requested resource could not be found.\n\nDetails: {e.message}"})
+            return
+
+        except ResourceExhausted as e:
+            try:
+                retry_info = e.details[2]
+                retry_seconds = str(retry_info.retry_delay.seconds)
+
+                yield json.dumps({"response": f"Error: API rate limit exceeded. Please try again in {retry_seconds} seconds."})
+
+            except Exception:
+                yield json.dumps({"response": "Error: API rate limit exceeded. Please try again later."})
+            return
+
+        except PermissionDenied as e:
+            yield json.dumps({"response": f"Error: Permission to the API was denied. Please check your API key and permissions.\n\nDetails: {e.message}"})
+            return
+        
+        except ServiceUnavailable as e:
+            # Reset broken session
+            self.sessions[user_id] = self.model.start_chat(history=await chat_history.load_history(user_id))
+            session = self.sessions[user_id]
+
+            # Try getting response again after 5 seconds
+            await asyncio.sleep(5)
+
+            try:
+                response = await get_response()
+
+            except ServiceUnavailable as e:
+                # Reset broken session
+                self.sessions[user_id] = self.model.start_chat(history=await chat_history.load_history(user_id))
+
+                yield json.dumps({"response": f"Error: The API is temporarily unavailable. Please try again later.\n\nDetails: {e.message}"})
+                return
+
+        except ServerError as e:
+            yield json.dumps({"response": f"Error: An internal server error occurred with the API.\n\nDetails: {e.message}"})
+            return
 
         except Exception:
-            yield json.dumps({"response": "Error: No response from model."})
+            yield json.dumps({"response": "Error: An unexpected error occurred."})
             return
 
         full_answer = ""
@@ -93,7 +158,7 @@ class LLMService:
                         # Function call always has one pair so take first
                         key, value = list(part.function_call.args.items())[0]
                         attributes.append({key: value})
-        
+
         if attributes:
             yield json.dumps({"attributes": attributes})
 
