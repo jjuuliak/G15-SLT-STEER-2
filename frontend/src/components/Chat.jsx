@@ -33,6 +33,7 @@ const Chat = () => {
     sender: "bot"
   };
   const [message, setMessage] = useState("");
+  const messagesFromRedux = useSelector((state) => state.chat.messages);
   const [messages, setMessages] = useState([initialMessage]);
   const [loading, setLoading] = useState(false);
   const accessToken = useSelector((state) => state.auth?.access_token);
@@ -40,10 +41,11 @@ const Chat = () => {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
+    setMessages(messagesFromRedux);
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [messagesFromRedux]);
 
   const sendMessage = async (msg = message) => {
     if (typeof msg !== 'string' || !msg.trim()) {
@@ -53,6 +55,7 @@ const Chat = () => {
     setLoading(true);
     const userMessage = { text: msg, sender: "test_user" }; 
     setMessages((prev) => [...prev, userMessage]);
+    dispatch({ type: 'SET_MESSAGES', payload: [...messages, userMessage] });
     setMessage("");
 
     try {
@@ -70,16 +73,16 @@ const Chat = () => {
         throw new Error(`Error: ${response.statusText}`);
       }
 
-
       if (msg.includes('meal plan')) {
         const data = await response.json();
         dispatch(setMealPlan(JSON.parse(data.response)));
-        setMessages((prev) => [...prev, { text: JSON.parse(data.response).explanation, sender: "bot" }]);
-      
+        const botMessage = { text: JSON.parse(data.response).explanation, sender: "bot" };
+        setMessages((prev) => [...prev, botMessage]);
+        dispatch({ type: 'SET_MESSAGES', payload: [...messages, userMessage, botMessage] });
       } else {
-
         // Add an empty bot message that we'll update as we receive chunks
-        setMessages((prev) => [...prev, { text: "", sender: "bot" }]);
+        const botMessage = { text: "", sender: "bot" };
+        setMessages((prev) => [...prev, botMessage]);
         
         // Set up streaming response handling
         const reader = response.body.getReader();
@@ -124,7 +127,6 @@ const Chat = () => {
           // Decode the binary chunk into text and parse the JSONs
           const chunk = decoder.decode(value);
           
-
           // Split concatenated JSON objects and parse them 
           // since one chunk can contain multiple JSON objects
           const jsonStrings = chunk
@@ -165,6 +167,8 @@ const Chat = () => {
             }
           }
         }
+        // Dispatch the final bot message to Redux
+        dispatch({ type: 'SET_MESSAGES', payload: [...messages, userMessage, { text: accumulatedText, sender: "bot" }] });
       }
     } catch (error) {
       console.error("Error sending message:", error);

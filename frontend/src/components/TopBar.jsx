@@ -60,6 +60,7 @@ const TopBar = () => {
   }
 
   const handleLogout = () => {
+    dispatch({ type: 'RESET_MESSAGES' });
     dispatch(logout());
     navigate('/login');
   }
