@@ -16,7 +16,8 @@ class RAGService:
         try:
             self.vector_store = FAISS.load_local(DATABASE_PATH, embeddings, 
                                                  allow_dangerous_deserialization=True)
-        except:
+        except Exception as e:
+            print(f"Warning: Failed to load FAISS index. Error: {e}")
             self.vector_store = None
 
     def retrieve_relevant_chunks(self, query, top_k, score_threshold = 0.84):
