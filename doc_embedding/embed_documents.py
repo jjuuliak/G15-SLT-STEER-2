@@ -109,7 +109,9 @@ def process_and_store(vector_store, urls):
         text, title = load_webpage(url)
         if text:
             chunks = chunk_text(text)
-            all_chunks.extend(chunks)
+            # Include title in chunks
+            titled_chunks = [f"Title: {title}\n{chunk}" for chunk in chunks]
+            all_chunks.extend(titled_chunks)
 
             # Add title as metadata for each chunk
             metadata_list.extend([{"title": title, "url": url}] * len(chunks))
