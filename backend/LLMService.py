@@ -4,6 +4,7 @@ from typing import AsyncGenerator
 from typing import Dict
 import google.generativeai as genai
 from google.generativeai import ChatSession, GenerationConfig, protos
+from google.generativeai.types.generation_types import GenerateContentResponse
 import chat_history
 import database_connection
 import message_attributes
@@ -69,29 +70,57 @@ class LLMService:
         return self.sessions[user_id]
 
 
-    async def send_message(self, user_id: str, message: str) -> AsyncGenerator:
+    async def get_response(self, user_id: str, message: str, session: ChatSession) -> AsyncGenerator:        
+        """
+        Gets the streamed response from the API
+        """
+        enhanced_query = await self.enhance_query(user_id, message)
+
+        return session.send_message(
+            await get_prompt(user_id, enhanced_query),
+            stream=True,
+            tools=[function for name, function in inspect.getmembers(message_attributes) if inspect.isfunction(function)],
+            tool_config=protos.ToolConfig(function_calling_config={"mode": "AUTO"})
+        )
+    
+    async def process_response(self, response: GenerateContentResponse) -> AsyncGenerator[str]:
+            """
+            Processes the streamed response, yielding the response and possible attributes
+            """
+            attributes = []
+            for chunk in response:
+                for candidate in chunk.candidates:
+                    for part in candidate.content.parts:
+                        # Save and send text chunk by chunk if present
+                        if part.text:
+                            yield json.dumps({"response": part.text})
+
+                        # Save function call attributes and values if present
+                        if part.function_call:
+                            # Function call always has one pair so take first
+                            key, value = list(part.function_call.args.items())[0]
+                            attributes.append({key: value})
+
+            if attributes:
+                yield json.dumps({"attributes": attributes})
+    
+    async def send_message(self, user_id: str, message: str) -> AsyncGenerator[str]:
         """
         Asks question from AI model and returns the streamed answer and possible attributes
         """
-
-        async def get_response():
-            """
-            Gets the streamed response from the API
-            """
-            enhanced_query = await self.enhance_query(user_id, message)
-
-            return session.send_message(
-                await get_prompt(user_id, enhanced_query),
-                stream=True,
-                tools=[function for name, function in inspect.getmembers(message_attributes) if inspect.isfunction(function)],
-                tool_config=protos.ToolConfig(function_calling_config={"mode": "AUTO"})
-            )
-        
         session = await self.get_session(user_id)
         response = None
+        full_answer = ""
 
-        try:
-            response = await get_response()
+        try:            
+            response = await self.get_response(user_id, message, session)
+            async for chunk in self.process_response(response):
+                yield chunk 
+
+                chunk_data = json.loads(chunk)
+                if "response" in chunk_data:
+                    chunk_text = chunk_data["response"]
+                    full_answer += chunk_text
 
         except BadRequest as e:
             yield json.dumps({"response": f"Error: Bad request.\n\nDetails: {e.message}"})
@@ -125,7 +154,14 @@ class LLMService:
             await asyncio.sleep(5)
 
             try:
-                response = await get_response()
+                response = await self.get_response(user_id, message, session)
+                async for chunk in self.process_response(response):
+                    yield chunk 
+
+                    chunk_data = json.loads(chunk)
+                    if "response" in chunk_data:
+                        chunk_text = chunk_data["response"]
+                        full_answer += chunk_text
 
             except ServiceUnavailable as e:
                 # Reset broken session
@@ -141,26 +177,6 @@ class LLMService:
         except Exception:
             yield json.dumps({"response": "Error: An unexpected error occurred."})
             return
-
-        full_answer = ""
-        attributes = []
-
-        for chunk in response:
-            for candidate in chunk.candidates:
-                for part in candidate.content.parts:
-                    # Save and send text chunk by chunk if present
-                    if part.text:
-                        full_answer += part.text
-                        yield json.dumps({"response": part.text})
-
-                    # Save function call attributes and values if present
-                    if part.function_call:
-                        # Function call always has one pair so take first
-                        key, value = list(part.function_call.args.items())[0]
-                        attributes.append({key: value})
-
-        if attributes:
-            yield json.dumps({"attributes": attributes})
 
         chat_history.store_history(user_id, message, full_answer)
 
