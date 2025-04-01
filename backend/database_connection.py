@@ -9,6 +9,9 @@ USERS_COLLECTION = "users"
 USER_DATA_DATABASE = "user_data_db"
 USER_DATA_COLLECTION = "user_data"
 
+USER_STATS_DATABASE = "user_stats_db"
+USER_STATS_COLLECTION = "user_stats"
+
 CHAT_HISTORY_DATABASE = "chat_history_db"
 CHAT_HISTORY_COLLECTION = "chat_history"
 
@@ -23,6 +26,7 @@ async def connect_mongodb():
     print(await mongo.server_info())
     await get_users().create_index([("email", 1)], unique=True)
     await get_user_data().create_index([("user_id", 1)], unique=True)
+    await get_user_stats().create_index([("user_id", 1)], unique=True)
     await get_chat_history().create_index([("user_id", 1)], unique=True)
     return
 
@@ -33,6 +37,10 @@ def get_users():
 
 def get_user_data():
     return mongo.get_database(USER_DATA_DATABASE).get_collection(USER_DATA_COLLECTION)
+
+
+def get_user_stats():
+    return mongo.get_database(USER_STATS_DATABASE).get_collection(USER_STATS_COLLECTION)
 
 
 def get_chat_history():
