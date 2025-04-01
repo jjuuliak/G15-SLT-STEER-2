@@ -1,0 +1,12 @@
+.family {
+    padding: 16px;
+    background-color: #EBF5F3;
+}
+.hamster-family-image-container {
+    margin-left: 50px;
+}
+
+.family-image {
+    width: auto;
+    height: 120px;
+}

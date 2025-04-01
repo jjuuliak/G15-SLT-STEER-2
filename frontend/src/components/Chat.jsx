@@ -11,12 +11,16 @@ import {
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import { useSelector, useDispatch } from "react-redux";
+import { useLocation, useNavigate } from 'react-router';
 import Message from "./Message";
 import { setMealPlan } from "../redux/actionCreators/mealPlanActions"
 
 const Chat = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const hasSent = useRef(false); // To make sure that the message from dashboard is not sent twice
   const initialMessage = {
     text: "Hi and welcome to Lifeline Chat! How can I help you today?\n\n" +
         "1. Create a workout plan\n" +
@@ -39,6 +43,18 @@ const Chat = () => {
   const accessToken = useSelector((state) => state.auth?.access_token);
 
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    const initial = location.state?.initialMessage;
+
+    if (initial && !hasSent.current) {
+      hasSent.current = true; // Prevent re-trigger
+      setMessages((prev) => [...prev, initial]);
+      sendMessage(initial);
+
+      navigate(location.pathname, { replace: true }); // Clean the message from the state
+    }
+  }, [location.state]);
 
   useEffect(() => {
     setMessages(messagesFromRedux);

@@ -56,6 +56,7 @@ const MealPlan = () => {
     <Container
       id='meal-plan-container'
       className="meal-plan-container"
+      maxWidth={true}
       >
       <TopBar />
       {Object.entries(structuredData)?.length <= 0? (

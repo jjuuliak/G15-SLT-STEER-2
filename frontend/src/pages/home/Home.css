@@ -1,0 +1,46 @@
+.dashboard {
+  display: grid;
+  grid-template-areas:
+    "header header header"
+    "mealplan vitals weight"
+    "mealplan chat exercise"
+    "mealplan chat family";
+  grid-template-columns: 1fr 1.5fr 1.5fr;
+  grid-template-rows: 20px 200px 250px 160px;
+  gap: 20px;
+  padding: 20px;
+}
+
+body {
+  margin: 0;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  background-color: #fefefe;
+}
+
+header {
+  grid-area: header;
+}
+
+.mealplan {
+  grid-area: mealplan;
+}
+
+.vitals {
+  grid-area: vitals;
+}
+
+.weight {
+  grid-area: weight;
+}
+
+.exercise {
+  grid-area: exercise;
+}
+
+.chat {
+  grid-area: chat;
+}
+
+.family {
+  grid-area: family;
+}
