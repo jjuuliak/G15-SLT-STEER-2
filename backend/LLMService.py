@@ -25,14 +25,14 @@ import asyncio
 rag = RAGService()
 
 
-async def get_prompt(user_id: str, message: str):
+async def get_prompt(user_id: str, message: str, language: str):
     """
     Create prompt with the question and all relevant information
     """
     user_data = await database_connection.get_user_data().find_one({"user_id": user_id})
     user_info = {"user_data": {k: v for k, v in user_data.items() if k != "_id" and k != "user_id"}}
 
-    return rag.build_prompt(message, user_info)
+    return rag.build_prompt(message, user_info, language)
 
 
 class LLMService:
@@ -71,14 +71,14 @@ class LLMService:
         return self.sessions[user_id]
 
 
-    async def get_response(self, user_id: str, message: str, session: ChatSession) -> AsyncGenerator:        
+    async def get_response(self, user_id: str, message: str, language: str, session: ChatSession) -> AsyncGenerator:
         """
         Gets the streamed response from the API
         """
         enhanced_query = await self.enhance_query(user_id, message)
 
         return session.send_message(
-            await get_prompt(user_id, enhanced_query),
+            await get_prompt(user_id, enhanced_query, language),
             stream=True,
             tools=[function for name, function in inspect.getmembers(message_attributes) if inspect.isfunction(function)],
             tool_config=protos.ToolConfig(function_calling_config={"mode": "AUTO"})
@@ -105,7 +105,7 @@ class LLMService:
             if attributes:
                 yield json.dumps({"attributes": attributes})
     
-    async def send_message(self, user_id: str, message: str) -> AsyncGenerator[str]:
+    async def send_message(self, user_id: str, message: str, language: str) -> AsyncGenerator[str]:
         """
         Asks question from AI model and returns the streamed answer and possible attributes
         """
@@ -114,9 +114,9 @@ class LLMService:
         full_answer = ""
 
         try:            
-            response = await self.get_response(user_id, message, session)
+            response = await self.get_response(user_id, message, language, session)
             async for chunk in self.process_response(response):
-                yield chunk 
+                yield chunk
 
                 chunk_data = json.loads(chunk)
                 if "response" in chunk_data:
@@ -155,7 +155,7 @@ class LLMService:
             await asyncio.sleep(5)
 
             try:
-                response = await self.get_response(user_id, message, session)
+                response = await self.get_response(user_id, message, language, session)
                 async for chunk in self.process_response(response):
                     yield chunk 
 
@@ -211,7 +211,7 @@ class LLMService:
         return response.text if response else None
 
 
-    async def ask_meal_plan(self, user_id: str, message: str) -> {}:
+    async def ask_meal_plan(self, user_id: str, message: str, language: str) -> {}:
         """
         Asks for meal plan formatted as a MealPlan model from the AI
         """
@@ -219,7 +219,7 @@ class LLMService:
         contents = await chat_history.load_history(user_id)
         next_message = {
             "role": "user",
-            "parts": [{"text": await get_prompt(user_id, message)}]
+            "parts": [{"text": await get_prompt(user_id, message, language)}]
         }
         contents.append(next_message)
 
@@ -243,7 +243,7 @@ class LLMService:
             return {"response": "Error: No response from model."}
 
 
-    async def ask_workout_plan(self, user_id: str, message: str) -> {}:
+    async def ask_workout_plan(self, user_id: str, message: str, language: str) -> {}:
         """
         Asks for workout plan formatted as a WorkoutPlan model from the AI
         """
@@ -251,7 +251,7 @@ class LLMService:
         contents = await chat_history.load_history(user_id)
         next_message = {
             "role": "user",
-            "parts": [{"text": await get_prompt(user_id, message)}]
+            "parts": [{"text": await get_prompt(user_id, message, language)}]
         }
         contents.append(next_message)
 

@@ -23,7 +23,7 @@ async def ask_llm(request: ChatModel, credentials: JwtAuthorizationCredentials =
     if not request.message.strip():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Message cannot be empty")
 
-    return StreamingResponse(llm_service.send_message(credentials["user_id"], request.message))
+    return StreamingResponse(llm_service.send_message(credentials["user_id"], request.message, request.language))
 
 
 @router.post("/ask-meal-plan")
@@ -31,7 +31,7 @@ async def ask_llm(request: ChatModel, credentials: JwtAuthorizationCredentials =
     if not request.message.strip():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Message cannot be empty")
 
-    return await llm_service.ask_meal_plan(credentials["user_id"], request.message)
+    return await llm_service.ask_meal_plan(credentials["user_id"], request.message, request.language)
 
 
 @router.post("/ask-workout-plan")
@@ -39,7 +39,7 @@ async def ask_llm(request: ChatModel, credentials: JwtAuthorizationCredentials =
     if not request.message.strip():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Message cannot be empty")
 
-    return await llm_service.ask_workout_plan(credentials["user_id"], request.message)
+    return await llm_service.ask_workout_plan(credentials["user_id"], request.message, request.language)
 
 
 @router.post("/history")
