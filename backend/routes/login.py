@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 from starlette import status
 
+import chat_history
 import database_connection
 from auth_service import AuthService
 from models.login_model import UserLogin
@@ -56,6 +57,7 @@ async def login(user_info: UserLogin):
 @router.post("/logout")  # with refresh_token
 def refresh(credentials: JwtAuthorizationCredentials = Security(AuthService.get_refresh_security())):
     AuthService.set_refresh_token_expired(credentials.jti)  # access_token will expire within 15 minutes
+    chat_history.close(credentials["user_id"])
     return {}
 
 
