@@ -231,7 +231,7 @@ class LLMService:
 
         if response and response.text:
             chat_history.store_history(user_id, message, response.text, system=True)
-            chat_history.store_meal_plan(user_id, response.text)
+            chat_history.store_plan(user_id, "meal_plan", response.text)
 
             # Write directly to chat history too so it will be available to the model without reload from database
             session = await self.get_session(user_id)
@@ -263,7 +263,7 @@ class LLMService:
 
         if response and response.text:
             chat_history.store_history(user_id, message, response.text, system=True)
-            chat_history.store_workout_plan(user_id, response.text)
+            chat_history.store_plan(user_id, "workout_plan", response.text)
 
             # Write directly to chat history too so it will be available to the model without reload from database
             session = await self.get_session(user_id)
