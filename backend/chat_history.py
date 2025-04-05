@@ -1,3 +1,4 @@
+import json
 import time
 
 import database_connection
@@ -79,7 +80,7 @@ async def get_meal_plan(user_id):
     """
     Gets latest meal plan
     """
-    document = await database_connection.get_chat_history().find_one({"user_id": user_id})
+    document = await database_connection.get_chat_history().find_one({"user_id": user_id}, {"meal_plan": 1})
 
     if not document:
         return None
@@ -91,16 +92,47 @@ def store_meal_plan(user_id, meal_plan):
     """
     Stores latest meal plan
     """
+    meal_plan = json.loads(meal_plan)
+    meal_plan["created"] = time.time()
+    meal_plan["completed"] = False
+
     database_connection.get_chat_history().update_one(
         {"user_id": user_id}, {"$set": {"meal_plan": meal_plan}}, upsert=True
     )
+
+
+async def complete_meal_plan(user_id):
+    """
+    Marks meal plan as completed
+
+    :param user_id: user id
+    :return: true if success, false if it doesn't exist or is already completed
+    """
+
+    document = await database_connection.get_chat_history().find_one({"user_id": user_id}, {"meal_plan": 1})
+
+    if not document or "meal_plan" not in document:
+        return False
+
+    meal_plan = document.get("meal_plan")
+
+    if meal_plan.get("completed"):
+        return False
+
+    meal_plan["completed"] = True
+
+    await database_connection.get_chat_history().update_one(
+        {"user_id": user_id}, {"$set": {"meal_plan": meal_plan}}
+    )
+
+    return True
 
 
 async def get_workout_plan(user_id):
     """
     Gets latest workout plan
     """
-    document = await database_connection.get_chat_history().find_one({"user_id": user_id})
+    document = await database_connection.get_chat_history().find_one({"user_id": user_id}, {"workout_plan": 1})
 
     if not document:
         return None
@@ -112,6 +144,37 @@ def store_workout_plan(user_id, workout_plan):
     """
     Stores latest workout plan
     """
+    workout_plan = json.loads(workout_plan)
+    workout_plan["created"] = time.time()
+    workout_plan["completed"] = False
+
     database_connection.get_chat_history().update_one(
         {"user_id": user_id}, {"$set": {"workout_plan": workout_plan}}, upsert=True
     )
+
+
+async def complete_workout_plan(user_id):
+    """
+    Marks workout plan as completed
+
+    :param user_id: user id
+    :return: true if success, false if it doesn't exist or is already completed
+    """
+
+    document = await database_connection.get_chat_history().find_one({"user_id": user_id}, {"workout_plan": 1})
+
+    if not document or "workout_plan" not in document:
+        return False
+
+    workout_plan = document.get("workout_plan")
+
+    if workout_plan.get("completed"):
+        return False
+
+    workout_plan["completed"] = True
+
+    await database_connection.get_chat_history().update_one(
+        {"user_id": user_id}, {"$set": {"workout_plan": workout_plan}}
+    )
+
+    return True
