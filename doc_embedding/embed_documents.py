@@ -131,6 +131,9 @@ def index_exists(path):
 
 
 def main():
+    if os.getenv("CI_TEST") == "true":
+        return
+
     # Don't run if an index already exists
     if index_exists(DATABASE_PATH):
         print("FAISS index already exists. Skipping embedding process.")

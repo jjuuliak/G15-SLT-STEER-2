@@ -24,10 +24,8 @@ jobs:
       with:
         compose-file: "./docker-compose.yml"
         up-flags: "--build"
-        services: |
-          database
-          backend
-          frontend
+      env:
+        CI_TEST: "true"
     - name: Backend Tests
       run: docker compose exec backend pytest tests
     - name: Frontend Tests
