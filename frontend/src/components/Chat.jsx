@@ -85,6 +85,7 @@ const Chat = () => {
       }
       else if (msg.includes('workout plan')) {
         const data = await response.json();
+        console.log("workout plan data in Chat.jsx", data)
         dispatch(setWorkoutPlan(JSON.parse(data.response)));
         setMessages((prev) => [...prev, { text: JSON.parse(data.response).explanation, sender: "bot" }]);
       }
