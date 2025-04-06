@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { TextField, Button, Box, Typography, InputAdornment, IconButton, useTheme  } from '@mui/material';
 import { useNavigate } from 'react-router';
@@ -28,19 +27,25 @@ const LogIn = () => {
           const result = await handleLogin(email, password);
           dispatch(loginSuccess(result));
           navigate('/');
-          
       } catch (err) {
         if (err.message === 'Invalid login credentials') {
           setError(t('invalidCredentials'));
-      } else {
+        } else {
           setError(t('loginErrorOccurred'));
+        }
       }
-      }
-      };
+    };
 
-      const togglePasswordVisibility = () => {
+    const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
-      };
+    };
+
+    // Function to handle key down events
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            loginUser(); // Call loginUser when Enter is pressed
+        }
+    };
 
     return (
       <Box
@@ -49,8 +54,10 @@ const LogIn = () => {
         flexDirection: 'row',
         width: '100%',
         height: '100vh',
-        
-      }}>
+      }}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+    >
       
       <Box // Left side green picture
       sx={{
@@ -64,11 +71,9 @@ const LogIn = () => {
         position: 'relative',
         overflow: 'hidden', // Prevent heartbeat svg from overflowing to login view
       }}>
-    
         <Logo />
         <LifelineImage />
       </Box>
-
 
       <Box // Box for login view
       sx={{
