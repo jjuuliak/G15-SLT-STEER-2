@@ -26,14 +26,14 @@ import asyncio
 rag = RAGService()
 
 
-async def get_prompt(user_id: str, message: str, requires_retrieval: bool):
+async def get_prompt(user_id: str, message: str, retrieval_query: str, requires_retrieval: bool):
     """
     Create prompt with the question and all relevant information
     """
     user_data = await database_connection.get_user_data().find_one({"user_id": user_id})
     user_info = {"user_data": {k: v for k, v in user_data.items() if k != "_id" and k != "user_id"}}
 
-    return rag.build_prompt(message, user_info, requires_retrieval)
+    return rag.build_prompt(message, retrieval_query, user_info, requires_retrieval)
 
 
 class LLMService:
@@ -80,11 +80,11 @@ class LLMService:
         Gets the streamed response from the API
         """
         enhanced_query_result = await self.enhance_query(user_id, message)
-        enhanced_query = enhanced_query_result.rewritten_query
+        retrieval_query = enhanced_query_result.rewritten_query
         requires_retrieval = enhanced_query_result.requires_retrieval
         
         return session.send_message(
-            await get_prompt(user_id, enhanced_query, requires_retrieval),
+            await get_prompt(user_id, message, retrieval_query, requires_retrieval),
             stream=True,
             tools=[function for name, function in inspect.getmembers(message_attributes) if inspect.isfunction(function)],
             tool_config=protos.ToolConfig(function_calling_config={"mode": "AUTO"})
@@ -222,8 +222,8 @@ class LLMService:
             try:
                 parsed = QueryEnhancement(**json.loads(response.text))
                 print(f"Original message: {user_message}")
-                print(f"Rewritten query: {parsed.rewritten_query}")
-                print(f"Retrieval: {parsed.requires_retrieval}")
+                print(f"Retrieval query: {parsed.rewritten_query}")
+                print(f"Document retrieval: {parsed.requires_retrieval}")
                 return parsed
             except Exception as e:
                 print(f"Error parsing enhanced query: {e}")
