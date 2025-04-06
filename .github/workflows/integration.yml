@@ -19,15 +19,12 @@ jobs:
         echo "API_KEY=test" >> .env
         echo "MONGO_USER=test" >> .env
         echo "MONGO_PASSWORD=test" >> .env
+        echo "CI_TEST=true" >> .env
     - name: Start Docker
       uses: hoverkraft-tech/compose-action@v2.2.0
       with:
         compose-file: "./docker-compose.yml"
         up-flags: "--build"
-        services: |
-          database
-          backend
-          frontend
     - name: Backend Tests
       run: docker compose exec backend pytest tests
     - name: Frontend Tests
