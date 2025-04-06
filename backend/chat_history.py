@@ -3,6 +3,9 @@ import time
 import database_connection
 
 
+SESSIONS = {}
+
+
 def format_history(history):
     """
     Format history to what the model expects
@@ -18,6 +21,27 @@ def format_history(history):
             "parts": [{"text": message["text"]}]
         })
     return formatted_history
+
+
+async def close(user_id: str):
+    """
+    Closes user session's chat history
+    :param user_id: user id
+    """
+    if user_id in SESSIONS:
+        SESSIONS.pop(user_id)
+
+
+async def get_history(user_id: str):
+    """
+    Gets chat history or creates it if it doesn't exist and formats it for the AI
+    :param user_id: user id
+    :return: chat history or empty array if it didn't exist
+    """
+    if user_id not in SESSIONS:
+        SESSIONS[user_id] = await load_history(user_id)
+
+    return SESSIONS[user_id].copy()  # Return a copy to not append next instruction into history
 
 
 async def load_history(user_id, limit = 100):
@@ -69,6 +93,12 @@ def store_history(user_id, question, answer, system: bool = False):
 
     question_msg = {"system": system, "role": "user", "text": question, "time": time.time() - 1}
     answer_msg = {"system": system, "role": "model", "text": answer, "time": time.time()}
+
+    if user_id not in SESSIONS:
+        SESSIONS[user_id] = []
+
+    SESSIONS[user_id].append({"role": "user", "parts": [{"text": question}]})
+    SESSIONS[user_id].append({"role": "model", "parts": [{"text": answer}]})
 
     database_connection.get_chat_history().update_one(
         {"user_id": user_id}, {"$push": {"history": {"$each": [question_msg, answer_msg]}}}
