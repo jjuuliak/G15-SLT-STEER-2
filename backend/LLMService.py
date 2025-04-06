@@ -1,5 +1,6 @@
 import inspect
 import json
+import os
 from typing import AsyncGenerator
 from typing import Dict
 import google.generativeai as genai
@@ -41,7 +42,7 @@ class LLMService:
         Initialize LLMService with API key and the model
         """
 
-        if api_key == "test":
+        if os.getenv("CI_TEST") == "true":
             return
 
         genai.configure(api_key=api_key)
