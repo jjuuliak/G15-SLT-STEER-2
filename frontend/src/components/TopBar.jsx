@@ -7,7 +7,8 @@ import {
   Menu,
   MenuItem,
   Box,
-  Button
+  Button,
+  ButtonBase
 } from '@mui/material';
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import MenuIcon from '@mui/icons-material/Menu';
@@ -60,6 +61,7 @@ const TopBar = () => {
   }
 
   const handleLogout = () => {
+    dispatch({ type: 'RESET_MESSAGES' });
     dispatch(logout());
     navigate('/login');
   }
@@ -73,7 +75,7 @@ const TopBar = () => {
   };
 
   const handleNavigate = (page) => {
-    navigate(page === 'chat' ? '/' : `/${page}`);
+    navigate(`/${page}`);
     handleCloseNavMenu();
   };
 
@@ -118,9 +120,11 @@ const TopBar = () => {
         </Box>
 
         {/* Title or Logo */}
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          Heart Disease MVP
-        </Typography>
+        <ButtonBase onClick={() => navigate('/')}>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            Heart Disease MVP
+          </Typography>
+        </ButtonBase>
 
         {/* Navigation links on desktop */}
         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex', justifyContent: 'right' }, mr: 2 }}>

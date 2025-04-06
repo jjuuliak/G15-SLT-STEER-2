@@ -1,0 +1,21 @@
+.mealplan {
+  padding: 10px;
+  background-color: #EBF5F3;
+  border-radius: 8px;
+}
+
+.day-label {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.meal-box {
+  height: 80px;
+  border: 1px dashed #999;
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}

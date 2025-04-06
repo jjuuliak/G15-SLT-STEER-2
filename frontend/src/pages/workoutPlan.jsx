@@ -14,10 +14,29 @@ const WorkoutPlan = () => {
 
     // Function to parse the workout plan JSON
     const parseWorkoutPlan = (workoutPlan) => {
-        if (!workoutPlan) return { days: [], explanation: "" };
-        
-        const parsedData = JSON.parse(workoutPlan.workout_plan);
-        return { days: parsedData.days, explanation: parsedData.explanation };
+        if (!workoutPlan) {
+            console.warn("Invalid workout plan data:", workoutPlan);
+            return { days: [], explanation: "" }; // Return empty structure if invalid
+        }
+
+        // Check if workoutPlan is already an object
+        if (typeof workoutPlan === 'object') {
+            return { days: workoutPlan.days || [], explanation: workoutPlan.explanation || "" };
+        }
+
+        // If it's a string, try to parse it
+        if (typeof workoutPlan.workout_plan === 'string') {
+            try {
+                const parsedData = JSON.parse(workoutPlan.workout_plan);
+                return { days: parsedData.days, explanation: parsedData.explanation };
+            } catch (error) {
+                console.error("Error parsing workout plan JSON:", error);
+                return { days: [], explanation: "" }; // Return empty structure on parse error
+            }
+        }
+
+        console.warn("Invalid workout plan data format:", workoutPlan);
+        return { days: [], explanation: "" }; // Return empty structure if format is invalid
     };
 
     const { days, explanation } = useMemo(() => parseWorkoutPlan(workoutPlanData), [workoutPlanData]);
@@ -25,7 +44,7 @@ const WorkoutPlan = () => {
     useEffect(() => {
         // Fetch workout plan only if it's not already in Redux
         if (!workoutPlanData && accessToken) {
-            
+            console.log("Fetching workout plan");
             fetch("http://localhost:8000/last-workout-plan", {
                 method: "POST",
                 headers: {
@@ -55,7 +74,7 @@ const WorkoutPlan = () => {
             <TopBar />
             
             <Grid container justifyContent="space-between" alignItems="center" my={4}>
-                <Grid item xs={8}>
+                <Grid item xs={12} sm={8}>
                     <Card variant="outlined" sx={{ 
                         backgroundColor: '#FFFFFF', 
                         borderRadius: 4, 
@@ -117,7 +136,7 @@ const WorkoutPlan = () => {
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid item xs={4} sx={{width: "300px"}}>
+                <Grid item xs={12} sm={4} sx={{width: "300px"}}>
                     <Card variant="outlined" sx={{ 
                         backgroundColor: '#FFFFFF',                      
                         borderRadius: 4,
@@ -132,7 +151,7 @@ const WorkoutPlan = () => {
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={12} sm={4}>
                     <Card variant="outlined" sx={{
                         marginRight: 4,
                         backgroundColor: '#FFFFFF',

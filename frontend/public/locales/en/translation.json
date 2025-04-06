@@ -80,6 +80,8 @@
     "404page": "Oops! The page you are looking for does not exist.",
     "invalidCredentials": "Incorrect username or password.",
     "loginErrorOccurred": "An error occured while logging in. Please try again.",
+    "chatHistory": "Chat History",
+    "noHistoryFound": "No messages in history",
     "chat": "Chat",
     "meal-plan": "Meal Plan"
 }
