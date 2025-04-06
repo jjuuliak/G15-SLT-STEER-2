@@ -1,19 +1,16 @@
 import React, { useEffect, useMemo } from "react";
 import { Container, Typography, Box, Card, CardContent, Grid2 as Grid } from "@mui/material";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import TopBar from "../components/TopBar";
-import { useDispatch } from "react-redux";
 import { useState } from "react";
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 import DataUsageIcon from '@mui/icons-material/DataUsage';
-
+import { setWorkoutPlan } from "../redux/actionCreators/workoutPlanActions";
 
 const WorkoutPlan = () => {
     const workoutPlanData = useSelector((state) => state.workoutPlan.workoutPlan);
-    const [workoutPlan, setWorkoutPlan] = useState(null);
-    
-    const accessToken = useSelector((state) => state.auth?.access_token);
     const dispatch = useDispatch();
+    const accessToken = useSelector((state) => state.auth?.access_token);
 
     // Function to parse the workout plan JSON
     const parseWorkoutPlan = (workoutPlan) => {
@@ -23,11 +20,12 @@ const WorkoutPlan = () => {
         return { days: parsedData.days, explanation: parsedData.explanation };
     };
 
-    const { days, explanation } = useMemo(() => parseWorkoutPlan(workoutPlan), [workoutPlan]);
+    const { days, explanation } = useMemo(() => parseWorkoutPlan(workoutPlanData), [workoutPlanData]);
 
     useEffect(() => {
-        if (accessToken) {
-            console.log("Fetching workout plan");
+        // Fetch workout plan only if it's not already in Redux
+        if (!workoutPlanData && accessToken) {
+            
             fetch("http://localhost:8000/last-workout-plan", {
                 method: "POST",
                 headers: {
@@ -43,15 +41,14 @@ const WorkoutPlan = () => {
             })
             .then((data) => {
                 if (data) {
-                    
-                    setWorkoutPlan(data);
+                    dispatch(setWorkoutPlan(data)); // Dispatch action to store in Redux
                 }
             })
             .catch((error) => {
                 console.error("Error fetching workout plan:", error);
             });
         }
-    }, [accessToken]);
+    }, [workoutPlanData, accessToken, dispatch]);
 
     return ( 
         <Container maxWidth={false} sx={{height: "100vh", width: "100vw", padding: 0, backgroundColor: '#F5F7FA'}}>
