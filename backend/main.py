@@ -9,7 +9,7 @@ from requests import Request
 from starlette import status
 
 import database_connection
-from routes import login, chat, user
+from routes import chat, login, plans, stats, user
 
 
 load_dotenv()
@@ -21,6 +21,8 @@ app = FastAPI()
 app.add_event_handler("startup", database_connection.connect_mongodb)
 app.include_router(chat.router)
 app.include_router(login.router)
+app.include_router(plans.router)
+app.include_router(stats.router)
 app.include_router(user.router)
 app.add_middleware(
     CORSMiddleware,

@@ -1,3 +1,5 @@
+import os
+
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from pathlib import Path
@@ -12,31 +14,35 @@ class RAGService:
         Initializes the service with the stored vector store or None
         if it doesn't exist
         """
+        if os.getenv("CI_TEST") == "true":
+            return
+
         embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL, cache_folder=MODEL_DIR)
         try:
             self.vector_store = FAISS.load_local(DATABASE_PATH, embeddings, 
                                                  allow_dangerous_deserialization=True)
-        except:
+        except Exception as e:
+            print(f"Warning: Failed to load FAISS index. Error: {e}")
             self.vector_store = None
 
-    def retrieve_relevant_chunks(self, query, top_k):
+    def retrieve_relevant_chunks(self, query, top_k, score_threshold = 0.84):
         """
         Retrieves top_k number of relevant chunks for the given query
         """
-        if self.vector_store == None:
+        if self.vector_store is None:
             return None 
-        
+
         results = self.vector_store.similarity_search_with_score(query=query, k=top_k)
-        contents = [doc.page_content for doc, _ in results]
 
-        return contents
+        print([str(score) + ":" + doc.page_content for doc, score in results if score >= score_threshold])
 
-    def build_prompt(self, query, user_info, top_k=5):
+        return [doc.page_content for doc, score in results if score >= score_threshold]
+
+    def build_prompt(self, query, user_info, top_k=8):
         """
         Builds the final prompt by combining the user's query with retrieved context and user info.
         """
         context_chunks = self.retrieve_relevant_chunks(query, top_k)
-        print(f"Retrieved context: {"No additional context." if not context_chunks else "\n\n".join(context_chunks)}")
 
         prompt = f"""
             [INST]<<SYS>>  
