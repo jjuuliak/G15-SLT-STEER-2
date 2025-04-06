@@ -195,7 +195,7 @@ class LLMService:
         """
         history = await chat_history.load_history(user_id, limit=4)
 
-        enhancement_prompt_template = """Modify the user's message if required, to make it an independent question that can be answered without knowing the chat history.
+        enhancement_prompt_template = """Modify the user's message if required, to make it a more independent question better suited for RAG.
             - Fix any spelling mistakes in the user's message.
             - If the chat history is empty, return it as is but with corrected spelling.
             - If the user's message is gibberish, keep it as it is.
