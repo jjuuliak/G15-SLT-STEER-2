@@ -33,11 +33,13 @@ class RAGService:
 
         return [doc.page_content for doc, score in results if score >= score_threshold]
 
-    def build_prompt(self, query, user_info, top_k=8):
+    def build_prompt(self, query, user_info, use_retrieval=True, top_k=8):
         """
         Builds the final prompt by combining the user's query with retrieved context and user info.
         """
-        context_chunks = self.retrieve_relevant_chunks(query, top_k)
+        context_chunks = []
+        if use_retrieval:
+            context_chunks = self.retrieve_relevant_chunks(query, top_k)
 
         prompt = f"""
             [INST]<<SYS>>  
