@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 import PopupWithTabs from "./popup/PopupWithTabs";
 import Profile from "./popup/Profile";
 
-const pages = ['chat', 'meal-plan'];
+const pages = ['chat', 'meal-plan', 'workout-plan'];
 
 const TopBar = () => {
 
