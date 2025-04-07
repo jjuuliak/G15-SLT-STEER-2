@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from "react";
 import { Container, Typography, Box, Card, CardContent, Grid2 as Grid } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import TopBar from "../components/TopBar";
-import { useState } from "react";
+import { useTranslation } from 'react-i18next';
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 import DataUsageIcon from '@mui/icons-material/DataUsage';
 import { setWorkoutPlan } from "../redux/actionCreators/workoutPlanActions";
@@ -11,6 +11,8 @@ const WorkoutPlan = () => {
     const workoutPlanData = useSelector((state) => state.workoutPlan.workoutPlan);
     const dispatch = useDispatch();
     const accessToken = useSelector((state) => state.auth?.access_token);
+    const {t} = useTranslation();
+    const pageTranslations = t("workoutPageTranslations")
 
     // Function to parse the workout plan JSON
     const parseWorkoutPlan = (workoutPlan) => {
@@ -76,7 +78,7 @@ const WorkoutPlan = () => {
                         boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                     }}>
                         <CardContent>
-                            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#2D3748' }}>Today</Typography>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#2D3748' }}>{pageTranslations.today}</Typography>
                             <Box display="flex" flexDirection={{xs: 'column', md: 'row'}} justifyContent="space-around" alignItems="center">
                                 <Box>
                                     <Box
@@ -93,7 +95,7 @@ const WorkoutPlan = () => {
                                     >
                                         <DirectionsRunIcon sx={{ fontSize: 60, color: '#4A5568' }} />
                                     </Box>
-                                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#2D3748' }}>Steps</Typography>
+                                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#2D3748' }}>{pageTranslations.steps}</Typography>
                                     <Typography variant="subtitle2" sx={{ color: '#4A5568' }}>1240 steps (placeholder)</Typography>
                                 </Box>
                                 <Box marginX={2}>
@@ -110,7 +112,7 @@ const WorkoutPlan = () => {
                                             paddingX: 2
                                         }}
                                     >
-                                        <Typography align="left" marginLeft={2} paddingY={1} sx={{ color: '#2D3748' }}>Step goal</Typography>
+                                        <Typography align="left" marginLeft={2} paddingY={1} sx={{ color: '#2D3748' }}>{pageTranslations.stepGoal}</Typography>
                                         <Typography align="left" marginLeft={2} paddingY={1} sx={{ color: '#4A5568' }}>Placeholder for progress bar</Typography>
                                         <Box sx={{ 
                                             backgroundColor: "#FFFFFF",
@@ -138,7 +140,7 @@ const WorkoutPlan = () => {
                         boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
                     }}>
                         <CardContent>
-                            <Typography variant="subtitle1" display="flex" justifyContent="center" alignItems="center" sx={{ color: '#2D3748' }}>Weekly Progress</Typography>
+                            <Typography variant="subtitle1" display="flex" justifyContent="center" alignItems="center" sx={{ color: '#2D3748' }}>{pageTranslations.weeklyProgress}</Typography>
                             <Box display="flex" justifyContent="center" alignItems="center" height="100px">
                                 <DataUsageIcon sx={{ fontSize: 60, color: '#4A5568' }} /> 
                             </Box>
@@ -169,7 +171,7 @@ const WorkoutPlan = () => {
                 borderRadius: 2,
                 boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
             }}>
-                <Typography variant="h4" sx={{ color: '#2D3748' }}>Recommended exercises</Typography>
+                <Typography variant="h4" sx={{ color: '#2D3748' }}>{pageTranslations.recommendedExercises}</Typography>
                 <Typography variant="body1" sx={{ color: '#4A5568' }}>{explanation}</Typography>
             </Box>
             
