@@ -34,6 +34,38 @@ const ChatHistory = () => {
   const messagesEndRef = useRef(null); // Reference to the bottom of messages
   const firstMessageRef = useRef(null); // Reference to the first message
 
+/**
+ * Filters out messages where the text is valid JSON and also removes the message before it.
+ * @param {Array} messages - The array of message objects.
+ * @returns {Array} Filtered messages.
+ */
+const filterJsonMessages = (messages) => {
+  const isJsonString = (str) => {
+    try {
+      const parsed = JSON.parse(str);
+      return typeof parsed === 'object' && parsed !== null;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const result = [];
+  for (let i = 0; i < messages.length; i++) {
+    const current = messages[i];
+    const isJson = isJsonString(current.text);
+    if (isJson) {
+      if (result.length > 0) {
+        result.pop(); // remove previous message
+      }
+      continue; // skip this message
+    }
+    result.push(current);
+  }
+  return result;
+};
+
+
+
   /**
    * Fetches chat history from the backend with pagination support
    * @param {number} startIndex - Starting index for pagination
@@ -65,7 +97,12 @@ const ChatHistory = () => {
       }
 
       const data = await response.json();
-      const newMessages = data.history || [];
+      const newMessagesRaw = data.history || [];
+
+      // Filter out messages where text is JSON + previous message
+      const newMessages = filterJsonMessages(newMessagesRaw);
+
+  
       
       if (startIndex === 0) {
         // Initial load: Set messages directly
