@@ -1,3 +1,5 @@
+import os
+
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from pathlib import Path
@@ -12,6 +14,9 @@ class RAGService:
         Initializes the service with the stored vector store or None
         if it doesn't exist
         """
+        if os.getenv("CI_TEST") == "true":
+            return
+
         embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL, cache_folder=MODEL_DIR)
         try:
             self.vector_store = FAISS.load_local(DATABASE_PATH, embeddings, 

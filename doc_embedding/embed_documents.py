@@ -12,6 +12,7 @@ from readabilipy import simple_json_from_html_string
 import requests
 from bs4 import BeautifulSoup
 import time
+import re
 
 
 DOCUMENT_URLS_PATH = Path(os.getenv("DOCUMENT_URLS_PATH", "docs/doc_urls.json"))
@@ -33,18 +34,13 @@ def extract_title(html):
     title_tag = soup.find("title")
     return title_tag.text.strip() if title_tag else "Untitled Document"
 
+def clean_text(text):
+    """Removes unwanted elements like links"""
 
-def clean_html(html):
-    """Removes unnecessary sections from the HTML."""
-    soup = BeautifulSoup(html, 'html.parser')
+    # Remove URLs
+    cleaned = re.sub(r'https?://\S+|www\.\S+', '', text)
 
-    # Remove certain tags from the HTML
-    for tag in soup(["nav", "footer", "aside", "header"]):
-        tag.decompose()
-
-    # Get the plain text from the remaining HTML
-    plain_text = soup.get_text(separator='\n', strip=True)
-    return plain_text
+    return cleaned
 
 
 def load_webpage(url, retries=3, backoff_factor=2):
@@ -60,7 +56,8 @@ def load_webpage(url, retries=3, backoff_factor=2):
                 
                 if html.get('plain_text'):
                     raw_text = "\n".join([text['text'] for text in html['plain_text']])
-                    return raw_text, title
+                    cleaned_text = clean_text(raw_text)
+                    return cleaned_text, title
 
             print(f"Failed to fetch {url} (Status: {response.status_code})")
         
@@ -131,6 +128,9 @@ def index_exists(path):
 
 
 def main():
+    if os.getenv("CI_TEST") == "true":
+        return
+
     # Don't run if an index already exists
     if index_exists(DATABASE_PATH):
         print("FAISS index already exists. Skipping embedding process.")

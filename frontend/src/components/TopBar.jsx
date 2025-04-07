@@ -7,7 +7,8 @@ import {
   Menu,
   MenuItem,
   Box,
-  Button
+  Button,
+  ButtonBase
 } from '@mui/material';
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import MenuIcon from '@mui/icons-material/Menu';
@@ -18,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 import PopupWithTabs from "./popup/PopupWithTabs";
 import Profile from "./popup/Profile";
 
-const pages = ['chat', 'meal-plan'];
+const pages = ['chat', 'meal-plan', 'workout-plan'];
 
 const TopBar = () => {
 
@@ -74,7 +75,7 @@ const TopBar = () => {
   };
 
   const handleNavigate = (page) => {
-    navigate(page === 'chat' ? '/' : `/${page}`);
+    navigate(`/${page}`);
     handleCloseNavMenu();
   };
 
@@ -119,9 +120,11 @@ const TopBar = () => {
         </Box>
 
         {/* Title or Logo */}
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          Heart Disease MVP
-        </Typography>
+        <ButtonBase onClick={() => navigate('/')}>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            Heart Disease MVP
+          </Typography>
+        </ButtonBase>
 
         {/* Navigation links on desktop */}
         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex', justifyContent: 'right' }, mr: 2 }}>

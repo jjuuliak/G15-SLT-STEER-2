@@ -11,12 +11,17 @@ import {
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import { useSelector, useDispatch } from "react-redux";
+import { useLocation, useNavigate } from 'react-router';
 import Message from "./Message";
 import { setMealPlan } from "../redux/actionCreators/mealPlanActions"
+import { setWorkoutPlan } from "../redux/actionCreators/workoutPlanActions";
 
 const Chat = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const hasSent = useRef(false); // To make sure that the message from dashboard is not sent twice
   const initialMessage = {
     text: "Hi and welcome to Lifeline Chat! How can I help you today?\n\n" +
         "1. Create a workout plan\n" +
@@ -41,6 +46,18 @@ const Chat = () => {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
+    const initial = location.state?.initialMessage;
+
+    if (initial && !hasSent.current) {
+      hasSent.current = true; // Prevent re-trigger
+      setMessages((prev) => [...prev, initial]);
+      sendMessage(initial);
+
+      navigate(location.pathname, { replace: true }); // Clean the message from the state
+    }
+  }, [location.state]);
+
+  useEffect(() => {
     setMessages(messagesFromRedux);
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -59,7 +76,12 @@ const Chat = () => {
     setMessage("");
 
     try {
-      const url = msg.includes('meal plan') ? 'http://localhost:8000/ask-meal-plan' : 'http://localhost:8000/ask';
+      const url = msg.includes('meal plan') 
+        ? 'http://localhost:8000/ask-meal-plan' 
+        : msg.includes('workout plan') 
+        ? 'http://localhost:8000/ask-workout-plan' 
+        : 'http://localhost:8000/ask';
+      
       const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -79,7 +101,15 @@ const Chat = () => {
         const botMessage = { text: JSON.parse(data.response).explanation, sender: "bot" };
         setMessages((prev) => [...prev, botMessage]);
         dispatch({ type: 'SET_MESSAGES', payload: [...messages, userMessage, botMessage] });
-      } else {
+      }
+      else if (msg.includes('workout plan')) {
+        const data = await response.json();
+        dispatch(setWorkoutPlan(JSON.parse(data.response)));
+        const botMessage = { text: JSON.parse(data.response).explanation, sender: "bot" };
+        setMessages((prev) => [...prev, botMessage]);
+        dispatch({ type: 'SET_MESSAGES', payload: [...messages, userMessage, botMessage] });
+      }
+      else {
         // Add an empty bot message that we'll update as we receive chunks
         const botMessage = { text: "", sender: "bot" };
         setMessages((prev) => [...prev, botMessage]);

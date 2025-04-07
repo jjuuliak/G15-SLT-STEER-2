@@ -9,3 +9,7 @@ export const SET_MEAL_PLAN = "SET_MEAL_PLAN";
 export const SET_MESSAGES = "SET_MESSAGES";
 export const RESET_MESSAGES = "RESET_MESSAGES";
 
+
+
+//workout plan
+export const SET_WORKOUT_PLAN = "SET_WORKOUT_PLAN";
