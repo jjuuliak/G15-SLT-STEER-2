@@ -8,8 +8,11 @@ services:
       - embedding_db:/app/embedding_db  
       - model_cache:/app/embedding_models
     environment:
+      - CI_TEST=${CI_TEST}
       - HF_HOME=/app/embedding_models
     depends_on:
+      database:
+        condition: service_started
       doc_embedding:
         condition: service_completed_successfully
   frontend:
@@ -34,7 +37,9 @@ services:
     command: python embed_documents.py
     restart: "no"
     volumes:
-      - embedding_db:/app/embedding_db   
+      - embedding_db:/app/embedding_db
+    environment:
+      - CI_TEST=${CI_TEST}
 
 volumes:
   database:

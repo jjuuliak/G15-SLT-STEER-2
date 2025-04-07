@@ -1,0 +1,19 @@
+.weight {
+  padding: 16px;
+  background-color: #EBF5F3;
+}
+
+.weight-title {
+  font-size: 14px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.weight-image-container {
+  margin-left: 50px;
+}
+
+.weight-image {
+  width: auto;
+  height: 160px;
+}

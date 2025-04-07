@@ -3,8 +3,11 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom
 import { useSelector } from "react-redux";
 import Home from "../pages/home/Home";
 import LogIn from "../pages/LogIn";
+import ChatWindow from "../pages/ChatWindow";
 import Register from "../pages/Register";
 import NotFound from "../pages/NotFound";
+import MealPlan from "../pages/mealPlan/MealPlan";
+import WorkoutPlan from "../pages/workoutPlan";
 //import Profile from "../pages/Profile";
 //import Chat from "../pages/Chat";
 //import History from "../pages/History";
@@ -26,9 +29,11 @@ const AppRoutes = () => {
 
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Home />} />
+          <Route path="/chat" element={<ChatWindow />} />
+          <Route path="/meal-plan" element={<MealPlan />} />
+          <Route path="/workout-plan" element={<WorkoutPlan />} />
         </Route>
         {/*<Route path="/data-input" element={<Profile />} />
-        <Route path="/chat" element={<Chat />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/history" element={<History />} />
         <Route path="/settings" element={<Settings />} />*/}
