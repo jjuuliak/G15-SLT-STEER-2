@@ -73,17 +73,17 @@ const WorkoutPlan = () => {
         <Container maxWidth={false} sx={{height: "100vh", width: "100vw", padding: 0, backgroundColor: '#F5F7FA'}}>
             <TopBar />
             
-            <Grid container justifyContent="space-between" alignItems="center" my={4}>
+            <Grid container spacing={2} justifyContent="space-around" alignItems="center" my={4}>
                 <Grid item xs={12} sm={8}>
                     <Card variant="outlined" sx={{ 
                         backgroundColor: '#FFFFFF', 
                         borderRadius: 4, 
-                        marginLeft: 3,
+                        marginX: 2,
                         boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                     }}>
                         <CardContent>
                             <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#2D3748' }}>Today</Typography>
-                            <Box display="flex" flexDirection="row" justifyContent="center" alignItems="center">
+                            <Box display="flex" flexDirection={{xs: 'column', md: 'row'}} justifyContent="space-around" alignItems="center">
                                 <Box>
                                     <Box
                                         sx={{
@@ -102,7 +102,7 @@ const WorkoutPlan = () => {
                                     <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#2D3748' }}>Steps</Typography>
                                     <Typography variant="subtitle2" sx={{ color: '#4A5568' }}>1240 steps (placeholder)</Typography>
                                 </Box>
-                                <Box marginLeft={2}>
+                                <Box marginX={2}>
                                     <Box 
                                         backgroundColor={'#EDF2F7'}
                                         sx={{
@@ -125,7 +125,7 @@ const WorkoutPlan = () => {
                                             border: 1, 
                                             borderRadius: 4,
                                             borderColor: '#E2E8F0',
-                                            marginY: 1,
+                                            margin: 1,
                                             boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
                                         }}>
                                             <Typography align="center" marginLeft={2} paddingY={1} sx={{ color: '#4A5568' }}>Placeholder for today's workout</Typography>
@@ -141,7 +141,7 @@ const WorkoutPlan = () => {
                         backgroundColor: '#FFFFFF',                      
                         borderRadius: 4,
                         padding: 4,
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
                     }}>
                         <CardContent>
                             <Typography variant="subtitle1" display="flex" justifyContent="center" alignItems="center" sx={{ color: '#2D3748' }}>Weekly Progress</Typography>
@@ -153,9 +153,10 @@ const WorkoutPlan = () => {
                 </Grid>
                 <Grid item xs={12} sm={4}>
                     <Card variant="outlined" sx={{
-                        marginRight: 4,
+                        marginX: 2,
                         backgroundColor: '#FFFFFF',
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                        borderRadius: 4,
                     }}>
                         <CardContent>
                             <Box sx={{p: 5, m:5}}>
@@ -168,7 +169,7 @@ const WorkoutPlan = () => {
             
             <Box backgroundColor="#FFFFFF" sx={{ 
                 marginTop: 3, 
-                marginX: 3,
+                marginX: 6,
                 padding: 2, 
                 border: '1px solid #E2E8F0', 
                 borderRadius: 2,
@@ -179,8 +180,9 @@ const WorkoutPlan = () => {
             </Box>
             
             <Grid container
+            spacing={2}
                 sx={{ 
-                    marginTop: 2,
+                    marginY: 2,
                     backgroundColor: '#F5F7FA',
                     borderRadius: 3,
                     padding: 2
@@ -188,7 +190,7 @@ const WorkoutPlan = () => {
                 justifyContent="center"
             >
                 {days.map((day, index) => (
-                    <Grid item xs={12} sm={6} md={4} key={index} sx={{ display: 'flex' }}>
+                    <Grid item xs={12} sm={6} md={4} key={index} sx={{ display: 'flex' }} >
                         <Card
                             variant="outlined"
                             sx={{
