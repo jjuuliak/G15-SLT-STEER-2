@@ -14,30 +14,22 @@ const WorkoutPlan = () => {
 
     // Function to parse the workout plan JSON
     const parseWorkoutPlan = (workoutPlan) => {
-        if (!workoutPlan) {
-            console.warn("Invalid workout plan data:", workoutPlan);
-            return { days: [], explanation: "" }; // Return empty structure if invalid
-        }
-
-        // Check if workoutPlan is already an object
-        if (typeof workoutPlan === 'object') {
-            return { days: workoutPlan.days || [], explanation: workoutPlan.explanation || "" };
-        }
-
-        // If it's a string, try to parse it
-        if (typeof workoutPlan.workout_plan === 'string') {
+        if (!workoutPlan) return { days: [], explanation: "" };
+    
+        if (typeof workoutPlan === 'string') {
             try {
-                const parsedData = JSON.parse(workoutPlan.workout_plan);
-                return { days: parsedData.days, explanation: parsedData.explanation };
-            } catch (error) {
-                console.error("Error parsing workout plan JSON:", error);
-                return { days: [], explanation: "" }; // Return empty structure on parse error
+                const parsed = JSON.parse(workoutPlan);
+                return {
+                    days: parsed.days || [],
+                    explanation: parsed.explanation || ""
+                };
+            } catch (err) {
+                console.error("Failed to parse workout plan string:", err);
+                return { days: [], explanation: "" };
             }
-        }
-
-        console.warn("Invalid workout plan data format:", workoutPlan);
-        return { days: [], explanation: "" }; // Return empty structure if format is invalid
+        } 
     };
+
 
     const { days, explanation } = useMemo(() => parseWorkoutPlan(workoutPlanData), [workoutPlanData]);
 
@@ -60,7 +52,7 @@ const WorkoutPlan = () => {
             })
             .then((data) => {
                 if (data) {
-                    dispatch(setWorkoutPlan(data)); // Dispatch action to store in Redux
+                    dispatch(setWorkoutPlan(data.workout_plan)); // Dispatch action to store in Redux
                 }
             })
             .catch((error) => {
@@ -68,6 +60,8 @@ const WorkoutPlan = () => {
             });
         }
     }, [workoutPlanData, accessToken, dispatch]);
+
+    
 
     return ( 
         <Container maxWidth={false} sx={{height: "100vh", width: "100vw", padding: 0, backgroundColor: '#F5F7FA'}}>
