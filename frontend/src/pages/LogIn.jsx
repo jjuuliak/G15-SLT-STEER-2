@@ -111,6 +111,12 @@ const LogIn = () => {
             type={showPassword ? 'text' : 'password'} // Toggle password type based on the state of visibility
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                loginUser();
+              }
+            }}
             fullWidth
             InputProps={{
                 endAdornment: (
