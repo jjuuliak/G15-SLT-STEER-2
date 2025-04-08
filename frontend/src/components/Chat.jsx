@@ -14,6 +14,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useLocation, useNavigate } from 'react-router';
 import Message from "./Message";
 import { setMealPlan } from "../redux/actionCreators/mealPlanActions"
+import { setWorkoutPlan } from "../redux/actionCreators/workoutPlanActions";
 
 const Chat = () => {
   const theme = useTheme();
@@ -75,7 +76,12 @@ const Chat = () => {
     setMessage("");
 
     try {
-      const url = msg.includes('meal plan') ? 'http://localhost:8000/ask-meal-plan' : 'http://localhost:8000/ask';
+      const url = msg.includes('meal plan') 
+        ? 'http://localhost:8000/ask-meal-plan' 
+        : msg.includes('workout plan') 
+        ? 'http://localhost:8000/ask-workout-plan' 
+        : 'http://localhost:8000/ask';
+      
       const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -95,7 +101,15 @@ const Chat = () => {
         const botMessage = { text: JSON.parse(data.response).explanation, sender: "bot" };
         setMessages((prev) => [...prev, botMessage]);
         dispatch({ type: 'SET_MESSAGES', payload: [...messages, userMessage, botMessage] });
-      } else {
+      }
+      else if (msg.includes('workout plan')) {
+        const data = await response.json();
+        dispatch(setWorkoutPlan(JSON.parse(data.response)));
+        const botMessage = { text: JSON.parse(data.response).explanation, sender: "bot" };
+        setMessages((prev) => [...prev, botMessage]);
+        dispatch({ type: 'SET_MESSAGES', payload: [...messages, userMessage, botMessage] });
+      }
+      else {
         // Add an empty bot message that we'll update as we receive chunks
         const botMessage = { text: "", sender: "bot" };
         setMessages((prev) => [...prev, botMessage]);
