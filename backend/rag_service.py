@@ -1,10 +1,14 @@
+import os
+
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from pathlib import Path
 
+
 DATABASE_PATH = Path("/app/embedding_db") 
 EMBEDDING_MODEL = "intfloat/multilingual-e5-small"
 MODEL_DIR = "/app/embedding_models"
+
 
 class RAGService:
     def __init__(self):
@@ -12,6 +16,9 @@ class RAGService:
         Initializes the service with the stored vector store or None
         if it doesn't exist
         """
+        if os.getenv("CI_TEST") == "true":
+            return
+
         embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL, cache_folder=MODEL_DIR)
         try:
             self.vector_store = FAISS.load_local(DATABASE_PATH, embeddings, 
@@ -19,6 +26,7 @@ class RAGService:
         except Exception as e:
             print(f"Warning: Failed to load FAISS index. Error: {e}")
             self.vector_store = None
+
 
     def retrieve_relevant_chunks(self, retrieval_query, top_k, score_threshold = 0.84):
         """
@@ -33,7 +41,9 @@ class RAGService:
 
         return [doc.page_content for doc, score in results if score >= score_threshold]
 
-    def build_prompt(self, user_message, retrieval_query, user_info, use_retrieval=True, top_k=8):
+
+    def build_prompt(self, user_message, retrieval_query, user_info, use_retrieval=True, language='English', top_k=8):
+
         """
         Builds the final prompt by combining the user's query with retrieved context and user info.
         """
@@ -59,6 +69,7 @@ class RAGService:
 
             Question: {user_message}
             User provided info: {user_info}
+            User language, please use it to respond: {language}
             {"Context: " if context_chunks else ""}{"\n\n".join(context_chunks) if context_chunks else ""}
             Answer: [/INST]"""
 
