@@ -119,7 +119,10 @@ async def get_plan(user_id: str, plan: Literal["meal_plan", "workout_plan"]):
 
     if not document:
         return None
-
+    
+    if plan == "meal_plan":
+        return json.dumps(document.get(plan, None))
+    
     return document.get(plan, None)
 
 
