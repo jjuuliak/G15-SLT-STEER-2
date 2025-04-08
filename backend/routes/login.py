@@ -55,14 +55,15 @@ async def login(user_info: UserLogin):
 
 
 @router.post("/logout")  # with refresh_token
-def refresh(credentials: JwtAuthorizationCredentials = Security(AuthService.get_refresh_security())):
+async def logout(credentials: JwtAuthorizationCredentials = Security(AuthService.get_refresh_security())):
     AuthService.set_refresh_token_expired(credentials.jti)  # access_token will expire within 15 minutes
     chat_history.close(credentials["user_id"])
+
     return {}
 
 
 @router.post("/refresh")  # with refresh_token
-def refresh(credentials: JwtAuthorizationCredentials = Security(AuthService.get_refresh_security())):
+async def refresh(credentials: JwtAuthorizationCredentials = Security(AuthService.get_refresh_security())):
     if AuthService.is_refresh_token_expired(credentials.jti):  # or token created < last password change
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login expired")
 
