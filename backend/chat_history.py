@@ -5,6 +5,9 @@ from typing import Literal
 import database_connection
 
 
+SESSIONS = {}
+
+
 def format_history(history):
     """
     Format history to what the model expects
@@ -22,7 +25,28 @@ def format_history(history):
     return formatted_history
 
 
-async def load_history(user_id: str, limit: int = 100):
+async def close(user_id: str):
+    """
+    Closes user session's chat history
+    :param user_id: user id
+    """
+    if user_id in SESSIONS:
+        SESSIONS.pop(user_id)
+
+
+async def get_history(user_id: str):
+    """
+    Gets chat history or creates it if it doesn't exist and formats it for the AI
+    :param user_id: user id
+    :return: chat history or empty array if it didn't exist
+    """
+    if user_id not in SESSIONS:
+        SESSIONS[user_id] = await load_history(user_id)
+
+    return SESSIONS[user_id].copy()  # Return a copy to not append next instruction into history
+
+
+async def load_history(user_id, limit = 100):
     """
     Gets chat history or creates it if it doesn't exist and formats it for the AI
 
@@ -72,6 +96,12 @@ def store_history(user_id: str, question: str, answer: str, system: bool = False
     question_msg = {"system": system, "role": "user", "text": question, "time": time.time() - 1}
     answer_msg = {"system": system, "role": "model", "text": answer, "time": time.time()}
 
+    if user_id not in SESSIONS:
+        SESSIONS[user_id] = []
+
+    SESSIONS[user_id].append({"role": "user", "parts": [{"text": question}]})
+    SESSIONS[user_id].append({"role": "model", "parts": [{"text": answer}]})
+
     database_connection.get_chat_history().update_one(
         {"user_id": user_id}, {"$push": {"history": {"$each": [question_msg, answer_msg]}}}
     )
@@ -89,7 +119,10 @@ async def get_plan(user_id: str, plan: Literal["meal_plan", "workout_plan"]):
 
     if not document:
         return None
-
+    
+    if plan == "meal_plan":
+        return json.dumps(document.get(plan, None))
+    
     return document.get(plan, None)
 
 

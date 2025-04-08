@@ -1,10 +1,10 @@
 import inspect
 import json
 import os
+import traceback
 from typing import AsyncGenerator
-from typing import Dict
 import google.generativeai as genai
-from google.generativeai import ChatSession, GenerationConfig, protos
+from google.generativeai import GenerationConfig, protos
 from google.generativeai.types.generation_types import GenerateContentResponse
 import chat_history
 import database_connection
@@ -49,7 +49,6 @@ class LLMService:
 
         genai.configure(api_key=api_key)
         self.model_name = model_name
-        self.sessions: Dict[str, ChatSession] = {}
         self.model = genai.GenerativeModel(model_name=self.model_name, generation_config=GenerationConfig(temperature=1.0),
                                            system_instruction=["""You are a helpful cardiovascular health expert, 
                                             who focuses on lifestyle changes to help others improve their well-being. 
@@ -68,32 +67,28 @@ class LLMService:
         )
 
 
-    async def get_session(self, user_id: str) -> ChatSession:
-        """
-        Retrieve user's chat session or create a new one if they haven't started one yet
-        """
-        if user_id not in self.sessions:
-            self.sessions[user_id] = self.model.start_chat(history=await chat_history.load_history(user_id))
-        return self.sessions[user_id]
-
-
-    async def get_response(self, user_id: str, message: str, language: str, session: ChatSession) -> AsyncGenerator:
+    async def get_response(self, user_id: str, message: str, language: str) -> GenerateContentResponse:
         """
         Gets the streamed response from the API
         """
         enhanced_query_result = await self.enhance_query(user_id, message)
         retrieval_query = enhanced_query_result.rewritten_query
         requires_retrieval = enhanced_query_result.requires_retrieval
-        
-        return session.send_message(
 
-            await get_prompt(user_id, message, retrieval_query, requires_retrieval, language),
+        contents = await chat_history.get_history(user_id)
+        next_message = {
+            "role": "user",
+            "parts": [{"text": await get_prompt(user_id, message, retrieval_query, requires_retrieval, language)}]
+        }
+        contents.append(next_message)
 
+        return self.model.generate_content(
+            contents=contents,
             stream=True,
             tools=[function for name, function in inspect.getmembers(message_attributes) if inspect.isfunction(function)],
             tool_config=protos.ToolConfig(function_calling_config={"mode": "AUTO"})
         )
-    
+
 
     async def process_response(self, response: GenerateContentResponse) -> AsyncGenerator[str]:
             """
@@ -117,16 +112,15 @@ class LLMService:
                 yield json.dumps({"attributes": attributes})
     
     
-    async def send_message(self, user_id: str, message: str, language: str) -> AsyncGenerator[str]:
+    async def send_message(self, user_id: str, message: str, language: str = 'English') -> AsyncGenerator[str]:
         """
         Asks question from AI model and returns the streamed answer and possible attributes
         """
-        session = await self.get_session(user_id)
-        response = None
         full_answer = ""
 
         try:            
-            response = await self.get_response(user_id, message, language, session)
+            response = await self.get_response(user_id, message, language)
+
             async for chunk in self.process_response(response):
                 yield chunk
 
@@ -159,15 +153,12 @@ class LLMService:
             return
         
         except ServiceUnavailable as e:
-            # Reset broken session
-            self.sessions[user_id] = self.model.start_chat(history=await chat_history.load_history(user_id))
-            session = self.sessions[user_id]
-
             # Try getting response again after 5 seconds
             await asyncio.sleep(5)
 
             try:
-                response = await self.get_response(user_id, message, language, session)
+                response = await self.get_response(user_id, message, language)
+
                 async for chunk in self.process_response(response):
                     yield chunk 
 
@@ -177,9 +168,6 @@ class LLMService:
                         full_answer += chunk_text
 
             except ServiceUnavailable as e:
-                # Reset broken session
-                self.sessions[user_id] = self.model.start_chat(history=await chat_history.load_history(user_id))
-
                 yield json.dumps({"response": f"Error: The API is temporarily unavailable. Please try again later.\n\nDetails: {e.message}"})
                 return
 
@@ -187,19 +175,25 @@ class LLMService:
             yield json.dumps({"response": f"Error: An internal server error occurred with the API.\n\nDetails: {e.message}"})
             return
 
-        except Exception:
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
             yield json.dumps({"response": "Error: An unexpected error occurred."})
             return
 
         yield json.dumps({"progress": await user_stats.update_stat(user_id, "messages")})
-        chat_history.store_history(user_id, message, full_answer)
+
+        if len(full_answer) > 0:
+            chat_history.store_history(user_id, message, full_answer)
 
 
     async def enhance_query(self, user_id: str, user_message: str) -> str:
         """
         Fixes spelling, grammatical and punctuation errors in the user given prompt
         """
-        history = await chat_history.load_history(user_id, limit=4)
+        # Get last two questions & answers for context
+        history = await chat_history.get_history(user_id)
+        history = history[-4:]
 
         enhancement_prompt_template = """Modify the user's message if required, to make it a more independent question better suited for RAG.
             - Fix any spelling mistakes in the user's message.
@@ -241,10 +235,10 @@ class LLMService:
         Asks for meal plan formatted as a MealPlan model from the AI
         """
 
-        contents = await chat_history.load_history(user_id)
+        contents = await chat_history.get_history(user_id)
         next_message = {
             "role": "user",
-            "parts": [{"text": await get_prompt(user_id, message, language)}]
+            "parts": [{"text": await get_prompt(user_id, message, message, True, language)}]
         }
         contents.append(next_message)
 
@@ -258,11 +252,6 @@ class LLMService:
             chat_history.store_history(user_id, message, response.text, system=True)
             chat_history.store_plan(user_id, "meal_plan", response.text)
 
-            # Write directly to chat history too so it will be available to the model without reload from database
-            session = await self.get_session(user_id)
-            session.history.append(next_message)
-            session.history.append(response.candidates[0].content)
-
             return {"response": response.text, "progress": await user_stats.update_stat(user_id, "meal_plans")}
         else:
             return {"response": "Error: No response from model."}
@@ -273,10 +262,10 @@ class LLMService:
         Asks for workout plan formatted as a WorkoutPlan model from the AI
         """
 
-        contents = await chat_history.load_history(user_id)
+        contents = await chat_history.get_history(user_id)
         next_message = {
             "role": "user",
-            "parts": [{"text": await get_prompt(user_id, message, language)}]
+            "parts": [{"text": await get_prompt(user_id, message, message, True, language)}]
         }
         contents.append(next_message)
 
@@ -287,13 +276,8 @@ class LLMService:
                                                ))
 
         if response and response.text:
-            chat_history.store_history(user_id, message, response.text, system=True)
+            chat_history.store_history(user_id, "Create a personalized 7-day workout schedule.", response.text, system=True)
             chat_history.store_plan(user_id, "workout_plan", response.text)
-
-            # Write directly to chat history too so it will be available to the model without reload from database
-            session = await self.get_session(user_id)
-            session.history.append(next_message)
-            session.history.append(response.candidates[0].content)
 
             return {"response": response.text, "progress": await user_stats.update_stat(user_id, "workout_plans")}
         else:
