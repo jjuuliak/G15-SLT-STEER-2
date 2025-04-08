@@ -16,6 +16,6 @@ def test_format_history():
         {"system": False, "role": "user", "text": "test question", "time": 1},
         {"system": False, "role": "model", "text": "test answer", "time": 2}]
     ) == [
-        types.UserContent(parts=[types.Part.from_text(text="test question")]),
-        types.ModelContent(parts=[types.Part.from_text(text="test answer")])
+        types.Content(role="user", parts=[types.Part.from_text(text="test question")]),
+        types.Content(role="model", parts=[types.Part.from_text(text="test answer")])
     ]

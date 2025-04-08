@@ -1,9 +1,7 @@
 import inspect
 from google import genai
 from google.genai import types
-import json
 import os
-import chat_history
 import user_stats
 from google.genai.types import GenerateContentConfig, FunctionCallingConfig, FunctionCallingConfigMode, ToolConfig
 from models.meal_plan_models import MealPlan

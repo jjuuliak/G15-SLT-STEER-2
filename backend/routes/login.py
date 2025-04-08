@@ -57,8 +57,7 @@ async def login(user_info: UserLogin):
 @router.post("/logout")  # with refresh_token
 async def logout(credentials: JwtAuthorizationCredentials = Security(AuthService.get_refresh_security())):
     AuthService.set_refresh_token_expired(credentials.jti)  # access_token will expire within 15 minutes
-    chat_history.close(credentials["user_id"])
-
+    await chat_history.close(credentials["user_id"])
     return {}
 
 
