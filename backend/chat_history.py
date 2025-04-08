@@ -93,10 +93,11 @@ def store_history(user_id: str, question: str, answer: str, system: bool = False
     :param answer: answer from ai
     :param system: whether entry is not directly caused by user's chat input but for example meal plan generation
     """
+    if user_id not in SESSIONS:
+        SESSIONS[user_id] = []
 
-    if user_id in SESSIONS:
-        SESSIONS[user_id].append(types.UserContent(parts=[types.Part.from_text(text=question)]))
-        SESSIONS[user_id].append(types.ModelContent(parts=[types.Part.from_text(text=answer)]))
+    SESSIONS[user_id].append(types.UserContent(parts=[types.Part.from_text(text=question)]))
+    SESSIONS[user_id].append(types.ModelContent(parts=[types.Part.from_text(text=answer)]))
 
     question_msg = {"system": system, "role": "user", "text": question, "time": time.time() - 1}
     answer_msg = {"system": system, "role": "model", "text": answer, "time": time.time()}
