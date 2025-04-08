@@ -38,7 +38,7 @@ class RAGService:
 
         return [doc.page_content for doc, score in results if score >= score_threshold]
 
-    def build_prompt(self, query, user_info, top_k=8):
+    def build_prompt(self, query, user_info, language, top_k=8):
         """
         Builds the final prompt by combining the user's query with retrieved context and user info.
         """
@@ -62,6 +62,7 @@ class RAGService:
 
             Question: {query}
             User provided info: {user_info}
+            User language, please use it to respond: {language}
             {"Context: " if context_chunks else ""}{"\n\n".join(context_chunks) if context_chunks else ""}
             Answer: [/INST]"""
 
