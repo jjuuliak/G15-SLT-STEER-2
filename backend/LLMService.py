@@ -276,7 +276,7 @@ class LLMService:
                                                ))
 
         if response and response.text:
-            chat_history.store_history(user_id, message, response.text, system=True)
+            chat_history.store_history(user_id, "Create a personalized 7-day workout schedule.", response.text, system=True)
             chat_history.store_plan(user_id, "workout_plan", response.text)
 
             return {"response": response.text, "progress": await user_stats.update_stat(user_id, "workout_plans")}
