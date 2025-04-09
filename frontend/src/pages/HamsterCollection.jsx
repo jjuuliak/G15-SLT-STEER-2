@@ -1,27 +1,32 @@
 import TopBar from "../components/TopBar";
-import { Container, Typography, Box, Grid2 as Grid } from "@mui/material";
+import { Container, Typography, Box, Grid2 as Grid , LinearProgress, Paper} from "@mui/material";
 import doctorBronze from "../images/hamsters/doctor-bronze.png"
 import emptyHamster from "../images/hamsters/empty-hamster.png"
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+
 
 
 const HamsterCollection = () => {
     const accessToken = useSelector((state) => state.auth?.access_token);
+    const [currentStat, setCurrentStat] = useState(null);
+    const [nextLevel, setNextLevel] = useState(null);
 
      const fillHamsters = (data) => {
         console.log(data.user_stats)
+
         data.user_stats.map((category) => {
             if (category.level > 0) {
                 console.log(category.stat)
             }
-            
+            if (category.stat === 'messages'){
+                setCurrentStat(category.counter);
+                setNextLevel(category.next_level);
+            }
         })
-
-        
-
-        
       };
+
+    
       
 
     useEffect(() => {
@@ -67,7 +72,7 @@ const HamsterCollection = () => {
             sx={{minHeight: "100vh"}}
             >
                 <Grid 
-                size={5}
+                size={{xs: 12, md: 5}}
                 >
                     <Typography variant="h3">Master Hamster</Typography>
                     <Box sx={{maxWidth: 250,
@@ -79,11 +84,19 @@ const HamsterCollection = () => {
                         style={{ width: "100%", height: "auto" }} 
                         /></Box>
                     <Typography variant="h4"> Progress towards next Master Hamster: </Typography>
+                    <Typography variant="h4"> {currentStat} / {nextLevel} </Typography>
+                    <LinearProgress
+                    variant="determinate"
+                    value={(currentStat / nextLevel) * 100} // Calculate the progress towards next level in percentage
+                    sx={{height: 40, width: 320, borderRadius: 5, marginTop: 2, marginX: 'auto' }}>
+                    </LinearProgress>
                 </Grid>
-                <Grid size={7}>
-                    <Grid container spacing={2} >
+                <Grid size={{xs: 12, md: 7}}>
+                    <Paper elevation={2} sx={{marginX: 2}}>
+                    <Grid container spacing={1} >
                     {hamsters.map((item) => (
-                            <Grid size={4}
+                            <Grid size={{xs: 6, md: 4}}
+                            sx={{marginX: 'auto'}}
                             key={item.title}
                             >
                             <img
@@ -91,11 +104,14 @@ const HamsterCollection = () => {
                                 src={item.img}
                                 alt={item.title}
                                 loading="lazy"
-                                style={{width: "80%", height: "auto" }} 
+                                style={{width: "100%", height: "auto", maxHeight: 250, maxWidth: 250 }} 
                             />
                             </Grid>
                         ))}
                     </Grid>
+
+                    </Paper>
+                    
                     
                 </Grid>
             </Grid>
