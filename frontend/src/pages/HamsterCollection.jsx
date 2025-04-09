@@ -72,33 +72,39 @@ const hamsterImageMap = {
 
 const HamsterCollection = () => {
     const accessToken = useSelector((state) => state.auth?.access_token);
+
+    // States for the progress bar under master hamster
     const [currentStat, setCurrentStat] = useState(null);
     const [nextLevel, setNextLevel] = useState(null);
+
     const [userStats, setUserStats] = useState([]);
+    const [masterHamsterPic, setMasterHamsterPic] = useState(null);
+
 
      const fillHamsters = (data) => {
+        const stats = data.user_stats;
+        setUserStats(stats);
+        const messagesStat = stats.find(stat => stat.stat === 'messages');
+        if (messagesStat) {
+            setCurrentStat(messagesStat.counter);
+            setNextLevel(messagesStat.next_level);
+        }
+
         
-        setUserStats(data.user_stats);
-
-        data.user_stats.map((category) => {
-            if (category.level > 0) {
-                console.log(category.stat)
-            }
-            if (category.stat === 'messages'){
-                setCurrentStat(category.counter);
-                setNextLevel(category.next_level);
-
-            }
-        })
       };
 
-    
-      
+      // Set a pic to use on the left hand side of the screen on Master Hamster pic once we have userStats
+      // Master hamster pic currently correspondes to the level of messages stats
+      useEffect(() => {
+        const userStat = userStats.find(stat => stat.stat === 'messages');
+        const level = userStat?.level || 0;
+        const image = hamsterImageMap['messages']?.[level] || emptyHamster;
+        setMasterHamsterPic(image);
+      }, [userStats])
+
 
     useEffect(() => {
-        // Fetch user statis
-        
-            console.log("Fetching user stats plan");
+        // Fetch user stats
             fetch("http://localhost:8000/get-stats", {
                 method: "POST",
                 headers: {
@@ -134,8 +140,7 @@ const HamsterCollection = () => {
             spacing={2}
             textAlign="center"
             justifyContent="center"
-            alignItems="center"
-            sx={{minHeight: "100vh"}}
+            sx={{ marginTop: 5}}
             >
                 <Grid 
                 size={{xs: 12, md: 5}}
@@ -145,7 +150,7 @@ const HamsterCollection = () => {
                         mx: "auto"
                     }}>
                         <img 
-                        src={doctorBronze} 
+                        src={masterHamsterPic} 
                         alt="Hamster picture"
                         style={{ width: "100%", height: "auto" }} 
                         /></Box>
@@ -173,7 +178,9 @@ const HamsterCollection = () => {
                                     display: 'flex',
                                     flexDirection: 'column',
                                     justifyContent: 'space-between',
-                                    alignItems: 'center',}}
+                                    alignItems: 'center'
+                                
+                                }}
                                     key={item.title}
                             >
                                 <img
@@ -183,7 +190,7 @@ const HamsterCollection = () => {
                                     style={{ width: "100%", height: "100%", objectFit: "contain", maxWidth: 250 }}
                                 />
                                 <Box sx={{ textAlign: "center"}}>
-                                    <Typography variant="h5">{item.title}</Typography>
+                                    <Typography variant="h6">{item.title}</Typography>
                                     <Typography variant="subtitle1">{levelLabels[level]}</Typography>
                                 </Box>
                                 
@@ -206,28 +213,28 @@ const HamsterCollection = () => {
 const hamsters = [
     {
       img: emptyHamster,
-      title: 'messageHamster',
+      title: 'Messages ',
       stat: 'messages'
     },
     {
       img: emptyHamster,
-      title: 'mealPlanHamster',
+      title: 'Meal plans',
       stat: 'meal_plans'
     },
     {
       img: emptyHamster,
-      title: 'mealHamster',
+      title: 'Meals',
       stat: 'meals'
     },
 
     {
       img: emptyHamster,
-      title: 'workoutPlanHamster',
+      title: 'Workout plans',
       stat: 'workout_plans'
     },
     {
       img: emptyHamster,
-      title: 'workoutHamster',
+      title: 'Workouts',
       stat: 'workouts'
     }
   ];
