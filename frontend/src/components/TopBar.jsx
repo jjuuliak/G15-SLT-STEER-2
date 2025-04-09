@@ -169,7 +169,7 @@ const TopBar = () => {
         >
           <MenuItem onClick={handleOpenProfile}>{t('profile')}</MenuItem>
           <MenuItem onClick={handleOpenSettings}>{t('settings')}</MenuItem>
-          <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          <MenuItem onClick={handleLogout}>{t('logout')}</MenuItem>
         </Menu>
       </Toolbar>
     </AppBar>

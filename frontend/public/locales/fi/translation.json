@@ -1,5 +1,6 @@
 {
     "login": "Kirjaudu",
+    "logout": "Kirjaudu ulos",
     "register": "Rekisteröidy",
     "email": "Sähköposti",
     "password": "Salasana",
@@ -84,6 +85,14 @@
     "chatHistory": "Chat historia",
     "noHistoryFound": "Ei viestejä historiassa",
     "chat": "Chat",
-    "meal-plan": "Ateriasuunnitelma"
+    "meal-plan": "Ateriasuunnitelma",
+    "workout-plan": "Treeniohjelma",
+    "workoutPageTranslations": {
+        "today": "Tänään",
+        "steps": "Askeleet",
+        "stepGoal": "Askeltavoite",
+        "weeklyProgress": "Viikon edistyminen",
+        "recommendedExercises": "Suositellut harjoitukset"
+    }
 }
   
