@@ -39,21 +39,11 @@ const ChatHistory = () => {
  * @param {Array} messages - The array of message objects.
  * @returns {Array} Filtered messages.
  */
-const filterJsonMessages = (messages) => {
-  const isJsonString = (str) => {
-    try {
-      const parsed = JSON.parse(str);
-      return typeof parsed === 'object' && parsed !== null;
-    } catch (e) {
-      return false;
-    }
-  };
-
+const filterOutSystemMessages = (messages) => {
   const result = [];
   for (let i = 0; i < messages.length; i++) {
     const current = messages[i];
-    const isJson = isJsonString(current.text);
-    if (isJson) {
+    if (current.system) {
       if (result.length > 0) {
         result.pop(); // remove previous message
       }
@@ -100,7 +90,7 @@ const filterJsonMessages = (messages) => {
       const newMessagesRaw = data.history || [];
 
       // Filter out messages where text is JSON + previous message
-      const newMessages = filterJsonMessages(newMessagesRaw);
+      const newMessages = filterOutSystemMessages(newMessagesRaw);
 
   
       
