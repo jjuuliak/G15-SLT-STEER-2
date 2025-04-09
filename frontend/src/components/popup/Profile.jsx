@@ -432,7 +432,7 @@ const UserProfile = ({ open, handleClose }) => {
                     type="text"
                     multiline
                     rows={3} 
-                    value={formData.other_past_medical_conditions.join("\n")} 
+                    value={formData.other_past_medical_conditions ? formData.other_past_medical_conditions.join("\n") : ""} 
                     onChange={handleChange}
                     helperText={profileTranslation.enterEachConditionOnNewLine}
                 />
@@ -442,7 +442,7 @@ const UserProfile = ({ open, handleClose }) => {
                     type="text"
                     multiline
                     rows={3} 
-                    value={formData.other_current_medical_conditions.join("\n")} 
+                    value={formData.other_current_medical_conditions ? formData.other_current_medical_conditions.join("\n") : ""} 
                     onChange={handleChange}
                     helperText={profileTranslation.enterEachConditionOnNewLine}
                 />
@@ -452,7 +452,7 @@ const UserProfile = ({ open, handleClose }) => {
                     type="text"
                     multiline
                     rows={3} 
-                    value={formData.medication.join("\n")} 
+                    value={formData.medication ? formData.medication.join("\n") : ""} 
                     onChange={handleChange}
                     helperText={profileTranslation.enterEachMedicationOnNewLine}
                 />
