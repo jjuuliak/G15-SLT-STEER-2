@@ -64,7 +64,7 @@ const Chat = () => {
     }
   }, [messagesFromRedux]);
 
-  const sendMessage = async (msg = message) => {
+  const sendMessage = async (msg = message, mealPlan = false, workoutPlan = false) => {
     if (typeof msg !== 'string' || !msg.trim()) {
       return; // Message can't be empty
     }
@@ -76,33 +76,35 @@ const Chat = () => {
     setMessage("");
 
     try {
-      const url = msg.includes('meal plan') 
+      const url = mealPlan 
         ? 'http://localhost:8000/ask-meal-plan' 
-        : msg.includes('workout plan') 
+        : workoutPlan 
         ? 'http://localhost:8000/ask-workout-plan' 
         : 'http://localhost:8000/ask';
-      
+
+      let lang = localStorage.getItem("i18nextLng") === "fi" ? "Finnish" : "English";
+
       const response = await fetch(url, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-        body: msg.includes('meal plan') ? JSON.stringify({ message: 'Create me a meal plan for a week', "language": "English" }) : JSON.stringify({ message: msg, "language": "English" })
+        body: JSON.stringify({ message: mealPlan ? 'Create me a meal plan for a week' : workoutPlan ? 'Create me a workout plan for a week' : msg, "language": lang })
       });
 
       if (!response.ok) {
         throw new Error(`Error: ${response.statusText}`);
       }
 
-      if (msg.includes('meal plan')) {
+      if (mealPlan) {
         const data = await response.json();
         dispatch(setMealPlan(JSON.parse(data.response)));
         const botMessage = { text: JSON.parse(data.response).explanation, sender: "bot" };
         setMessages((prev) => [...prev, botMessage]);
         dispatch({ type: 'SET_MESSAGES', payload: [...messages, userMessage, botMessage] });
       }
-      else if (msg.includes('workout plan')) {
+      else if (workoutPlan) {
         const data = await response.json();
         dispatch(setWorkoutPlan(JSON.parse(data.response)));
         const botMessage = { text: JSON.parse(data.response).explanation, sender: "bot" };

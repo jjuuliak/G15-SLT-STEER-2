@@ -59,7 +59,7 @@ const Message = ({ msg, sendOption }) => {
             variant="contained" 
             size="small" 
             sx={{ px: '12px', borderRadius: 5 }}
-            onClick={() => sendOption(option)}
+            onClick={() => sendOption(option, index == 1, index == 0)} // sendMessage(msg, mealPlan, workoutPlan)
           >
             {option}
           </Button>
