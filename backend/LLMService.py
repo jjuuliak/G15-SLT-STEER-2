@@ -176,7 +176,7 @@ class LLMService:
             return
 
         except Exception as e:
-            print(e)
+            print(e, flush=True)
             traceback.print_exc()
             yield json.dumps({"response": "Error: An unexpected error occurred."})
             return
@@ -221,12 +221,12 @@ class LLMService:
         if response and response.text:
             try:
                 parsed = QueryEnhancement(**json.loads(response.text))
-                print(f"Original message: {user_message}")
-                print(f"Retrieval query: {parsed.rewritten_query}")
-                print(f"Document retrieval: {parsed.requires_retrieval}")
+                print(f"Original message: {user_message}", flush=True)
+                print(f"Retrieval query: {parsed.rewritten_query}", flush=True)
+                print(f"Document retrieval: {parsed.requires_retrieval}", flush=True)
                 return parsed
             except Exception as e:
-                print(f"Error parsing enhanced query: {e}")
+                print(f"Error parsing enhanced query: {e}", flush=True)
                 return None
 
 
