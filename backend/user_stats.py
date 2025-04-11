@@ -3,6 +3,7 @@ from pymongo import ReturnDocument
 import database_connection
 
 
+# Amount of stat points required for each level
 LEVELS = {
     "messages": [1, 10, 100, 1000],
     "meal_plans": [1],
@@ -79,3 +80,9 @@ async def update_stat(user_id: str, stat: str, increment: int = 1) -> {}:
     )
     return calculate_stat(stat, result.get(stat))
 
+
+async def delete_stats(user_id: str):
+    """
+    Deletes user's stats
+    """
+    await database_connection.get_user_stats().delete_one({"user_id": user_id})
