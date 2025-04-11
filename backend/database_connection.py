@@ -20,10 +20,10 @@ async def connect_mongodb():
     db_user = os.getenv("MONGO_USER")
     db_password = os.getenv("MONGO_PASSWORD")
 
-    print("Connecting to MongoDB")
+    print("Connecting to MongoDB", flush=True)
     global mongo
     mongo = AsyncIOMotorClient(f"mongodb://{db_user}:{db_password}@database:27017/")
-    print(await mongo.server_info())
+    print(await mongo.server_info(), flush=True)
     await get_users().create_index([("email", 1)], unique=True)
     await get_user_data().create_index([("user_id", 1)], unique=True)
     await get_user_stats().create_index([("user_id", 1)], unique=True)
