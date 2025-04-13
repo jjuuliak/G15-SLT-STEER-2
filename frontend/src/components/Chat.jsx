@@ -88,7 +88,7 @@ const Chat = () => {
           "Authorization": `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-        body: msg.includes('meal plan') ? JSON.stringify({ message: 'Create me a meal plan for a week' }) : JSON.stringify({ message: msg })
+        body: msg.includes('meal plan') ? JSON.stringify({ message: 'Create me a meal plan for a week', "language": "English" }) : JSON.stringify({ message: msg, "language": "English" })
       });
 
       if (!response.ok) {
@@ -104,7 +104,7 @@ const Chat = () => {
       }
       else if (msg.includes('workout plan')) {
         const data = await response.json();
-        dispatch(setWorkoutPlan(JSON.parse(data.response)));
+        dispatch(setWorkoutPlan(data.response));
         const botMessage = { text: JSON.parse(data.response).explanation, sender: "bot" };
         setMessages((prev) => [...prev, botMessage]);
         dispatch({ type: 'SET_MESSAGES', payload: [...messages, userMessage, botMessage] });

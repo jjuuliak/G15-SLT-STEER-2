@@ -1,6 +1,11 @@
+import json
 import time
-
+from google.genai import types
+from typing import Literal
 import database_connection
+
+
+SESSIONS = {}
 
 
 def format_history(history):
@@ -13,11 +18,44 @@ def format_history(history):
 
     formatted_history = []
     for message in history:
-        formatted_history.append({
-            "role": message["role"],
-            "parts": [{"text": message["text"]}]
-        })
+        formatted_history.append(
+            types.Content(role=message["role"], parts=[types.Part.from_text(text=message["text"])])
+        )
     return formatted_history
+
+
+async def close_session(user_id: str):
+    """
+    Closes user session's chat history
+
+    :param user_id: user id
+    """
+    if user_id in SESSIONS:
+        SESSIONS.pop(user_id)
+
+
+async def delete_history(user_id: str):
+    """
+    Deletes user's chat history and generated plans
+    :param user_id: user id
+    """
+    if user_id in SESSIONS:
+        SESSIONS[user_id] = []
+
+    await database_connection.get_chat_history().delete_one({"user_id": user_id})
+
+
+async def get_history(user_id: str):
+    """
+    Gets chat history or creates it if it doesn't exist and formats it for the AI
+
+    :param user_id: user id
+    :return: chat history or empty array if it didn't exist
+    """
+    if user_id not in SESSIONS:
+        SESSIONS[user_id] = await load_history(user_id)
+
+    return SESSIONS[user_id].copy()  # Return a copy to not append next instruction into history
 
 
 async def load_history(user_id, limit = 100):
@@ -38,7 +76,7 @@ async def load_history(user_id, limit = 100):
     return format_history(document.get("history", []))
 
 
-async def read_history(user_id, skip = 0, limit = 10):
+async def read_history(user_id: str, skip: int = 0, limit: int = 10):
     """
     Gets a chunk of chat history to be sent to frontend
 
@@ -57,7 +95,7 @@ async def read_history(user_id, skip = 0, limit = 10):
     return document.get("history", [])
 
 
-def store_history(user_id, question, answer, system: bool = False):
+def store_history(user_id: str, question: str, answer: str, system: bool = False):
     """
     Stores a question-answer pair in chat history
 
@@ -66,6 +104,11 @@ def store_history(user_id, question, answer, system: bool = False):
     :param answer: answer from ai
     :param system: whether entry is not directly caused by user's chat input but for example meal plan generation
     """
+    if user_id not in SESSIONS:
+        SESSIONS[user_id] = []
+
+    SESSIONS[user_id].append(types.UserContent(parts=[types.Part.from_text(text=question)]))
+    SESSIONS[user_id].append(types.ModelContent(parts=[types.Part.from_text(text=answer)]))
 
     question_msg = {"system": system, "role": "user", "text": question, "time": time.time() - 1}
     answer_msg = {"system": system, "role": "model", "text": answer, "time": time.time()}
@@ -75,43 +118,63 @@ def store_history(user_id, question, answer, system: bool = False):
     )
 
 
-async def get_meal_plan(user_id):
+async def get_plan(user_id: str, plan: Literal["meal_plan", "workout_plan"]):
     """
-    Gets latest meal plan
+    Gets latest plan
+
+    :param user_id: user id
+    :param plan: plan type
+    :return: plan
     """
-    document = await database_connection.get_chat_history().find_one({"user_id": user_id})
+    document = await database_connection.get_chat_history().find_one({"user_id": user_id}, {plan: 1})
 
     if not document:
         return None
+    
+    return json.dumps(document.get(plan, None))
 
-    return document.get("meal_plan", None)
 
-
-def store_meal_plan(user_id, meal_plan):
+def store_plan(user_id: str, plan: Literal["meal_plan", "workout_plan"], content):
     """
-    Stores latest meal plan
+    Stores latest plan
+
+    :param user_id: user id
+    :param plan: plan type
+    :param content: plan
     """
+
+    content = json.loads(content)
+    content["created"] = time.time()
+    content["completed"] = False
+
     database_connection.get_chat_history().update_one(
-        {"user_id": user_id}, {"$set": {"meal_plan": meal_plan}}, upsert=True
+        {"user_id": user_id}, {"$set": {plan: content}}, upsert=True
     )
 
 
-async def get_workout_plan(user_id):
+async def complete_plan(user_id: str, plan: Literal["meal_plan", "workout_plan"]):
     """
-    Gets latest workout plan
+    Marks plan as completed
+
+    :param user_id: user id
+    :param plan: plan type
+    :return: true if success, false if plan doesn't exist or is already completed
     """
-    document = await database_connection.get_chat_history().find_one({"user_id": user_id})
 
-    if not document:
-        return None
+    document = await database_connection.get_chat_history().find_one({"user_id": user_id}, {plan: 1})
 
-    return document.get("workout_plan", None)
+    if not document or plan not in document:
+        return False
 
+    content = document.get(plan)
 
-def store_workout_plan(user_id, workout_plan):
-    """
-    Stores latest workout plan
-    """
-    database_connection.get_chat_history().update_one(
-        {"user_id": user_id}, {"$set": {"workout_plan": workout_plan}}, upsert=True
+    if content.get("completed"):
+        return False
+
+    content["completed"] = True
+
+    await database_connection.get_chat_history().update_one(
+        {"user_id": user_id}, {"$set": {plan: content}}
     )
+
+    return True

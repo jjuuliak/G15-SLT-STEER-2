@@ -1,18 +1,19 @@
-# noinspection PyUnresolvedReferences
-import pytest
-
 import os
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+import pytest
 
 from auth_service import AuthService
 
 
 def test_refresh_security():
+    # Refresh security has been initialized
     assert AuthService.get_refresh_security() is not None
 
 
 def test_access_security():
+    # Access security has been initialized
     assert AuthService.get_access_security() is not None
 
 

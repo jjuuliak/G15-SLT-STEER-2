@@ -1,28 +1,14 @@
-# noinspection PyUnresolvedReferences
-import pytest
-
 import os
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from time import sleep
-
 import user_stats
-from utils.response import ResponseFor
+from utils.response import ResponseFor, TestAccountFor
 
 
 def test_stats():
-    # Give backend some time to start
-    sleep(15)
-
-    # Register, create test user
-    response = ResponseFor("POST", "/register",
-                 body={"name": "Stats", "email": "stats@example.org", "password": "Password123!"},
-                 headers={"Content-Type": "application/json"})
-    assert response.status == 200
-    assert "access_token" in response.content
-
-    access_token = response.content["access_token"]
+    account = TestAccountFor("Stats")
+    access_token = account.access_token
 
     # Get stats, should have all of them
     response = ResponseFor("POST", "/get-stats",
@@ -44,3 +30,5 @@ def test_stats():
         assert len(stat["levels"]) > 0
         assert "next_level" in stat
         assert stat["next_level"] > 0
+
+    account.unregister()

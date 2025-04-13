@@ -1,8 +1,11 @@
+from bson import ObjectId
 from fastapi import APIRouter, HTTPException, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 from starlette import status
 
+import chat_history
 import database_connection
+import user_stats
 from auth_service import AuthService
 from models.login_model import UserLogin
 from models.user_model import User
@@ -54,16 +57,37 @@ async def login(user_info: UserLogin):
 
 
 @router.post("/logout")  # with refresh_token
-def refresh(credentials: JwtAuthorizationCredentials = Security(AuthService.get_refresh_security())):
+async def logout(credentials: JwtAuthorizationCredentials = Security(AuthService.get_refresh_security())):
     AuthService.set_refresh_token_expired(credentials.jti)  # access_token will expire within 15 minutes
+    await chat_history.close_session(credentials["user_id"])
     return {}
 
 
 @router.post("/refresh")  # with refresh_token
-def refresh(credentials: JwtAuthorizationCredentials = Security(AuthService.get_refresh_security())):
+async def refresh(credentials: JwtAuthorizationCredentials = Security(AuthService.get_refresh_security())):
     if AuthService.is_refresh_token_expired(credentials.jti):  # or token created < last password change
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login expired")
 
     access_token = AuthService.get_access_security().create_access_token(subject=credentials.subject)
 
     return {"access_token": access_token}
+
+
+@router.post("/unregister")
+async def register(credentials: JwtAuthorizationCredentials = Security(AuthService.get_refresh_security())):  # with refresh_token
+    if AuthService.is_refresh_token_expired(credentials.jti):  # or token created < last password change
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login expired")
+
+    AuthService.set_refresh_token_expired(credentials.jti)  # access_token will expire within 15 minutes
+
+    user_id = credentials["user_id"]
+    result = await database_connection.get_users().delete_one({"_id": ObjectId(user_id)})
+
+    if not result or result.deleted_count != 1:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Could not delete user")
+
+    await database_connection.get_user_data().delete_one({"user_id": user_id})
+    await chat_history.close_session(user_id)
+    await chat_history.delete_history(user_id)
+    await user_stats.delete_stats(user_id)
+    return {}
