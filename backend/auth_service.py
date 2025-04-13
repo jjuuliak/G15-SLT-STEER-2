@@ -37,11 +37,17 @@ class AuthService:
 
     @staticmethod
     def get_refresh_security():
+        """
+        Get refresh token authentication
+        """
         return refresh_security
 
 
     @staticmethod
     def get_access_security():
+        """
+        Get access token authentication
+        """
         return access_security
 
 
