@@ -104,7 +104,7 @@ const Chat = () => {
       }
       else if (msg.includes('workout plan')) {
         const data = await response.json();
-        dispatch(setWorkoutPlan(JSON.parse(data.response)));
+        dispatch(setWorkoutPlan(data.response));
         const botMessage = { text: JSON.parse(data.response).explanation, sender: "bot" };
         setMessages((prev) => [...prev, botMessage]);
         dispatch({ type: 'SET_MESSAGES', payload: [...messages, userMessage, botMessage] });

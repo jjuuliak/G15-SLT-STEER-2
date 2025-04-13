@@ -58,3 +58,12 @@ async def get_chat_history(request: HistoryRequestModel, credentials: JwtAuthori
         history: [{"system": true if meal/workout plan/request, "role": "model"/"user", "text": answer/question, "time": answer time (seconds since epoch)/answer time - 1}, ...]
     """
     return {"history": await chat_history.read_history(credentials["user_id"], request.start_index, request.count)}
+
+
+@router.post("/clear-history")
+async def get_chat_history(credentials: JwtAuthorizationCredentials = Security(AuthService.get_access_security())):
+    """
+    Clears all chat history and generated plans for the user
+    """
+    await chat_history.delete_history(credentials["user_id"])
+    return {}

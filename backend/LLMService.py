@@ -134,11 +134,11 @@ class LLMService:
             - Fix any spelling mistakes in the user's message.
             - If the chat history is empty, return it as is but with corrected spelling.
             - If the user's message is gibberish, keep it as it is.
-            - Provide the modified message in English.
             - If the message works as it is without requiring additional information, just fix any possible spelling errors and answer nothing else.
             - Decide if additional domain information is needed from the RAG pipeline, or if the question is general enough to be answered as is, for example a greeting. 
             For all queries relating to cardiovascular health we should retrieve more information.
             - Keep the message as close to the original meaning as possible.
+            - Translate all text to English.
             - Most importantly don't give any explanations for your decisions, only provide the expected message.
 
             chat history: {history}
@@ -159,7 +159,7 @@ class LLMService:
                                         Your task is to add required context for follow-up questions based on the chat history and fix 
                                         possible spelling errors in the original query. In addition, you need to evaluate whether the question is general enough to be answered 
                                         as it is, or if the RAG pipeline should be invoked to retrieve relevant information relating to cardiovascular health. This decision needs to be 
-                                        included as a boolean value in requires_rag."""],
+                                        included as a boolean value in requires_rag. Always provide the modified_query in English."""],
                 temperature=0.5,
                 response_mime_type="application/json",
                 response_schema=QueryEnhancement))
@@ -167,12 +167,12 @@ class LLMService:
         if response and response.text:
             try:
                 parsed = QueryEnhancement(**json.loads(response.text))
-                print(f"Original message: {user_message}")
-                print(f"Retrieval query: {parsed.rewritten_query}")
-                print(f"Document retrieval: {parsed.requires_retrieval}")
+                print(f"Original message: {user_message}", flush=True)
+                print(f"Retrieval query: {parsed.rewritten_query}", flush=True)
+                print(f"Document retrieval: {parsed.requires_retrieval}", flush=True)
                 return parsed
             except Exception as e:
-                print(f"Error parsing enhanced query: {e}")
+                print(f"Error parsing enhanced query: {e}", flush=True)
                 return None
 
 
