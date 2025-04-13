@@ -1,10 +1,14 @@
 // reducers/authReducer.js
 import { LOGIN_SUCCESS, LOGOUT, SET_USER } from "../actionTypes";
 
+const storedToken = localStorage.getItem("authToken");
+const storedUser = localStorage.getItem("user");
+const user = storedUser !== "undefined" ? JSON.parse(storedUser) : null;
+
 const initialState = {
-  isAuthenticated: false,
-  user: null,
-  access_token: null
+  isAuthenticated: !!storedToken,
+  user: user,
+  access_token: storedToken || null
 };
 
 const authReducer = (state = initialState, action) => {

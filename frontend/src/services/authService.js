@@ -51,3 +51,19 @@ export const registerUser  = async (formData) => {
     throw new Error('Registration failed. Please try again.');
   }
 };
+
+export const saveAuthToStorage = (token, user) => {
+  localStorage.setItem("authToken", token);
+  localStorage.setItem("user", JSON.stringify(user));
+};
+
+export const clearAuthFromStorage = () => {
+  localStorage.removeItem("authToken");
+  localStorage.removeItem("user");
+  localStorage.removeItem("link");
+};
+
+export const getAuthFromStorage = () => ({
+  token: localStorage.getItem("authToken"),
+  user: localStorage.getItem("user"),
+});
