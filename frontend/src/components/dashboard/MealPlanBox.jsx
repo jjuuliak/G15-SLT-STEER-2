@@ -30,7 +30,7 @@ const MealPlanBox = () => {
           ))}
         </ul>
       </>
-    ) : <span>Not available</span>;
+    ) : <span className="meal-description">Not available</span>;
   };
 
   return (
