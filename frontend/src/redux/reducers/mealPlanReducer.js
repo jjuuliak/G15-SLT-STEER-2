@@ -7,7 +7,6 @@ const initialState = {
 const mealPlanReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_MEAL_PLAN:
-      console.log(action)
       return { 
         ...state, 
         mealPlanResponse: action.payload

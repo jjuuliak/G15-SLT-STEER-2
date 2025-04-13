@@ -1,29 +1,57 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSelector } from "react-redux";
 import './MealPlanBox.css';
+import { getCurrentDayIndex } from '../../pages/mealPlan/mealPlanFunctions';
 
 const MealPlanBox = () => {
-  const meals = {
-    breakfast: 'Oatmeal with banana',
-    lunch: 'Grilled chicken salad',
-    dinner: 'Steamed salmon with veggies',
-    snack: 'Apple Slices with Almond Butter'
+  const mealPlanData = useSelector((state) => state.mealPlan?.mealPlanResponse);
+  const [mealIndex, setMealIndex] = useState(0);
+  const [days, setDays] = useState(null);
+
+  useEffect(() => {
+    if (mealPlanData) {
+      const index = mealPlanData?.created ? getCurrentDayIndex(mealPlanData?.created) : 0;
+      setMealIndex(index);
+      setDays(typeof mealPlanData?.meal_plan === 'string' ? JSON.parse(mealPlanData.meal_plan).days : mealPlanData?.meal_plan.days);
+    }
+  }, [mealPlanData]);
+
+  const currentDay = days?.[mealIndex];
+  const meals = currentDay?.daily_meals || [];
+
+  const getMealContent = (type) => {
+    const meal = meals.find(m => m.meal.toLowerCase() === type);
+    return meal ? (
+      <>
+        <span className="meal-description">{meal.meal_description}</span>
+        <ul className="meal-content">
+          {meal.meal_content.map((item, i) => (
+            <li key={i}>{item}</li>
+          ))}
+        </ul>
+      </>
+    ) : <span className="meal-description">Not available</span>;
   };
 
   return (
     <div className="mealplan" style={{ gridArea: 'mealplan' }}>
       <h2>Meal Plan</h2>
-      <p className="day-label">Monday</p>
+
       <div className="meal-box">
-        <strong>Breakfast:</strong> <span>{meals.breakfast}</span>
+        <strong>Breakfast:</strong>
+        {getMealContent("breakfast")}
       </div>
       <div className="meal-box">
-        <strong>Lunch:</strong> <span>{meals.lunch}</span>
+        <strong>Lunch:</strong>
+        {getMealContent("lunch")}
       </div>
       <div className="meal-box">
-        <strong>Dinner:</strong> <span>{meals.dinner}</span>
+        <strong>Dinner:</strong>
+        {getMealContent("dinner")}
       </div>
       <div className="meal-box">
-        <strong>Snack:</strong> <span>{meals.snack}</span>
+        <strong>Snack:</strong>
+        {getMealContent("snack")}
       </div>
     </div>
   );
