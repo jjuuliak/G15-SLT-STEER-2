@@ -9,10 +9,10 @@ const MealPlanBox = () => {
   const [days, setDays] = useState(null);
 
   useEffect(() => {
-    if (mealPlanData) {
+    if (mealPlanData && mealPlanData.meal_plan) {
       const index = mealPlanData?.created ? getCurrentDayIndex(mealPlanData?.created) : 0;
       setMealIndex(index);
-      setDays(typeof mealPlanData?.meal_plan === 'string' ? JSON.parse(mealPlanData.meal_plan).days : mealPlanData?.meal_plan.days);
+      setDays(typeof mealPlanData?.meal_plan === 'string' ? mealPlanData?.meal_plan.days : mealPlanData?.meal_plan.days);
     }
   }, [mealPlanData]);
 
