@@ -24,7 +24,7 @@ class RAGService:
             self.vector_store = FAISS.load_local(DATABASE_PATH, embeddings, 
                                                  allow_dangerous_deserialization=True)
         except Exception as e:
-            print(f"Warning: Failed to load FAISS index. Error: {e}")
+            print(f"Warning: Failed to load FAISS index. Error: {e}", flush=True)
             self.vector_store = None
 
 
@@ -37,7 +37,7 @@ class RAGService:
 
         results = self.vector_store.similarity_search_with_score(query=retrieval_query, k=top_k)
 
-        print([str(score) + ":" + doc.page_content for doc, score in results if score >= score_threshold])
+        print([str(score) + ":" + doc.page_content for doc, score in results if score >= score_threshold], flush=True)
 
         return [doc.page_content for doc, score in results if score >= score_threshold]
 

@@ -14,7 +14,7 @@ import TopBar from "../../components/TopBar";
 import { parseMealPlanData } from "./mealPlanFunctions";
 
 const MealPlan = () => {
-  const accessToken = useSelector((state) => state.auth?.access_token);
+  const mealPlanData = useSelector((state) => state.mealPlan?.mealPlanResponse);
 
   const [days, setDays] = useState(null);
   const [selectedDay, setSelectedDay] = useState("");
@@ -22,34 +22,12 @@ const MealPlan = () => {
   
 
   useEffect(() => {
-    if (accessToken) {
-      fetch("http://localhost:8000/last-meal-plan", {
-        method: "POST",
-        headers: { 
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json"
-        },
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Failed to fetch profile data");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          if (data && data.meal_plan) {
-            console.log(JSON.parse(data.meal_plan))
-            const parsedData = parseMealPlanData(JSON.parse(data.meal_plan));
-            setDays(parsedData.days);
-            setExplanation(parsedData.explanation);
-            console.log(parsedData)
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching meal plans:", error);
-        });
+    if (mealPlanData?.meal_plan) {
+      const parsedData = parseMealPlanData(JSON.parse(mealPlanData.meal_plan));
+      setDays(parsedData.days);
+      setExplanation(parsedData.explanation);
     }
-  }, []);
+  }, [mealPlanData]);
 
   // Update selectedDay when days are updated from fetch
   useEffect(() => {
@@ -61,8 +39,6 @@ const MealPlan = () => {
   const handleDayClick = (day) => {
     setSelectedDay(day);
   };
-
-  console.log(selectedDay)
 
   return (
     <Container

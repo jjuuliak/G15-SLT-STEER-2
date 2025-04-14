@@ -24,7 +24,7 @@ def format_history(history):
     return formatted_history
 
 
-async def close(user_id: str):
+async def close_session(user_id: str):
     """
     Closes user session's chat history
 
@@ -32,6 +32,17 @@ async def close(user_id: str):
     """
     if user_id in SESSIONS:
         SESSIONS.pop(user_id)
+
+
+async def delete_history(user_id: str):
+    """
+    Deletes user's chat history and generated plans
+    :param user_id: user id
+    """
+    if user_id in SESSIONS:
+        SESSIONS[user_id] = []
+
+    await database_connection.get_chat_history().delete_one({"user_id": user_id})
 
 
 async def get_history(user_id: str):

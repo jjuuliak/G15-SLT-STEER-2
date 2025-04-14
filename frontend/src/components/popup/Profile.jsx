@@ -31,6 +31,7 @@ const UserProfile = ({ open, handleClose }) => {
     });
 
     const [formData, setFormData] = useState({
+      name: "",
       age: "",
       weight_kg: "",
       height_cm: "",
@@ -144,7 +145,7 @@ const UserProfile = ({ open, handleClose }) => {
                     changedFields[key] = value !== "" ? parseInt(value) || null : null;
                 } else if (key === 'height_cm' || key === 'sleep_daily_avg') {
                     changedFields[key] = value !== "" ? parseFloat(value) || null : null;
-                } else if (key === 'gender' || key === 'exercise_level') {
+                } else if (key === 'gender' || key === 'exercise_level' || key === 'name') {
                     changedFields[key] = value || null;
                 } else if (['systolic_blood_pressure_mmhg', 'diastolic_blood_pressure_mmhg', 'heart_rate_resting_bpm'].includes(key)) {
                     changedFields[key] = value[0] ? [parseInt(value[0])] : null;
@@ -236,6 +237,14 @@ const UserProfile = ({ open, handleClose }) => {
                 {profileTranslation.basicInfo || "Basic Information"}
             </Typography>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                <TextField
+                    label={profileTranslation.name}
+                    name="name"
+                    type="text"
+                    margin="dense"
+                    value={formData.name}
+                    onChange={handleChange}
+                />
                 <TextField
                     label={profileTranslation.age}
                     name="age"
@@ -432,7 +441,7 @@ const UserProfile = ({ open, handleClose }) => {
                     type="text"
                     multiline
                     rows={3} 
-                    value={formData.other_past_medical_conditions.join("\n")} 
+                    value={formData.other_past_medical_conditions ? formData.other_past_medical_conditions.join("\n") : ""} 
                     onChange={handleChange}
                     helperText={profileTranslation.enterEachConditionOnNewLine}
                 />
@@ -442,7 +451,7 @@ const UserProfile = ({ open, handleClose }) => {
                     type="text"
                     multiline
                     rows={3} 
-                    value={formData.other_current_medical_conditions.join("\n")} 
+                    value={formData.other_current_medical_conditions ? formData.other_current_medical_conditions.join("\n") : ""} 
                     onChange={handleChange}
                     helperText={profileTranslation.enterEachConditionOnNewLine}
                 />
@@ -452,7 +461,7 @@ const UserProfile = ({ open, handleClose }) => {
                     type="text"
                     multiline
                     rows={3} 
-                    value={formData.medication.join("\n")} 
+                    value={formData.medication ? formData.medication.join("\n") : ""} 
                     onChange={handleChange}
                     helperText={profileTranslation.enterEachMedicationOnNewLine}
                 />
