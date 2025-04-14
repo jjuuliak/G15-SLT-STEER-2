@@ -60,7 +60,7 @@ EXERCISE_INSTRUCTION = ["""You are a helpful cardiovascular health and fitness e
                            relates** to the activities in the plan.
                         
                            You will be given instructions and additional information inbetween [INST] and [/INST] tags 
-                           by the system <<SYS>>."""
+                           by the system <<SYS>>."""]
 
 rag = RAGService()
 
