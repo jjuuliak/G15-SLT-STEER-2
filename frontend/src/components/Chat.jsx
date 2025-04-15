@@ -88,7 +88,7 @@ const Chat = () => {
           "Authorization": `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-        body: msg.includes('meal plan') ? JSON.stringify({ message: 'Create me a meal plan for a week', "language": "English" }) : JSON.stringify({ message: msg, "language": "English" })
+        body: JSON.stringify({ message: msg, "language": "English" })
       });
 
       if (!response.ok) {

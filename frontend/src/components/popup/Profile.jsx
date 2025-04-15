@@ -33,25 +33,25 @@ const UserProfile = ({ open, handleClose }) => {
     const [formData, setFormData] = useState({
       name: "",
       age: "",
-      weight: "",
-      height: "",
+      weight_kg: "",
+      height_cm: "",
       gender: "",
-      systolic_blood_pressure: [],
-      diastolic_blood_pressure: [],
-      heart_rate: [],
-      total_cholesterol: [],
-      low_density_lipoprotein: [],
-      high_density_lipoprotein: [],
-      triglycerides: [],
+      systolic_blood_pressure_mmhg: [],
+      diastolic_blood_pressure_mmhg: [],
+      heart_rate_resting_bpm: [],
+      total_cholesterol_mmoll: [],
+      low_density_lipoprotein_mmoll: [],
+      high_density_lipoprotein_mmoll: [],
+      triglycerides_mmoll: [],
       smoking: false,
-      alcohol_consumption: "",
-      sleep: "",
+      alcohol_consumption_drinks_per_week: "",
+      sleep_daily_avg: "",
       other_past_medical_conditions: [],
       other_current_medical_conditions: [],
-      exercise: "",
+      exercise_level: "",
       medication: [],
       pregnancy: false,
-      waist_measurement: "",
+      waist_measurement_cm: "",
       family_history_with_heart_disease: false
   });
 
@@ -67,15 +67,15 @@ const UserProfile = ({ open, handleClose }) => {
                 ["other_past_medical_conditions", "other_current_medical_conditions", "medication"].includes(name) ?
                 value.split('\n').filter(item => item.trim() !== '') :
                 // Handle numeric array fields (measurements)
-                ["systolic_blood_pressure", "diastolic_blood_pressure", "heart_rate"].includes(name) ? 
+                ["systolic_blood_pressure_mmhg", "diastolic_blood_pressure_mmhg", "heart_rate_resting_bpm"].includes(name) ?  
                 value ? [parseInt(value)] : [] :
-                ["total_cholesterol", "low_density_lipoprotein", "high_density_lipoprotein", "triglycerides"].includes(name) ?
+                ["total_cholesterol_mmoll", "low_density_lipoprotein_mmoll", "high_density_lipoprotein_mmoll", "triglycerides_mmoll"].includes(name) ?
                 value ? [parseFloat(value)] : [] :
                 // Handle integer fields
-                ["age", "weight", "waist_measurement", "alcohol_consumption"].includes(name) ?
+                ["age", "weight_kg", "waist_measurement_cm", "alcohol_consumption_drinks_per_week"].includes(name) ?
                 value ? parseInt(value) || value : "" :
                 // Handle float fields
-                ["height", "sleep"].includes(name) ?
+                ["height_cm", "sleep_daily_avg"].includes(name) ?
                 value ? parseFloat(value) || value : "" :
                 // Handle all other fields as is
                 value
@@ -141,15 +141,15 @@ const UserProfile = ({ open, handleClose }) => {
         Object.entries(formData).forEach(([key, value]) => {
             if (hasChanged(key, value)) {
                 // Format the value according to the backend model requirements
-                if (key === 'age' || key === 'weight' || key === 'waist_measurement' || key === 'alcohol_consumption') {
+                if (key === 'age' || key === 'weight_kg' || key === 'waist_measurement_cm' || key === 'alcohol_consumption_drinks_per_week') {
                     changedFields[key] = value !== "" ? parseInt(value) || null : null;
-                } else if (key === 'height' || key === 'sleep') {
+                } else if (key === 'height_cm' || key === 'sleep_daily_avg') {
                     changedFields[key] = value !== "" ? parseFloat(value) || null : null;
-                } else if (key === 'gender' || key === 'exercise' || key === 'name') {
+                } else if (key === 'gender' || key === 'exercise_level' || key === 'name') {
                     changedFields[key] = value || null;
-                } else if (['systolic_blood_pressure', 'diastolic_blood_pressure', 'heart_rate'].includes(key)) {
+                } else if (['systolic_blood_pressure_mmhg', 'diastolic_blood_pressure_mmhg', 'heart_rate_resting_bpm'].includes(key)) {
                     changedFields[key] = value[0] ? [parseInt(value[0])] : null;
-                } else if (['total_cholesterol', 'low_density_lipoprotein', 'high_density_lipoprotein', 'triglycerides'].includes(key)) {
+                } else if (['total_cholesterol_mmoll', 'low_density_lipoprotein_mmoll', 'high_density_lipoprotein_mmoll', 'triglycerides_mmoll'].includes(key)) {
                     changedFields[key] = value[0] ? [parseFloat(value[0])] : null;
                 } else if (['other_past_medical_conditions', 'other_current_medical_conditions', 'medication'].includes(key)) {
                     changedFields[key] = value?.length > 0 ? value : null;
@@ -255,26 +255,26 @@ const UserProfile = ({ open, handleClose }) => {
                 />
                 <TextField
                     label={profileTranslation.weight}
-                    name="weight"
+                    name="weight_kg"
                     type="text"
                     margin="dense"
-                    value={formData.weight}
+                    value={formData.weight_kg}
                     onChange={handleChange}
                 />
                 <TextField
                     label={profileTranslation.height}
-                    name="height"
+                    name="height_cm"
                     type="text"
                     margin="dense"
-                    value={formData.height}
+                    value={formData.height_cm}
                     onChange={handleChange}
                 />
                 <TextField
                     label={profileTranslation.waistMeasurement || "Waist Measurement (cm)"}
-                    name="waist_measurement"
+                    name="waist_measurement_cm"
                     type="text"
                     margin="dense"
-                    value={formData.waist_measurement}
+                    value={formData.waist_measurement_cm}
                     onChange={handleChange}
                 />
                 <FormControl margin="dense">
@@ -307,28 +307,28 @@ const UserProfile = ({ open, handleClose }) => {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
                 <TextField 
                     label={profileTranslation.systolicBloodPressure} 
-                    name="systolic_blood_pressure" 
+                    name="systolic_blood_pressure_mmhg" 
                     type="text"
                     margin="dense" 
-                    value={formData.systolic_blood_pressure[0] || ""} 
+                    value={formData.systolic_blood_pressure_mmhg[0] || ""} 
                     onChange={handleChange} 
                     helperText={profileTranslation.latestMeasurement}
                 />
                 <TextField 
                     label={profileTranslation.diastolicBloodPressure} 
-                    name="diastolic_blood_pressure"
+                    name="diastolic_blood_pressure_mmhg"
                     type="text"
                     margin="dense" 
-                    value={formData.diastolic_blood_pressure[0] || ""} 
+                    value={formData.diastolic_blood_pressure_mmhg[0] || ""} 
                     onChange={handleChange} 
                     helperText={profileTranslation.latestMeasurement}
                 />
                 <TextField 
                     label={profileTranslation.heartRate} 
-                    name="heart_rate" 
+                    name="heart_rate_resting_bpm" 
                     type="text"
                     margin="dense" 
-                    value={formData.heart_rate[0] || ""} 
+                    value={formData.heart_rate_resting_bpm[0] || ""} 
                     onChange={handleChange} 
                     helperText={profileTranslation.latestMeasurement}
                 />
@@ -341,37 +341,37 @@ const UserProfile = ({ open, handleClose }) => {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
                 <TextField 
                     label={profileTranslation.cholesterol} 
-                    name="total_cholesterol"
+                    name="total_cholesterol_mmoll"
                     type="text"
                     margin="dense" 
-                    value={formData.total_cholesterol[0] || ""} 
+                    value={formData.total_cholesterol_mmoll[0] || ""} 
                     onChange={handleChange} 
                     helperText={profileTranslation.latestMeasurement}
                 />
                 <TextField 
                     label={profileTranslation.ldLipoprotein} 
-                    name="low_density_lipoprotein" 
+                    name="low_density_lipoprotein_mmoll" 
                     type="text"
                     margin="dense" 
-                    value={formData.low_density_lipoprotein[0] || ""} 
+                    value={formData.low_density_lipoprotein_mmoll[0] || ""} 
                     onChange={handleChange} 
                     helperText={profileTranslation.latestMeasurement}
                 />
                 <TextField 
                     label={profileTranslation.hdLipoprotein} 
-                    name="high_density_lipoprotein" 
+                    name="high_density_lipoprotein_mmoll" 
                     type="text"
                     margin="dense" 
-                    value={formData.high_density_lipoprotein[0] || ""} 
+                    value={formData.high_density_lipoprotein_mmoll[0] || ""} 
                     onChange={handleChange} 
                     helperText={profileTranslation.latestMeasurement}
                 />
                 <TextField 
                     label={profileTranslation.triglycerides} 
-                    name="triglycerides" 
+                    name="triglycerides_mmoll" 
                     type="text"
                     margin="dense" 
-                    value={formData.triglycerides[0] || ""} 
+                    value={formData.triglycerides_mmoll[0] || ""} 
                     onChange={handleChange} 
                     helperText={profileTranslation.latestMeasurement}
                 />
@@ -385,19 +385,19 @@ const UserProfile = ({ open, handleClose }) => {
                 
                 <TextField
                     label={profileTranslation.weeklyAlcoholConsumption}
-                    name="alcohol_consumption"
+                    name="alcohol_consumption_drinks_per_week"
                     type="text"
                     margin="dense"
-                    value={formData.alcohol_consumption}
+                    value={formData.alcohol_consumption_drinks_per_week}
                     onChange={handleChange}
                     helperText={profileTranslation.UnitsPerWeek}
                 />
                 <TextField
                     label={profileTranslation.sleepQuantityHours}
-                    name="sleep"
+                    name="sleep_daily_avg"
                     type="text"
                     margin="dense"
-                    value={formData.sleep}
+                    value={formData.sleep_daily_avg}
                     onChange={handleChange}
                     helperText={profileTranslation.hoursPerDay}
                 />
@@ -406,9 +406,9 @@ const UserProfile = ({ open, handleClose }) => {
                     <Select
                         labelId="exercise-label"
                         id="exercise-select"
-                        name="exercise"
+                        name="exercise_level"
                         label={profileTranslation.exercise || "Physical Activity Level"}
-                        value={formData.exercise || ""}
+                        value={formData.exercise_level || ""}
                         onChange={handleChange}
                     >
                         <MenuItem value="">{profileTranslation.none}</MenuItem>
