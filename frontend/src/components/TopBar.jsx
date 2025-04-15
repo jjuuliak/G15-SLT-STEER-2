@@ -121,8 +121,8 @@ const TopBar = () => {
 
         {/* Title or Logo */}
         <ButtonBase onClick={() => navigate('/')}>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Heart Disease MVP
+          <Typography variant="h5" sx={{ flexGrow: 1 }}>
+            Lifeline
           </Typography>
         </ButtonBase>
 
