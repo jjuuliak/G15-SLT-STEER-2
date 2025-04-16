@@ -110,5 +110,6 @@
         "workout_plans": "Treeniohjelmat",
         "workouts": "Treenit"
     },
-    "StatsMasterHamster": "Mestarihamsteri"
+    "StatsMasterHamster": "Mestarihamsteri",
+    "levelUp": "Uusi taso saavutettu! Katso uusi hamsterisi hamsterikokoelma-sivulla"
 }

@@ -7,7 +7,9 @@ import {
   Stack,
   useTheme,
   InputAdornment,
-  IconButton
+  IconButton,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import { useSelector, useDispatch } from "react-redux";
@@ -15,6 +17,7 @@ import { useLocation, useNavigate } from 'react-router';
 import Message from "./Message";
 import { setMealPlan } from "../redux/actionCreators/mealPlanActions"
 import { setWorkoutPlan } from "../redux/actionCreators/workoutPlanActions";
+import { useTranslation } from 'react-i18next';
 
 const Chat = () => {
   const theme = useTheme();
@@ -45,6 +48,12 @@ const Chat = () => {
 
   const messagesEndRef = useRef(null);
 
+  const { t } = useTranslation();
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: ''
+  });
+
   useEffect(() => {
     const initial = location.state?.initialMessage;
 
@@ -63,6 +72,10 @@ const Chat = () => {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messagesFromRedux]);
+
+  const handleSnackbarClose = () => {
+      setSnackbar(prev => ({ ...prev, open: false }));
+  };
 
   const sendMessage = async (msg = message) => {
     if (typeof msg !== 'string' || !msg.trim()) {
@@ -97,6 +110,12 @@ const Chat = () => {
 
       if (msg.includes('meal plan')) {
         const data = await response.json();
+        if (data.progress && data.progress.level_up) {
+          setSnackbar({
+            open: true,
+            message: t("levelUp")
+          });
+        }
         dispatch(setMealPlan(JSON.parse(data.response)));
         const botMessage = { text: JSON.parse(data.response).explanation, sender: "bot" };
         setMessages((prev) => [...prev, botMessage]);
@@ -104,6 +123,12 @@ const Chat = () => {
       }
       else if (msg.includes('workout plan')) {
         const data = await response.json();
+        if (data.progress && data.progress.level_up) {
+          setSnackbar({
+            open: true,
+            message: t("levelUp")
+          });
+        }
         dispatch(setWorkoutPlan(data.response));
         const botMessage = { text: JSON.parse(data.response).explanation, sender: "bot" };
         setMessages((prev) => [...prev, botMessage]);
@@ -190,6 +215,13 @@ const Chat = () => {
               // Handle attributes that come
               if (jsonChunk.attributes) {
                 console.log('Received message attributes:', jsonChunk.attributes);
+              }
+
+              if (jsonChunk.progress && jsonChunk.progress.level_up) {
+                setSnackbar({
+                  open: true,
+                  message: t("levelUp")
+                });
               }
             } catch (e) {
               console.warn("Failed to parse JSON string:", e);
@@ -287,6 +319,20 @@ const Chat = () => {
         }
         />
       </Stack>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="success"
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
