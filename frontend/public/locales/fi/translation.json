@@ -87,12 +87,28 @@
     "chat": "Chat",
     "meal-plan": "Ateriasuunnitelma",
     "workout-plan": "Treeniohjelma",
+    "hamster-collection": "Hamsterikokoelma",
     "workoutPageTranslations": {
         "today": "Tänään",
         "steps": "Askeleet",
         "stepGoal": "Askeltavoite",
         "weeklyProgress": "Viikon edistyminen",
         "recommendedExercises": "Suositellut harjoitukset"
-    }
+    },
+    "StatsLevels": {
+        "locked": "Lukittu",
+        "bronze": "Pronssi",
+        "silver": "Hopea",
+        "gold": "Kulta",
+        "diamond": "Timantti"
+    },
+    "StatsNextMaster": "Seuraava hamsteri: ",
+    "StatsNames": {
+        "messages": "Viestit",
+        "meal_plans": "Ateriasuunnitelmat",
+        "meals": "Ateriat",
+        "workout_plans": "Treeniohjelmat",
+        "workouts": "Treenit"
+    },
+    "StatsMasterHamster": "Mestarihamsteri"
 }
-  

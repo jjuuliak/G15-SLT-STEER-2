@@ -86,12 +86,28 @@
     "chat": "Chat",
     "meal-plan": "Meal Plan",
     "workout-plan": "Workout Plan",
+    "hamster-collection": "Hamster Collection",
     "workoutPageTranslations": {
         "today": "Today",
         "steps": "Steps",
         "stepGoal": "Step goal",
         "weeklyProgress": "Weekly progress",
         "recommendedExercises": "Recommended exercises"
-    }
+    },
+    "StatsLevels": {
+        "locked": "Locked",
+        "bronze": "Bronze",
+        "silver": "Silver",
+        "gold": "Gold",
+        "diamond": "Diamond"
+    },
+    "StatsNextMaster": "Next hamster: ",
+    "StatsNames": {
+        "messages": "Messages",
+        "meal_plans": "Meal Plans",
+        "meals": "Meals",
+        "workout_plans": "Workout Plans",
+        "workouts": "Workouts"
+    },
+    "StatsMasterHamster": "Master Hamster"
 }
-  
