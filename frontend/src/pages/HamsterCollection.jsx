@@ -10,7 +10,7 @@ import emptyHamster from "../images/hamsters/locked.png"
 //messages
 import doctorBronze from "../images/hamsters/doctorBronze.png"
 import doctorSilver from "../images/hamsters/doctorSilver.png"
-import doctorGold from "../images/hamsters/doctorSilver.png"
+import doctorGold from "../images/hamsters/doctorGold.png"
 import doctorDiamond from "../images/hamsters/doctorDiamond.png"
 
 //meal plans
