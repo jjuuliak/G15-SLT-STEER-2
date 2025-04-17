@@ -76,7 +76,10 @@
         "language": "Language",
         "security": "Security"
     },
+    "generalSettings": "General settings",
+    "appearanceSettings": "Edit appearance",
     "languageSettings": "Language settings",
+    "securitySettings": "Account security",
     "back": "Back",
     "404page": "Oops! The page you are looking for does not exist.",
     "invalidCredentials": "Incorrect username or password.",
@@ -110,5 +113,24 @@
         "workouts": "Workouts"
     },
     "StatsMasterHamster": "Master Hamster",
-    "levelUp": "Level unlocked! Check out your new hamster on the hamster collection page"
+    "levelUp": "Level unlocked! Check out your new hamster on the hamster collection page",
+    "ChatBoxPlaceholder": "Write here",
+    "Meals": {
+        "Breakfast": "Breakfast",
+        "Lunch": "Lunch",
+        "Dinner": "Dinner",
+        "Snack": "Snack"
+    },
+    "Day": "Day",
+    "HeartRate": "Heart rate",
+    "BloodPressure": "Blood pressure",
+    "Sleep": "Sleep",
+    "Weight": "Weight",
+    "Family": "Visit your hamster family",
+    "CreateWorkoutPlanButton": "Create a workout plan",
+    "CreateMealPlanButton": "Create a meal plan",
+    "UnderstandSymptomsButton": "Help me understand my symptoms",
+    "NotAvailable": "Not available",
+    "MealPlanNotCreated": "No meal plan created yet",
+    "hours": "hours"
 }

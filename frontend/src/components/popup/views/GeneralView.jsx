@@ -1,9 +1,10 @@
-
-
 import { Typography } from "@mui/material";
+import { useTranslation } from 'react-i18next';
 
 const GeneralView = () => {
-  return <Typography variant="body1">General settings content</Typography>;
+  const { t } = useTranslation();
+
+  return <Typography variant="body1"> {t('generalSettings')} </Typography>;
 };
 
 export default GeneralView;

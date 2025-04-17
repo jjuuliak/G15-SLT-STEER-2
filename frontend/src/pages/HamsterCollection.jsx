@@ -1,5 +1,5 @@
 import TopBar from "../components/TopBar";
-import { Container, Typography, Tooltip, Box, Grid2 as Grid, LinearProgress, Paper } from "@mui/material";
+import {  Typography, Tooltip, Box, Grid2 as Grid, LinearProgress, Paper } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from 'react-i18next';
@@ -187,7 +187,7 @@ const HamsterCollection = () => {
                     }}>
                         <img
                             src={masterHamsterPic}
-                            alt="Hamster picture"
+                            alt=""
                             style={{ width: "100%", height: "auto" }}
                         /></Box>
                     <Typography variant="h4"> {currentStat >= nextLevel ? "" : t('StatsNextMaster')} </Typography>

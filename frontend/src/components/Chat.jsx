@@ -20,6 +20,7 @@ import { setWorkoutPlan } from "../redux/actionCreators/workoutPlanActions";
 import { useTranslation } from 'react-i18next';
 
 const Chat = () => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
   const location = useLocation();
@@ -34,9 +35,9 @@ const Chat = () => {
         "Do any of these suit your needs? \n\n" +
         "If not, feel free to write a message!",
     options: [
-      "Create a workout plan",
-      "Create a meal plan",
-      "Help me understand my symptoms",
+      `${t('CreateWorkoutPlanButton')}`,
+      `${t('CreateMealPlanButton')}`,
+      `${t('UnderstandSymptomsButton')}`
     ],
     sender: "bot"
   };
@@ -48,7 +49,6 @@ const Chat = () => {
 
   const messagesEndRef = useRef(null);
 
-  const { t } = useTranslation();
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: ''
@@ -277,7 +277,7 @@ const Chat = () => {
         <TextField
           fullWidth
           variant="outlined"
-          placeholder="Type a message..."
+          placeholder={t('ChatBoxPlaceholder')}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={(e) => {
