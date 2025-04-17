@@ -15,6 +15,7 @@ import { useLocation, useNavigate } from 'react-router';
 import Message from "./Message";
 import { setMealPlan } from "../redux/actionCreators/mealPlanActions"
 import { setWorkoutPlan } from "../redux/actionCreators/workoutPlanActions";
+import { fetchWithAuth } from '../services/authService';
 
 const Chat = () => {
   const theme = useTheme();
@@ -42,6 +43,7 @@ const Chat = () => {
   const [messages, setMessages] = useState([initialMessage]);
   const [loading, setLoading] = useState(false);
   const accessToken = useSelector((state) => state.auth?.access_token);
+  const refreshToken = useSelector((state) => state.auth?.refresh_token);
 
   const messagesEndRef = useRef(null);
 
@@ -82,18 +84,11 @@ const Chat = () => {
         ? 'http://localhost:8000/ask-workout-plan' 
         : 'http://localhost:8000/ask';
       
-      const response = await fetch(url, {
+      const response = await fetchWithAuth(url, {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
+        headers: null, // Default set in fetchWithAuth
         body: JSON.stringify({ message: msg, "language": "English" })
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`);
-      }
+      }, accessToken, refreshToken, dispatch, navigate);
 
       if (msg.includes('meal plan')) {
         const data = await response.json();
