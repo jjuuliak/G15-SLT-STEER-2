@@ -70,6 +70,8 @@
     },
     "settings": "Settings",
     "close": "Close",
+    "ClearHistoryButton": "Clear history",
+    "ClearHistoryButtonClicked": "Cleared!",
     "settingsTabs": {
         "general": "General",
         "appearance": "Appearance",
