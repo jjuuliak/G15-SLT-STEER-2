@@ -21,6 +21,7 @@ const GeneralView = () => {
     }
 
     setCleared(true);
+    dispatch({ type: 'RESET_MESSAGES' });
 
     fetchWithAuth("http://localhost:8000/clear-history", {
       method: "POST",
