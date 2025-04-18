@@ -13,6 +13,8 @@ import chat_history
 import message_attributes
 from typing import AsyncGenerator, Iterator
 import json
+from google.genai.errors import APIError
+import asyncio
 
 
 SYSTEM_INSTRUCTION = ["""You are a helpful cardiovascular health expert, who focuses on 
@@ -152,20 +154,25 @@ class LLMService:
         """
         full_answer = ""
 
-        response = await self.get_response(user_id, message, language)
-        async for chunk in self.process_response(response):
-            yield chunk
+        try:
+            response = await self.get_response(user_id, message, language)
+            async for chunk in self.process_response(response):
+                yield chunk
 
-            chunk_data = json.loads(chunk)
-            if "response" in chunk_data:
-                chunk_text = chunk_data["response"]
-                full_answer += chunk_text
+                chunk_data = json.loads(chunk)
+                if "response" in chunk_data:
+                    chunk_text = chunk_data["response"]
+                    full_answer += chunk_text
+            
+            yield json.dumps({"progress": await user_stats.update_stat(user_id, "messages")})
 
-        yield json.dumps({"progress": await user_stats.update_stat(user_id, "messages")})
+            if len(full_answer) > 0:
+                chat_history.store_history(user_id, message, full_answer)
 
-        if len(full_answer) > 0:
-            chat_history.store_history(user_id, message, full_answer)
-
+        except Exception as e:
+            yield json.dumps(self.handle_response_errors(e))
+            return
+        
 
     async def enhance_query(self, user_id: str, user_message: str) -> str:
         """
@@ -285,3 +292,38 @@ class LLMService:
             return {"response": response.text, "progress": await user_stats.update_stat(user_id, "workout_plans")}
         else:
             return {"response": "Error: No response from model."}
+
+
+    def handle_response_errors(self, e: Exception) -> dict:
+        """
+        Returns appropriate error messages for API and general errors
+        """
+        if isinstance(e, APIError):
+            if e.code == 400 and e.status == 'INVALID_ARGUMENT':
+                return {"response": f"Error: Invalid request.\n\nDetails: {e.message}"}
+
+            if e.code == 400 and e.status == 'FAILED_PRECONDITION':
+                return {"response": f"Error: Failed precondition.\n\nDetails: {e.message}"}
+
+            if e.code == 403:
+                return {"response": f"Error: Permission to the Google API was denied. Please check your API key and permissions.\n\nDetails: {e.message}"}
+
+            if e.code == 404:
+                return {"response": f"Error: The requested resource could not be found.\n\nDetails: {e.message}"}
+
+            if e.code == 429:
+                return {"response": "Error: Google API rate limit exceeded. Please try again later."}
+
+            if e.code == 500:
+                return {"response": f"Error: An internal error occurred with the Google API.\n\nDetails: {e.message}"}
+
+            if e.code == 503:
+                return {"response": f"Error: The Google API is temporarily unavailable. Please try again later.\n\nDetails: {e.message}"}
+
+            if e.code == 504:
+                return {"response": f"Error: The Google API is unable to finish processing within the deadline.\n\nDetails: {e.message}"}
+
+            return {"response": f"Error: An unexpected API error occurred.\n\nDetails: {e.message}"}
+    
+        # Catch general exceptions
+        return {"response": f"Error: An unexpected error occurred.\n\nDetails: {str(e)}"}
