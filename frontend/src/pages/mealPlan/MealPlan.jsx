@@ -12,8 +12,10 @@ import {
 import "./MealPlan.css";
 import TopBar from "../../components/TopBar";
 import { parseMealPlanData } from "./mealPlanFunctions";
+import { useTranslation } from 'react-i18next';
 
 const MealPlan = () => {
+  const { t } = useTranslation();
   const mealPlanData = useSelector((state) => state.mealPlan?.mealPlanResponse);
 
   const [days, setDays] = useState(null);
@@ -59,13 +61,13 @@ const MealPlan = () => {
     >
       <TopBar />
       {days?.length <= 0 ? (
-        <Typography variant="h6" align="center" sx={{ mt: '20px' }}>No meal plan created yet</Typography>
+        <Typography variant="h6" align="center" sx={{ mt: '20px' }}>{t('MealPlanNotCreated')}</Typography>
       ) : (
         <Grid sx={{ mt: '20px' }}>
 
           {/* Title or header for Meal Plan */}
           <Typography variant="h4" sx={{ mt: 4, mb: 2, fontWeight: "bold" }}>
-            Meal plan
+            {t('meal-plan')}
           </Typography>
 
           {/* Row of day "tabs" */}
@@ -107,7 +109,7 @@ const MealPlan = () => {
                   <Card sx={{ backgroundColor: "#f9f9f9" }}>
                     <CardContent>
                       <Typography variant="h6" color="secondary">
-                        {meal.meal}
+                        {t(meal.meal)}
                       </Typography>
                       <Typography variant="subtitle1" fontWeight="bold" sx={{ mt: 1 }}>
                         {meal.meal_description}

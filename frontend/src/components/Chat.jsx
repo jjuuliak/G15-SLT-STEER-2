@@ -7,7 +7,9 @@ import {
   Stack,
   useTheme,
   InputAdornment,
-  IconButton
+  IconButton,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import { useSelector, useDispatch } from "react-redux";
@@ -15,8 +17,10 @@ import { useLocation, useNavigate } from 'react-router';
 import Message from "./Message";
 import { setMealPlan } from "../redux/actionCreators/mealPlanActions"
 import { setWorkoutPlan } from "../redux/actionCreators/workoutPlanActions";
+import { useTranslation } from 'react-i18next';
 
 const Chat = () => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
   const location = useLocation();
@@ -31,9 +35,9 @@ const Chat = () => {
         "Do any of these suit your needs? \n\n" +
         "If not, feel free to write a message!",
     options: [
-      "Create a workout plan",
-      "Create a meal plan",
-      "Help me understand my symptoms",
+      `${t('CreateWorkoutPlanButton')}`,
+      `${t('CreateMealPlanButton')}`,
+      `${t('UnderstandSymptomsButton')}`
     ],
     sender: "bot"
   };
@@ -44,6 +48,11 @@ const Chat = () => {
   const accessToken = useSelector((state) => state.auth?.access_token);
 
   const messagesEndRef = useRef(null);
+
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: ''
+  });
 
   useEffect(() => {
     const initial = location.state?.initialMessage;
@@ -63,6 +72,10 @@ const Chat = () => {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messagesFromRedux]);
+
+  const handleSnackbarClose = () => {
+      setSnackbar(prev => ({ ...prev, open: false }));
+  };
 
   const sendMessage = async (msg = message) => {
     if (typeof msg !== 'string' || !msg.trim()) {
@@ -97,6 +110,12 @@ const Chat = () => {
 
       if (msg.includes('meal plan')) {
         const data = await response.json();
+        if (data.progress && data.progress.level_up) {
+          setSnackbar({
+            open: true,
+            message: t("levelUp")
+          });
+        }
         dispatch(setMealPlan(JSON.parse(data.response)));
         const botMessage = { text: JSON.parse(data.response).explanation, sender: "bot" };
         setMessages((prev) => [...prev, botMessage]);
@@ -104,6 +123,12 @@ const Chat = () => {
       }
       else if (msg.includes('workout plan')) {
         const data = await response.json();
+        if (data.progress && data.progress.level_up) {
+          setSnackbar({
+            open: true,
+            message: t("levelUp")
+          });
+        }
         dispatch(setWorkoutPlan(data.response));
         const botMessage = { text: JSON.parse(data.response).explanation, sender: "bot" };
         setMessages((prev) => [...prev, botMessage]);
@@ -191,6 +216,13 @@ const Chat = () => {
               if (jsonChunk.attributes) {
                 console.log('Received message attributes:', jsonChunk.attributes);
               }
+
+              if (jsonChunk.progress && jsonChunk.progress.level_up) {
+                setSnackbar({
+                  open: true,
+                  message: t("levelUp")
+                });
+              }
             } catch (e) {
               console.warn("Failed to parse JSON string:", e);
               console.warn("Problematic JSON string:", jsonString);
@@ -245,7 +277,7 @@ const Chat = () => {
         <TextField
           fullWidth
           variant="outlined"
-          placeholder="Type a message..."
+          placeholder={t('ChatBoxPlaceholder')}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={(e) => {
@@ -287,6 +319,20 @@ const Chat = () => {
         }
         />
       </Stack>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="success"
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
