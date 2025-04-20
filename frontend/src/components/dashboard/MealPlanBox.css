@@ -1,21 +1,48 @@
 .mealplan {
-  padding: 10px;
+  padding: 16px;
   background-color: #EBF5F3;
   border-radius: 8px;
 }
 
-.day-label {
-  font-weight: bold;
-  margin-bottom: 10px;
+h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #2e2e2e;
 }
 
 .meal-box {
-  height: 80px;
-  border: 1px dashed #999;
-  border-radius: 6px;
-  padding: 10px;
-  margin-bottom: 10px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #ccc;
+}
+
+.meal-box:last-child {
+  border-bottom: none;
+}
+
+.meal-box strong {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #2c3e50;
+}
+
+.meal-description {
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.meal-content {
+  margin-left: 0;
+  padding-left: 0;
+  list-style: none;
+  color: #555;
+}
+
+.meal-content li {
+  font-size: 0.9rem;
+  line-height: 1.4;
 }

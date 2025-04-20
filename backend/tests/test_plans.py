@@ -1,20 +1,9 @@
-from time import sleep
-
-from utils.response import ResponseFor
+from utils.response import ResponseFor, TestAccountFor
 
 
 def test_plans():
-    # Give backend some time to start
-    sleep(15)
-
-    # Register, create test user
-    response = ResponseFor("POST", "/register",
-                 body={"name": "Plans", "email": "plans@example.org", "password": "Password123!"},
-                 headers={"Content-Type": "application/json"})
-    assert response.status == 200
-    assert "access_token" in response.content
-
-    access_token = response.content["access_token"]
+    account = TestAccountFor("Plans")
+    access_token = account.access_token
 
     # Get last meal plan, should not exist
     response = ResponseFor("POST", "/last-meal-plan",
@@ -41,6 +30,8 @@ def test_plans():
     for stat in response.content["user_stats"]:
         if stat["stat"] == "meals" or stat["stat"] == "workouts":
             assert stat["counter"] == 0
+
+    account.unregister()
 
 ''' Can't run these tests without being able to create a meal plan
     # Complete non-existing meal plan, should fail

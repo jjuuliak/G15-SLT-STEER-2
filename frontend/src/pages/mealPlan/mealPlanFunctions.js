@@ -28,3 +28,13 @@ export const parseMealPlanData = (rawData) => {
     return { days: [], explanation: "" };
   }
 };
+
+export const getCurrentDayIndex = (createdTimestamp) => {
+  const createdDate = new Date(createdTimestamp * 1000); // Convert from seconds
+  const now = new Date();
+
+  const msPerDay = 24 * 60 * 60 * 1000;
+  const daysPassed = Math.floor((now - createdDate) / msPerDay);
+
+  return daysPassed; // 0 = Day 1, 1 = Day 2, etc.
+};

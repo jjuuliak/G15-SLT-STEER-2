@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useSelector } from "react-redux";
+import { useTranslation } from 'react-i18next';
 import './HamsterChat.css';
 import SendIcon from "@mui/icons-material/Send";
 
 const HamsterChat = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const user = useSelector((state) => state.auth?.user);
   const [input, setInput] = useState('');
 
   const handleSend = () => {
@@ -22,7 +26,7 @@ const HamsterChat = () => {
       <div className="hamster-container">
         <img src="/doctor-hamster.JPG" alt="Doctor Hamster" className="hamster-img" />
         <div className="chat-bubble">
-          <p>Hi Kevin!<br />
+          <p>{`Hi${user?.name ? ' ' + user.name : ''}!`}<br />
             It’s a brand new day to look after your health.<br />
             <strong>How can I help?</strong></p>
         </div>
@@ -30,7 +34,7 @@ const HamsterChat = () => {
       <div className="chat-input">
         <input 
           type="text" 
-          placeholder="Write here" 
+          placeholder={t('ChatBoxPlaceholder')} 
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={handleKeyPress}

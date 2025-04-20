@@ -12,44 +12,27 @@ import {
 import "./MealPlan.css";
 import TopBar from "../../components/TopBar";
 import { parseMealPlanData } from "./mealPlanFunctions";
+import { useTranslation } from 'react-i18next';
 
 const MealPlan = () => {
-  const accessToken = useSelector((state) => state.auth?.access_token);
+  const { t } = useTranslation();
+  const mealPlanData = useSelector((state) => state.mealPlan?.mealPlanResponse);
 
   const [days, setDays] = useState(null);
   const [selectedDay, setSelectedDay] = useState("");
   const [explanation, setExplanation] = useState("");
+  const [createdTimestamp, setCreatedTimestamp] = useState(null);
   
 
   useEffect(() => {
-    if (accessToken) {
-      fetch("http://localhost:8000/last-meal-plan", {
-        method: "POST",
-        headers: { 
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json"
-        },
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Failed to fetch profile data");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          if (data && data.meal_plan) {
-            console.log(JSON.parse(data.meal_plan))
-            const parsedData = parseMealPlanData(JSON.parse(data.meal_plan));
-            setDays(parsedData.days);
-            setExplanation(parsedData.explanation);
-            console.log(parsedData)
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching meal plans:", error);
-        });
+    if (mealPlanData?.meal_plan) {
+      const parsedData = JSON.parse(mealPlanData.meal_plan);
+      const parsedMealPlan = parseMealPlanData(parsedData);
+      setDays(parsedMealPlan?.days);
+      setExplanation(parsedMealPlan?.explanation);
+      setCreatedTimestamp(parsedData?.created);
     }
-  }, []);
+  }, [mealPlanData]);
 
   // Update selectedDay when days are updated from fetch
   useEffect(() => {
@@ -58,11 +41,17 @@ const MealPlan = () => {
     }
   }, [days, selectedDay]);
 
+  const formatDateFromCreated = (index) => {
+    if (!createdTimestamp) return `Day ${index + 1}`;
+    
+    const date = new Date(createdTimestamp * 1000); // seconds to ms
+    date.setDate(date.getDate() + index);
+    return date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+  };
+
   const handleDayClick = (day) => {
     setSelectedDay(day);
   };
-
-  console.log(selectedDay)
 
   return (
     <Container
@@ -72,13 +61,13 @@ const MealPlan = () => {
     >
       <TopBar />
       {days?.length <= 0 ? (
-        <Typography variant="h6" align="center" sx={{ mt: '20px' }}>No meal plan created yet</Typography>
+        <Typography variant="h6" align="center" sx={{ mt: '20px' }}>{t('MealPlanNotCreated')}</Typography>
       ) : (
         <Grid sx={{ mt: '20px' }}>
 
           {/* Title or header for Meal Plan */}
           <Typography variant="h4" sx={{ mt: 4, mb: 2, fontWeight: "bold" }}>
-            Meal plan
+            {t('meal-plan')}
           </Typography>
 
           {/* Row of day "tabs" */}
@@ -102,7 +91,7 @@ const MealPlan = () => {
                     }}
                   >
                     <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                      Day {index + 1}
+                      {formatDateFromCreated(index)}
                     </Typography>
                   </Box>
                 </Grid>
@@ -116,11 +105,11 @@ const MealPlan = () => {
           {selectedDay && (
             <Grid container spacing={2}>
               {selectedDay.daily_meals?.map((meal, i) => (
-                <Grid item xs={12} sm={6} md={3} key={i}>
+                <Grid item xs={12} sm={6} md={4} key={i}>
                   <Card sx={{ backgroundColor: "#f9f9f9" }}>
                     <CardContent>
                       <Typography variant="h6" color="secondary">
-                        {meal.meal}
+                        {t(meal.meal)}
                       </Typography>
                       <Typography variant="subtitle1" fontWeight="bold" sx={{ mt: 1 }}>
                         {meal.meal_description}

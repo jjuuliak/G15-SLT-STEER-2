@@ -1,5 +1,6 @@
 {
     "login": "Login",
+    "logout": "Logout",
     "register": "Sign up",
     "email": "Email",
     "password": "Password",
@@ -75,7 +76,10 @@
         "language": "Language",
         "security": "Security"
     },
+    "generalSettings": "General settings",
+    "appearanceSettings": "Edit appearance",
     "languageSettings": "Language settings",
+    "securitySettings": "Account security",
     "back": "Back",
     "404page": "Oops! The page you are looking for does not exist.",
     "invalidCredentials": "Incorrect username or password.",
@@ -83,6 +87,50 @@
     "chatHistory": "Chat History",
     "noHistoryFound": "No messages in history",
     "chat": "Chat",
-    "meal-plan": "Meal Plan"
+    "meal-plan": "Meal Plan",
+    "workout-plan": "Workout Plan",
+    "hamster-collection": "Hamster Collection",
+    "workoutPageTranslations": {
+        "today": "Today",
+        "steps": "Steps",
+        "stepGoal": "Step goal",
+        "weeklyProgress": "Weekly progress",
+        "recommendedExercises": "Recommended exercises"
+    },
+    "StatsLevels": {
+        "locked": "Locked",
+        "bronze": "Bronze",
+        "silver": "Silver",
+        "gold": "Gold",
+        "diamond": "Diamond"
+    },
+    "StatsNextMaster": "Next hamster: ",
+    "StatsNames": {
+        "messages": "Messages",
+        "meal_plans": "Meal Plans",
+        "meals": "Meals",
+        "workout_plans": "Workout Plans",
+        "workouts": "Workouts"
+    },
+    "StatsMasterHamster": "Master Hamster",
+    "levelUp": "Level unlocked! Check out your new hamster on the hamster collection page",
+    "ChatBoxPlaceholder": "Write here",
+    "Meals": {
+        "Breakfast": "Breakfast",
+        "Lunch": "Lunch",
+        "Dinner": "Dinner",
+        "Snack": "Snack"
+    },
+    "Day": "Day",
+    "HeartRate": "Heart rate",
+    "BloodPressure": "Blood pressure",
+    "Sleep": "Sleep",
+    "Weight": "Weight",
+    "Family": "Visit your hamster family",
+    "CreateWorkoutPlanButton": "Create a workout plan",
+    "CreateMealPlanButton": "Create a meal plan",
+    "UnderstandSymptomsButton": "Help me understand my symptoms",
+    "NotAvailable": "Not available",
+    "MealPlanNotCreated": "No meal plan created yet",
+    "hours": "hours"
 }
-  

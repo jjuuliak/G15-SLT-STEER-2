@@ -8,10 +8,12 @@ from auth_service import AuthService
 
 
 def test_refresh_security():
+    # Refresh security has been initialized
     assert AuthService.get_refresh_security() is not None
 
 
 def test_access_security():
+    # Access security has been initialized
     assert AuthService.get_access_security() is not None
 
 

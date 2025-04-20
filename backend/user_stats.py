@@ -3,6 +3,7 @@ from pymongo import ReturnDocument
 import database_connection
 
 
+# Amount of stat points required for each level
 LEVELS = {
     "messages": [1, 10, 100, 1000],
     "meal_plans": [1],
@@ -25,7 +26,7 @@ def calculate_current_and_next_level(stat: str, counter: int) -> (int, int, int)
             level += 1
 
     if level >= len(levels):
-        next_level = -1
+        next_level = levels[-1]  # last level
     else:
         next_level = levels[level]
 
@@ -39,8 +40,8 @@ def calculate_stat(stat: str, counter: int, increment: int = 1) -> {}:
     stat: stat name
     counter: current count of events
     increment: how many events were added to the stat
-    level: level based on counter value, 0 if no level has been reached yet
-    next_level: counter value required for next level, -1 if maximum level has been reached
+    level: level based on counter value, returns 0 if no level has been reached yet
+    next_level: counter value required for next level, returns counter value required for last level if maximum level has been reached
     levels: counter requirements for each stat level
     level_up: whether stat level was increased
     """
@@ -79,3 +80,9 @@ async def update_stat(user_id: str, stat: str, increment: int = 1) -> {}:
     )
     return calculate_stat(stat, result.get(stat))
 
+
+async def delete_stats(user_id: str):
+    """
+    Deletes user's stats
+    """
+    await database_connection.get_user_stats().delete_one({"user_id": user_id})
