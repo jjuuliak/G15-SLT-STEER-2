@@ -70,7 +70,7 @@ const UserProfile = ({ open, handleClose }) => {
         [name]: type === "checkbox" ? checked :
                 // Handle multiline text fields that should be arrays
                 ["other_past_medical_conditions", "other_current_medical_conditions", "medication"].includes(name) ?
-                value.split('\n').filter(item => item.trim() !== '') :
+                value.split('\n') :  // Remove the filter to allow empty lines
                 // Handle numeric array fields (measurements)
                 ["systolic_blood_pressure_mmhg", "diastolic_blood_pressure_mmhg", "heart_rate_resting_bpm"].includes(name) ?  
                 value ? [parseInt(value)] : [] :

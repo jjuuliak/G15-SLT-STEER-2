@@ -203,7 +203,7 @@ const WorkoutPlan = () => {
                             }}
                         >
                             <CardContent sx={{ flexGrow: 1 }}>
-                                <Typography variant="h6" sx={{ color: '#2D3748' }}>Day {index + 1}</Typography>
+                                <Typography variant="h6" sx={{ color: '#2D3748' }}>{t('Day')} {index + 1}</Typography>
                                 {day.daily_workouts.map((workout, workoutIndex) => (
                                     <Box key={workoutIndex} sx={{ marginBottom: 1 }}>
                                         <Typography variant="body1" sx={{ color: '#2D3748' }}>

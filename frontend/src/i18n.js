@@ -14,6 +14,7 @@ i18n
     detection: {
       order: ["cookie", "localStorage", "navigator", "htmlTag"],
       caches: ["cookie", "localStorage"],
+      convertDetectedLanguage: (lng) => lng.split('-')[0] // "fi-FI" -> "fi"
     },
     backend: {
       loadPath: "/locales/{{lng}}/translation.json",

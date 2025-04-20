@@ -268,6 +268,16 @@ const ChatHistory = () => {
                     maxWidth: '85%',
                     position: 'relative',
                     border: `1px solid ${theme.palette.divider}`,
+                    '& .MuiTypography-body2': {
+                      color: message.role === 'user' 
+                        ? 'rgba(255, 255, 255, 0.85)' 
+                        : theme.palette.text.primary,
+                    },
+                    '& .MuiTypography-caption': {
+                      color: message.role === 'user'
+                        ? 'rgba(255, 255, 255, 0.7)' 
+                        : theme.palette.text.secondary,
+                    }
                   }}
                 >
                   <Typography
@@ -284,7 +294,6 @@ const ChatHistory = () => {
                     sx={{
                       display: 'block',
                       mt: 1,
-                      color: theme.palette.text.secondary,
                       textAlign: 'right',
                     }}
                   >
