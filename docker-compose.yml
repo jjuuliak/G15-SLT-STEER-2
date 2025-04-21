@@ -38,8 +38,10 @@ services:
     restart: "no"
     volumes:
       - embedding_db:/app/embedding_db
+      - model_cache:/app/embedding_models
     environment:
       - CI_TEST=${CI_TEST}
+      - HF_HOME=/app/embedding_models
 
 volumes:
   database:
