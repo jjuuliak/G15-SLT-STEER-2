@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from 'react-router';
 import { LOGIN_SUCCESS } from "../redux/actionTypes";
+import { getMealPlanData } from "../pages/mealPlan/mealPlanFunctions";
 
 const AuthLoader = ({ children }) => {
   const dispatch = useDispatch();
@@ -24,6 +25,8 @@ const AuthLoader = ({ children }) => {
           refresh_token: refreshToken
         },
       });
+
+      getMealPlanData(token, refreshToken, dispatch, navigate);
 
       const lastVisited = localStorage.getItem("link");
       if (lastVisited && window.location.pathname === "/") {
