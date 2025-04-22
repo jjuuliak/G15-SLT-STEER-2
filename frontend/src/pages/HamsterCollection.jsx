@@ -1,7 +1,9 @@
 import TopBar from "../components/TopBar";
 import {  Typography, Tooltip, Box, Grid2 as Grid, LinearProgress, Paper } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from 'react-router';
+import { fetchWithAuth } from '../services/authService';
 import { useTranslation } from 'react-i18next';
 
 //pic imports
@@ -30,6 +32,9 @@ import workoutSilver from "../images/hamsters/workoutSilver.png"
 import workoutGold from "../images/hamsters/workoutGold.png"
 
 const HamsterCollection = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
     const { t } = useTranslation();
 
     const hamsterImageMap = {
@@ -111,6 +116,7 @@ const HamsterCollection = () => {
     ];
 
     const accessToken = useSelector((state) => state.auth?.access_token);
+    const refreshToken = useSelector((state) => state.auth?.refresh_token);
 
     // States for the progress bar under master hamster
     const [currentStat, setCurrentStat] = useState(null);
@@ -142,13 +148,10 @@ const HamsterCollection = () => {
 
     useEffect(() => {
         // Fetch user stats
-        fetch("http://localhost:8000/get-stats", {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json"
-            },
-        })
+            fetchWithAuth("http://localhost:8000/get-stats", {
+                method: "POST",
+                headers: null, // Default set in fetchWithAuth
+            }, accessToken, refreshToken, dispatch, navigate)  
             .then((response) => {
                 if (!response.ok) {
                     throw new Error("Failed to fetch user stats");
