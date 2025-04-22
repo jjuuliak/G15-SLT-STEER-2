@@ -1,16 +1,20 @@
 import React, { useEffect, useMemo } from "react";
 import { Container, Typography, Box, Card, CardContent, Grid2 as Grid } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from 'react-router';
 import TopBar from "../components/TopBar";
 import { useTranslation } from 'react-i18next';
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 import DataUsageIcon from '@mui/icons-material/DataUsage';
 import { setWorkoutPlan } from "../redux/actionCreators/workoutPlanActions";
+import { fetchWithAuth } from '../services/authService';
 
 const WorkoutPlan = () => {
     const workoutPlanData = useSelector((state) => state.workoutPlan.workoutPlan);
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const accessToken = useSelector((state) => state.auth?.access_token);
+    const refreshToken = useSelector((state) => state.auth?.refresh_token);
     const {t} = useTranslation();
     const pageTranslations = t("workoutPageTranslations")
 
@@ -39,13 +43,10 @@ const WorkoutPlan = () => {
         // Fetch workout plan only if it's not already in Redux
         if (!workoutPlanData && accessToken) {
             console.log("Fetching workout plan");
-            fetch("http://localhost:8000/last-workout-plan", {
+            fetchWithAuth("http://localhost:8000/last-workout-plan", {
                 method: "POST",
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                    "Content-Type": "application/json"
-                },
-            })  
+                headers: null, // Default set in fetchWithAuth
+            }, accessToken, refreshToken, dispatch, navigate)  
             .then((response) => {
                 if (!response.ok) {
                     throw new Error("Failed to fetch workout plan");
@@ -202,7 +203,7 @@ const WorkoutPlan = () => {
                             }}
                         >
                             <CardContent sx={{ flexGrow: 1 }}>
-                                <Typography variant="h6" sx={{ color: '#2D3748' }}>Day {index + 1}</Typography>
+                                <Typography variant="h6" sx={{ color: '#2D3748' }}>{t('Day')} {index + 1}</Typography>
                                 {day.daily_workouts.map((workout, workoutIndex) => (
                                     <Box key={workoutIndex} sx={{ marginBottom: 1 }}>
                                         <Typography variant="body1" sx={{ color: '#2D3748' }}>

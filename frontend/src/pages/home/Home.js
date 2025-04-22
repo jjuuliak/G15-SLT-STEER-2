@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Container, Grid2 as Grid } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from 'react-router';
 import TopBar from "../../components/TopBar";
 import MealPlanBox from "../../components/dashboard/MealPlanBox";
 import Vitals from "../../components/dashboard/Vitals";
@@ -11,22 +12,22 @@ import HamsterFamily from "../../components/dashboard/HamsterFamily";
 import './Home.css';
 import { setMealPlan } from '../../redux/actionCreators/mealPlanActions';
 import { getProfileData } from "../../services/profileService";
+import { fetchWithAuth } from '../../services/authService';
 
 const Home = () => {
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const accessToken = useSelector((state) => state.auth?.access_token);
+  const refreshToken = useSelector((state) => state.auth?.refresh_token);
   const user = useSelector((state) => state.auth?.user);
 
   useEffect(() => {
     if (accessToken) {
-      fetch("http://localhost:8000/last-meal-plan", {
+      fetchWithAuth("http://localhost:8000/last-meal-plan", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json"
-        },
-      })
+        headers: null, // Default set in fetchWithAuth
+      }, accessToken, refreshToken, dispatch, navigate)
         .then((response) => {
           if (!response.ok) {
             throw new Error("Failed to fetch meal plan data");
@@ -41,7 +42,7 @@ const Home = () => {
         });
 
       if (!user || user === 'undefined') {
-        getProfileData(accessToken, dispatch);
+        getProfileData(accessToken, refreshToken, dispatch, navigate);
       }
     }
   }, []);

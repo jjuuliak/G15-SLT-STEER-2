@@ -7,18 +7,23 @@ import {
   useTheme,
   Avatar,
 } from '@mui/material';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import PersonIcon from '@mui/icons-material/Person';
+import { fetchWithAuth } from '../services/authService';
 
 
 const ChatHistory = () => {
   // Theme and translation hooks
   const theme = useTheme();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { t } = useTranslation();
   
   const accessToken = useSelector((state) => state.auth?.access_token);
+  const refreshToken = useSelector((state) => state.auth?.refresh_token);
   
   // State management
   const [messages, setMessages] = useState([]); // Array of chat messages
@@ -48,21 +53,14 @@ const ChatHistory = () => {
       }
 
 
-      const response = await fetch("http://localhost:8000/history", {
+      const response = await fetchWithAuth("http://localhost:8000/history", {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
+        headers: null, // Default set in fetchWithAuth
         body: JSON.stringify({
           start_index: startIndex,
           count: count
         })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch history');
-      }
+      }, accessToken, refreshToken, dispatch, navigate);
 
       const data = await response.json();
       const newMessages = data.history || [];
@@ -270,6 +268,16 @@ const ChatHistory = () => {
                     maxWidth: '85%',
                     position: 'relative',
                     border: `1px solid ${theme.palette.divider}`,
+                    '& .MuiTypography-body2': {
+                      color: message.role === 'user' 
+                        ? 'rgba(255, 255, 255, 0.85)' 
+                        : theme.palette.text.primary,
+                    },
+                    '& .MuiTypography-caption': {
+                      color: message.role === 'user'
+                        ? 'rgba(255, 255, 255, 0.7)' 
+                        : theme.palette.text.secondary,
+                    }
                   }}
                 >
                   <Typography
@@ -286,7 +294,6 @@ const ChatHistory = () => {
                     sx={{
                       display: 'block',
                       mt: 1,
-                      color: theme.palette.text.secondary,
                       textAlign: 'right',
                     }}
                   >
