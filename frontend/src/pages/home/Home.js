@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Container, Grid2 as Grid } from "@mui/material";
+import { Grid2 as Grid } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from 'react-router';
 import TopBar from "../../components/TopBar";
@@ -33,10 +33,9 @@ const Home = () => {
   }, []);
 
   return (
-    <Container
+    <Grid
       id='view-container'
-      maxWidth={false}
-      sx={{ height: "100vh", width: "100vw", padding: 0 }}>
+      sx={{ height: "100vh", width: "100vw" }}>
       <TopBar />
       <Grid className="dashboard">
         <MealPlanBox />
@@ -46,7 +45,7 @@ const Home = () => {
         <Exercise />
         <HamsterFamily />
       </Grid>
-    </Container>
+    </Grid>
   );
 };
 

@@ -137,7 +137,6 @@ const LogIn = () => {
           <Button
             onClick={loginUser}
             variant="contained"
-            color="secondary"
             sx={{ marginTop: 4, paddingY: 2, borderRadius: 1.5 }}
             fullWidth
           >

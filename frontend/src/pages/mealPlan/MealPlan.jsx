@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { 
   Typography, 
-  Container, 
   Grid2 as Grid,
   Box,
   Card,
   CardContent,
-  Divider
+  Divider,
+  useTheme
 } from "@mui/material";
 import "./MealPlan.css";
 import TopBar from "../../components/TopBar";
@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 
 const MealPlan = () => {
   const { t } = useTranslation();
+  const theme = useTheme();
   const mealPlanData = useSelector((state) => state.mealPlan?.mealPlanResponse);
 
   const [days, setDays] = useState(null);
@@ -54,16 +55,16 @@ const MealPlan = () => {
   };
 
   return (
-    <Container
+    <Grid
       id='meal-plan-container'
       className="meal-plan-container"
       maxWidth={true}
     >
       <TopBar />
       {days?.length <= 0 ? (
-        <Typography variant="h6" align="center" sx={{ mt: '20px' }}>{t('MealPlanNotCreated')}</Typography>
+        <Typography variant="h6" align="center" sx={{ mt: '20px', ml: '20px' }}>{t('MealPlanNotCreated')}</Typography>
       ) : (
-        <Grid sx={{ mt: '20px' }}>
+        <Grid sx={{ mt: '20px', ml: '20px', mr: '20px' }}>
 
           {/* Title or header for Meal Plan */}
           <Typography variant="h4" sx={{ mt: 4, mb: 2, fontWeight: "bold" }}>
@@ -85,7 +86,7 @@ const MealPlan = () => {
                       py: 1,
                       borderRadius: 2,
                       textAlign: "center",
-                      backgroundColor: isSelected ? "green" : "#d2ead2",
+                      backgroundColor: isSelected ? theme.palette.primary.main : theme.palette.primary.secondary,
                       color: isSelected ? "white" : "black",
                       minWidth: 120
                     }}
@@ -106,9 +107,9 @@ const MealPlan = () => {
             <Grid container spacing={2}>
               {selectedDay.daily_meals?.map((meal, i) => (
                 <Grid item xs={12} sm={6} md={4} key={i}>
-                  <Card sx={{ backgroundColor: "#f9f9f9" }}>
+                  <Card sx={{ backgroundColor: theme.palette.primary.light }}>
                     <CardContent>
-                      <Typography variant="h6" color="secondary">
+                      <Typography variant="h6" color="primary">
                         {t(meal.meal)}
                       </Typography>
                       <Typography variant="subtitle1" fontWeight="bold" sx={{ mt: 1 }}>
@@ -140,7 +141,7 @@ const MealPlan = () => {
           )}
         </Grid>
       )}
-    </Container>
+    </Grid>
   );
 };
 

@@ -202,7 +202,6 @@ const Register = () => {
                 <Button
                   type='submit'
                   variant='contained'
-                  color='primary'
                   disabled={
                     formData.name === ''
                     || formData.email === ''
@@ -210,6 +209,7 @@ const Register = () => {
                     || formData.confirmPassword === ''
                   }
                   fullWidth
+                  sx={{ paddingY: 2, borderRadius: 1.5 }}
                 >
                   {t('register')}
                 </Button>
