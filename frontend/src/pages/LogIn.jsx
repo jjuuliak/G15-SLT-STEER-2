@@ -4,7 +4,7 @@ import { TextField, Button, Box, Typography, InputAdornment, IconButton, useThem
 import { useNavigate } from 'react-router';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { handleLogin } from '../services/authService';
+import { handleLogin, saveAuthToStorage } from '../services/authService';
 import { useTranslation } from 'react-i18next';
 import Logo from '../components/Logo';
 import LifelineImage from '../components/LifelineImage';
@@ -27,6 +27,7 @@ const LogIn = () => {
           setError('');
           const result = await handleLogin(email, password);
           dispatch(loginSuccess(result));
+          saveAuthToStorage(result.access_token, result.refresh_token);
           navigate('/');
           
       } catch (err) {

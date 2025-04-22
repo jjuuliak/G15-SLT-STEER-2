@@ -1,3 +1,6 @@
+import { fetchWithAuth } from '../../services/authService';
+import { setMealPlan } from '../../redux/actionCreators/mealPlanActions';
+
 export const parseMealPlanData = (rawData) => {
   try {
     // Check that rawData is a valid object.
@@ -37,4 +40,23 @@ export const getCurrentDayIndex = (createdTimestamp) => {
   const daysPassed = Math.floor((now - createdDate) / msPerDay);
 
   return daysPassed; // 0 = Day 1, 1 = Day 2, etc.
+};
+
+export const getMealPlanData = (accessToken, refreshToken, dispatch, navigate) => {
+  fetchWithAuth("http://localhost:8000/last-meal-plan", {
+    method: "POST",
+    headers: null, // Default set in fetchWithAuth
+  }, accessToken, refreshToken, dispatch, navigate)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Failed to fetch meal plan data");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      dispatch(setMealPlan(data));
+    })
+    .catch((error) => {
+      console.error("Error fetching meal plans:", error);
+    });
 };

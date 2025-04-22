@@ -10,9 +10,8 @@ import Exercise from "../../components/dashboard/Exercise";
 import HamsterChat from "../../components/dashboard/HamsterChat";
 import HamsterFamily from "../../components/dashboard/HamsterFamily";
 import './Home.css';
-import { setMealPlan } from '../../redux/actionCreators/mealPlanActions';
 import { getProfileData } from "../../services/profileService";
-import { fetchWithAuth } from '../../services/authService';
+import { getMealPlanData } from "../mealPlan/mealPlanFunctions";
 
 const Home = () => {
 
@@ -24,22 +23,8 @@ const Home = () => {
 
   useEffect(() => {
     if (accessToken) {
-      fetchWithAuth("http://localhost:8000/last-meal-plan", {
-        method: "POST",
-        headers: null, // Default set in fetchWithAuth
-      }, accessToken, refreshToken, dispatch, navigate)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Failed to fetch meal plan data");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          dispatch(setMealPlan(data));
-        })
-        .catch((error) => {
-          console.error("Error fetching meal plans:", error);
-        });
+
+      getMealPlanData(accessToken, refreshToken, dispatch, navigate);
 
       if (!user || user === 'undefined') {
         getProfileData(accessToken, refreshToken, dispatch, navigate);

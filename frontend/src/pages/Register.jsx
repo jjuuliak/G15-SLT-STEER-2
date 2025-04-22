@@ -15,7 +15,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
-import { registerUser } from '../services/authService';
+import { registerUser, saveAuthToStorage } from '../services/authService';
 import { loginSuccess } from '../redux/actionCreators/authActions';
 import Logo from '../components/Logo';
 import LifelineImage from '../components/LifelineImage';
@@ -57,6 +57,7 @@ const Register = () => {
       const data = await registerUser(formData);
 
       dispatch(loginSuccess(data));
+      saveAuthToStorage(data.access_token, data.refresh_token);
 
       alert(t('registrationSuccessful'));
       navigate('/');
