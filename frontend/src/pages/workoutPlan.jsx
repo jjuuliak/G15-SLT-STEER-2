@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { Container, Typography, Box, Card, CardContent, Grid2 as Grid } from "@mui/material";
+import { Typography, Box, Card, CardContent, Grid2 as Grid, useTheme } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from 'react-router';
 import TopBar from "../components/TopBar";
@@ -16,6 +16,7 @@ const WorkoutPlan = () => {
     const accessToken = useSelector((state) => state.auth?.access_token);
     const refreshToken = useSelector((state) => state.auth?.refresh_token);
     const {t} = useTranslation();
+    const theme = useTheme();
     const pageTranslations = t("workoutPageTranslations")
 
     // Function to parse the workout plan JSON
@@ -67,13 +68,13 @@ const WorkoutPlan = () => {
     
 
     return ( 
-        <Container maxWidth={false} sx={{height: "100vh", width: "100vw", padding: 0, backgroundColor: '#F5F7FA'}}>
+        <Grid sx={{height: "100vh", width: "100vw" }}>
             <TopBar />
             
             <Grid container spacing={2} justifyContent="space-around" alignItems="center" my={4}>
                 <Grid item xs={12} sm={8}>
                     <Card variant="outlined" sx={{ 
-                        backgroundColor: '#FFFFFF', 
+                        backgroundColor: theme.palette.primary.light, 
                         borderRadius: 4, 
                         marginX: 2,
                         boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
@@ -116,7 +117,7 @@ const WorkoutPlan = () => {
                                         <Typography align="left" marginLeft={2} paddingY={1} sx={{ color: '#2D3748' }}>{pageTranslations.stepGoal}</Typography>
                                         <Typography align="left" marginLeft={2} paddingY={1} sx={{ color: '#4A5568' }}>Placeholder for progress bar</Typography>
                                         <Box sx={{ 
-                                            backgroundColor: "#FFFFFF",
+                                            backgroundColor: theme.palette.primary.light,
                                             width: '100%',
                                             height: '120px',
                                             border: 1, 
@@ -135,7 +136,7 @@ const WorkoutPlan = () => {
                 </Grid>
                 <Grid item xs={12} sm={4} sx={{width: "300px"}}>
                     <Card variant="outlined" sx={{ 
-                        backgroundColor: '#FFFFFF',                      
+                        backgroundColor: theme.palette.primary.light,                      
                         borderRadius: 4,
                         padding: 4,
                         boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
@@ -151,7 +152,7 @@ const WorkoutPlan = () => {
                 <Grid item xs={12} sm={4}>
                     <Card variant="outlined" sx={{
                         marginX: 2,
-                        backgroundColor: '#FFFFFF',
+                        backgroundColor: theme.palette.primary.light,
                         boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
                         borderRadius: 4,
                     }}>
@@ -164,7 +165,7 @@ const WorkoutPlan = () => {
                 </Grid>
             </Grid>
             
-            <Box backgroundColor="#FFFFFF" sx={{ 
+            <Box backgroundColor={theme.palette.primary.light} sx={{ 
                 marginTop: 3, 
                 marginX: 6,
                 padding: 2, 
@@ -198,7 +199,7 @@ const WorkoutPlan = () => {
                                 flexDirection: "column",
                                 height: "100%",
                                 borderRadius: 2,
-                                backgroundColor: '#FFFFFF',
+                                backgroundColor: theme.palette.primary.light,
                                 boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                             }}
                         >
@@ -219,7 +220,7 @@ const WorkoutPlan = () => {
                     </Grid>
                 ))}
             </Grid>
-        </Container>
+        </Grid>
     );
 }
  

@@ -14,7 +14,15 @@ root.render(
   <React.StrictMode>
     <Provider store={store}>
       <ThemeProvider theme={theme}>
-        <App />
+        <div
+          style={{
+            '--primary-main': theme.palette.primary.main,
+            '--primary-secondary': theme.palette.primary.secondary,
+            '--primary-light': theme.palette.primary.light,
+          }}
+        >
+          <App />
+        </div>
       </ThemeProvider>
     </Provider>
   </React.StrictMode>
