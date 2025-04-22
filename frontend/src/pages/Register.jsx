@@ -57,7 +57,7 @@ const Register = () => {
       const data = await registerUser(formData);
 
       dispatch(loginSuccess(data));
-      saveAuthToStorage(data.access_token, data.user_data);
+      saveAuthToStorage(data.access_token, data.refresh_token);
 
       alert(t('registrationSuccessful'));
       navigate('/');

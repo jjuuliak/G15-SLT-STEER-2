@@ -2,6 +2,7 @@
 import { LOGIN_SUCCESS, LOGOUT, SET_USER, REFRESH } from "../actionTypes";
 
 const storedToken = localStorage.getItem("authToken");
+const storedRefresh = localStorage.getItem("refreshToken");
 const storedUser = localStorage.getItem("user");
 const user = storedUser !== "undefined" ? JSON.parse(storedUser) : null;
 
@@ -9,7 +10,7 @@ const initialState = {
   isAuthenticated: !!storedToken,
   user: user,
   access_token: storedToken || null,
-  refresh_token: null
+  refresh_token: storedRefresh || null
 };
 
 const authReducer = (state = initialState, action) => {

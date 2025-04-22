@@ -15,6 +15,7 @@ export const getProfileData = async (accessToken, refreshToken, dispatch, naviga
     .then((data) => {
       if (data.user_data) {
         dispatch(setUser(data.user_data));
+        localStorage.setItem("user", JSON.stringify(data.user_data));
         return data;
       }
     })

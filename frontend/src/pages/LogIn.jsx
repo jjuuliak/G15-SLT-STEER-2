@@ -27,7 +27,7 @@ const LogIn = () => {
           setError('');
           const result = await handleLogin(email, password);
           dispatch(loginSuccess(result));
-          saveAuthToStorage(result.access_token, result.user_data);
+          saveAuthToStorage(result.access_token, result.refresh_token);
           navigate('/');
           
       } catch (err) {

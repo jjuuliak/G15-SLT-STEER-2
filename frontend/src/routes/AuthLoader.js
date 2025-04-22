@@ -11,6 +11,7 @@ const AuthLoader = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
+    const refreshToken = localStorage.getItem("refreshToken");
     const user = localStorage.getItem("user");
     const userParsed = user && user !== "undefined" ? JSON.parse(user) : null;
 
@@ -20,6 +21,7 @@ const AuthLoader = ({ children }) => {
         payload: {
           access_token: token,
           user_data: userParsed,
+          refresh_token: refreshToken
         },
       });
 
