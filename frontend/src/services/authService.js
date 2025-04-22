@@ -73,7 +73,11 @@ export const getAuthFromStorage = () => ({
 });
 
 export const fetchWithAuth = async (url, options, accessToken, refreshToken, dispatch, navigate) => {
-  if (!accessToken || !refreshToken) throw new Error("Missing token");
+  if (!accessToken || !refreshToken) {
+    dispatch(logout());
+    navigate('/login');
+    throw new Error("Missing token");
+  }
 
   // We can build the headers here so no need to do it in every function calling this
   if (!options.headers) {
