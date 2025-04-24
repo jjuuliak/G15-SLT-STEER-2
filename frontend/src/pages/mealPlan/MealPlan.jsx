@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import "./MealPlan.css";
 import TopBar from "../../components/TopBar";
-import { parseMealPlanData } from "./mealPlanFunctions";
+import { parseMealPlanData, getCurrentDayIndex } from "./mealPlanFunctions";
 import { useTranslation } from 'react-i18next';
 
 const MealPlan = () => {
@@ -23,6 +23,7 @@ const MealPlan = () => {
   const [selectedDay, setSelectedDay] = useState("");
   const [explanation, setExplanation] = useState("");
   const [createdTimestamp, setCreatedTimestamp] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(0);
   
 
   useEffect(() => {
@@ -38,9 +39,12 @@ const MealPlan = () => {
   // Update selectedDay when days are updated from fetch
   useEffect(() => {
     if (days?.length > 0 && !selectedDay) {
-      setSelectedDay(days[0]);
+      const index = createdTimestamp ? getCurrentDayIndex(createdTimestamp) : 0;
+
+      setSelectedDay(days[index]);
+      setSelectedIndex(index);
     }
-  }, [days, selectedDay]);
+  }, [days, createdTimestamp]);
 
   const formatDateFromCreated = (index) => {
     if (!createdTimestamp) return `Day ${index + 1}`;
@@ -50,8 +54,9 @@ const MealPlan = () => {
     return date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
   };
 
-  const handleDayClick = (day) => {
+  const handleDayClick = (day, index) => {
     setSelectedDay(day);
+    setSelectedIndex(index);
   };
 
   return (
@@ -74,12 +79,11 @@ const MealPlan = () => {
           {/* Row of day "tabs" */}
           <Grid container spacing={2}>
             {days?.map((day, index) => {
-              const isSelected = day === selectedDay;
-              console.log(day)
+              const isSelected = index === selectedIndex;
               return (
                 <Grid item key={index}>
                   <Box
-                    onClick={() => handleDayClick(day)}
+                    onClick={() => handleDayClick(day, index)}
                     sx={{
                       cursor: "pointer",
                       px: 2,
