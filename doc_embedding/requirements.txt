@@ -1,2 +1,13 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.6.0+cpu
+
+langchain==0.3.22
+langchain-huggingface==0.1.2
+langchain_community==0.3.18
+
+sentence-transformers==4.0.2
+faiss-cpu==1.10.0
+transformers==4.51.3
+accelerate==1.6.0
 beautifulsoup4==4.13.3
 readabilipy==0.3.0
