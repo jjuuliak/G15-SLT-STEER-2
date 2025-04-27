@@ -1,6 +1,7 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
+import RouteTracker from "./RouteTracker";
 import Home from "../pages/home/Home";
 import LogIn from "../pages/LogIn";
 import ChatWindow from "../pages/ChatWindow";
@@ -9,11 +10,6 @@ import NotFound from "../pages/NotFound";
 import MealPlan from "../pages/mealPlan/MealPlan";
 import WorkoutPlan from "../pages/workoutPlan";
 import HamsterCollection from "../pages/HamsterCollection";
-//import Profile from "../pages/Profile";
-//import Chat from "../pages/Chat";
-//import History from "../pages/History";
-//import Settings from "../pages/Settings";
-//import ForgotPassword from "../pages/ForgotPassword";
 
 const AppRoutes = () => {
   const isAuthenticated = useSelector((state) => state.auth?.isAuthenticated); // Check if user is logged in
@@ -23,7 +19,8 @@ const AppRoutes = () => {
   }
 
   return (
-    <BrowserRouter>
+    <>
+      <RouteTracker />
       <Routes>
         <Route path="/login" element={<LogIn />} />
         <Route path="/register" element={<Register />} />
@@ -35,13 +32,10 @@ const AppRoutes = () => {
           <Route path="/workout-plan" element={<WorkoutPlan />} />
           <Route path="/hamster-collection" element={<HamsterCollection/>}/>
         </Route>
-        {/*<Route path="/data-input" element={<Profile />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/history" element={<History />} />
-        <Route path="/settings" element={<Settings />} />*/}
+
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </BrowserRouter>
+    </>
   );
 };
 
