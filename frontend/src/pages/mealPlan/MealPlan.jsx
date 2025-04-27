@@ -2,24 +2,28 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { 
   Typography, 
-  Container, 
   Grid2 as Grid,
   Box,
   Card,
   CardContent,
-  Divider
+  Divider,
+  useTheme
 } from "@mui/material";
 import "./MealPlan.css";
 import TopBar from "../../components/TopBar";
-import { parseMealPlanData } from "./mealPlanFunctions";
+import { parseMealPlanData, getCurrentDayIndex } from "./mealPlanFunctions";
+import { useTranslation } from 'react-i18next';
 
 const MealPlan = () => {
+  const { t } = useTranslation();
+  const theme = useTheme();
   const mealPlanData = useSelector((state) => state.mealPlan?.mealPlanResponse);
 
   const [days, setDays] = useState(null);
   const [selectedDay, setSelectedDay] = useState("");
   const [explanation, setExplanation] = useState("");
   const [createdTimestamp, setCreatedTimestamp] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(0);
   
 
   useEffect(() => {
@@ -35,9 +39,12 @@ const MealPlan = () => {
   // Update selectedDay when days are updated from fetch
   useEffect(() => {
     if (days?.length > 0 && !selectedDay) {
-      setSelectedDay(days[0]);
+      const index = createdTimestamp ? getCurrentDayIndex(createdTimestamp) : 0;
+
+      setSelectedDay(days[index]);
+      setSelectedIndex(index);
     }
-  }, [days, selectedDay]);
+  }, [days, createdTimestamp]);
 
   const formatDateFromCreated = (index) => {
     if (!createdTimestamp) return `Day ${index + 1}`;
@@ -47,43 +54,43 @@ const MealPlan = () => {
     return date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
   };
 
-  const handleDayClick = (day) => {
+  const handleDayClick = (day, index) => {
     setSelectedDay(day);
+    setSelectedIndex(index);
   };
 
   return (
-    <Container
+    <Grid
       id='meal-plan-container'
       className="meal-plan-container"
       maxWidth={true}
     >
       <TopBar />
       {days?.length <= 0 ? (
-        <Typography variant="h6" align="center" sx={{ mt: '20px' }}>No meal plan created yet</Typography>
+        <Typography variant="h6" align="center" sx={{ mt: '20px', ml: '20px' }}>{t('MealPlanNotCreated')}</Typography>
       ) : (
-        <Grid sx={{ mt: '20px' }}>
+        <Grid sx={{ mt: '20px', ml: '20px', mr: '20px' }}>
 
           {/* Title or header for Meal Plan */}
           <Typography variant="h4" sx={{ mt: 4, mb: 2, fontWeight: "bold" }}>
-            Meal plan
+            {t('meal-plan')}
           </Typography>
 
           {/* Row of day "tabs" */}
           <Grid container spacing={2}>
             {days?.map((day, index) => {
-              const isSelected = day === selectedDay;
-              console.log(day)
+              const isSelected = index === selectedIndex;
               return (
                 <Grid item key={index}>
                   <Box
-                    onClick={() => handleDayClick(day)}
+                    onClick={() => handleDayClick(day, index)}
                     sx={{
                       cursor: "pointer",
                       px: 2,
                       py: 1,
                       borderRadius: 2,
                       textAlign: "center",
-                      backgroundColor: isSelected ? "green" : "#d2ead2",
+                      backgroundColor: isSelected ? theme.palette.primary.main : theme.palette.primary.secondary,
                       color: isSelected ? "white" : "black",
                       minWidth: 120
                     }}
@@ -104,10 +111,10 @@ const MealPlan = () => {
             <Grid container spacing={2}>
               {selectedDay.daily_meals?.map((meal, i) => (
                 <Grid item xs={12} sm={6} md={4} key={i}>
-                  <Card sx={{ backgroundColor: "#f9f9f9" }}>
+                  <Card sx={{ backgroundColor: theme.palette.primary.light }}>
                     <CardContent>
-                      <Typography variant="h6" color="secondary">
-                        {meal.meal}
+                      <Typography variant="h6" color="primary">
+                        {t(meal.meal)}
                       </Typography>
                       <Typography variant="subtitle1" fontWeight="bold" sx={{ mt: 1 }}>
                         {meal.meal_description}
@@ -138,7 +145,7 @@ const MealPlan = () => {
           )}
         </Grid>
       )}
-    </Container>
+    </Grid>
   );
 };
 

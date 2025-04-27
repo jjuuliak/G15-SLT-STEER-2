@@ -1,3 +1,6 @@
+import { fetchWithAuth } from '../../services/authService';
+import { setMealPlan } from '../../redux/actionCreators/mealPlanActions';
+
 export const parseMealPlanData = (rawData) => {
   try {
     // Check that rawData is a valid object.
@@ -33,8 +36,31 @@ export const getCurrentDayIndex = (createdTimestamp) => {
   const createdDate = new Date(createdTimestamp * 1000); // Convert from seconds
   const now = new Date();
 
+  // Reset time parts to 00:00:00 to only compare the dates
+  const createdDateUTC = Date.UTC(createdDate.getFullYear(), createdDate.getMonth(), createdDate.getDate());
+  const nowDateUTC = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+
   const msPerDay = 24 * 60 * 60 * 1000;
-  const daysPassed = Math.floor((now - createdDate) / msPerDay);
+  const daysPassed = Math.floor((nowDateUTC - createdDateUTC) / msPerDay);
 
   return daysPassed; // 0 = Day 1, 1 = Day 2, etc.
+};
+
+export const getMealPlanData = (accessToken, refreshToken, dispatch, navigate) => {
+  fetchWithAuth("http://localhost:8000/last-meal-plan", {
+    method: "POST",
+    headers: null, // Default set in fetchWithAuth
+  }, accessToken, refreshToken, dispatch, navigate)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Failed to fetch meal plan data");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      dispatch(setMealPlan(data));
+    })
+    .catch((error) => {
+      console.error("Error fetching meal plans:", error);
+    });
 };

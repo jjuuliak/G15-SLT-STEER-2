@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useSelector } from "react-redux";
+import { useTranslation } from 'react-i18next';
 import './HamsterChat.css';
 import SendIcon from "@mui/icons-material/Send";
 
 const HamsterChat = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth?.user);
   const [input, setInput] = useState('');
@@ -32,7 +34,7 @@ const HamsterChat = () => {
       <div className="chat-input">
         <input 
           type="text" 
-          placeholder="Write here" 
+          placeholder={t('ChatBoxPlaceholder')} 
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={handleKeyPress}

@@ -71,13 +71,18 @@
     },
     "settings": "Asetukset",
     "close": "Sulje",
+    "ClearHistoryButton": "Tyhjennä historia",
+    "ClearHistoryButtonClicked": "Tyhjennetty!",
     "settingsTabs": {
         "general": "Yleiset",
         "appearance": "Ulkoasu",
         "language": "Kieli",
         "security": "Turvallisuus"
     },
+    "generalSettings": "Yleiset asetukset",
+    "appearanceSettings": "Sovelluksen ulkoasu",
     "languageSettings": "Kieliasetukset",
+    "securitySettings": "Tilin turvallisuus",
     "back": "Takaisin",
     "404page": "Hups! Etsimääsi sivua ei ole olemassa.",
     "invalidCredentials": "Väärä sähköposti tai salasana.",
@@ -87,12 +92,48 @@
     "chat": "Chat",
     "meal-plan": "Ateriasuunnitelma",
     "workout-plan": "Treeniohjelma",
+    "hamster-collection": "Hamsterikokoelma",
     "workoutPageTranslations": {
         "today": "Tänään",
         "steps": "Askeleet",
         "stepGoal": "Askeltavoite",
         "weeklyProgress": "Viikon edistyminen",
-        "recommendedExercises": "Suositellut harjoitukset"
-    }
+        "recommendedExercises": "Ehdotetut harjoitukset"
+    },
+    "StatsLevels": {
+        "locked": "Lukittu",
+        "bronze": "Pronssi",
+        "silver": "Hopea",
+        "gold": "Kulta",
+        "diamond": "Timantti"
+    },
+    "StatsNextMaster": "Seuraava hamsteri: ",
+    "StatsNames": {
+        "messages": "Viestit",
+        "meal_plans": "Ateriasuunnitelmat",
+        "meals": "Ateriat",
+        "workout_plans": "Treeniohjelmat",
+        "workouts": "Treenit"
+    },
+    "StatsMasterHamster": "Mestarihamsteri",
+    "levelUp": "Uusi taso saavutettu! Katso uusi hamsterisi hamsterikokoelma-sivulla",
+    "ChatBoxPlaceholder": "Kirjoita tähän",
+    "Meals": {
+        "Breakfast": "Aamiainen",
+        "Lunch": "Lounas",
+        "Dinner": "Päivällinen",
+        "Snack": "Välipala"
+    },
+    "Day": "Päivä",
+    "HeartRate": "Syke",
+    "BloodPressure": "Verenpaine",
+    "Sleep": "Uni",
+    "Weight": "Paino",
+    "Family": "Tapaa hamsteriperheesi",
+    "CreateWorkoutPlanButton": "Luo Treeniohjelma",
+    "CreateMealPlanButton": "Luo ateriasuunnitelma",
+    "UnderstandSymptomsButton": "Auta ymmärtämään oireeni",
+    "NotAvailable": "Ei saatavilla",
+    "MealPlanNotCreated": "Ateriasuunnitelmaa ei ole vielä luotu",
+    "hours": "tuntia"
 }
-  

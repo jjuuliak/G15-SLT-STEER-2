@@ -18,6 +18,7 @@ import { useDispatch } from "react-redux";
 import { useTranslation } from 'react-i18next';
 import PopupWithTabs from "./popup/PopupWithTabs";
 import Profile from "./popup/Profile";
+import { clearAuthFromStorage } from '../services/authService';
 
 const pages = ['chat', 'meal-plan', 'workout-plan', 'hamster-collection'];
 
@@ -63,6 +64,7 @@ const TopBar = () => {
   const handleLogout = () => {
     dispatch({ type: 'RESET_MESSAGES' });
     dispatch(logout());
+    clearAuthFromStorage();
     navigate('/login');
   }
 
@@ -121,8 +123,8 @@ const TopBar = () => {
 
         {/* Title or Logo */}
         <ButtonBase onClick={() => navigate('/')}>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Heart Disease MVP
+          <Typography variant="h5" sx={{ flexGrow: 1 }}>
+            Lifeline
           </Typography>
         </ButtonBase>
 

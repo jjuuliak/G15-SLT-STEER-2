@@ -22,16 +22,15 @@ import AppearanceView from "./views/AppearanceView";
 import SecurityView from "./views/SecurityView";
 
 const PopupWithTabs = ({ open, handleClose }) => {
-  const [activeTab, setActiveTab] = useState("General");
+  const [activeTab, setActiveTab] = useState("general"); 
   const { t } = useTranslation();
   const settingsTabs = t("settingsTabs")
 
   const tabs = [
-    { name: settingsTabs.general, component: <GeneralView /> },
-
-    { name: settingsTabs.appearance, component: <AppearanceView /> },
-    { name: settingsTabs.language, component: <LanguageView /> },
-    { name: settingsTabs.security, component: <SecurityView /> }
+    { key: "general", name: settingsTabs.general, component: <GeneralView /> },
+    { key: "appearance", name: settingsTabs.appearance, component: <AppearanceView /> },
+    { key: "language", name: settingsTabs.language, component: <LanguageView /> },
+    { key: "security", name: settingsTabs.security, component: <SecurityView /> }
   ];
 
   return (
@@ -39,13 +38,12 @@ const PopupWithTabs = ({ open, handleClose }) => {
       <DialogTitle>{t("settings")}</DialogTitle>
       <DialogContent>
         <Box display="flex">
-          {/* Sidebar Navigation */}
           <List sx={{ minWidth: 150, borderRight: "1px solid #ccc" }}>
             {tabs.map((tab) => (
-              <ListItem key={tab.name} disablePadding>
+              <ListItem key={tab.key} disablePadding>
                 <ListItemButton
-                  selected={activeTab === tab.name}
-                  onClick={() => setActiveTab(tab.name)}
+                  selected={activeTab === tab.key}
+                  onClick={() => setActiveTab(tab.key)}
                 >
                   <ListItemText primary={tab.name} />
                 </ListItemButton>
@@ -53,9 +51,8 @@ const PopupWithTabs = ({ open, handleClose }) => {
             ))}
           </List>
 
-          {/* Content Area */}
           <Box sx={{ flex: 1, padding: 2 }}>
-            {tabs.find((tab) => tab.name === activeTab)?.component}
+            {tabs.find((tab) => tab.key === activeTab)?.component}
           </Box>
         </Box>
       </DialogContent>

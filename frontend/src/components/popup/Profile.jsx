@@ -18,12 +18,17 @@ import {
   Alert,
 } from "@mui/material";
 import { useTranslation } from 'react-i18next';
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from 'react-router';
+import { fetchWithAuth } from '../../services/authService';
 
 const UserProfile = ({ open, handleClose }) => {
     const { t } = useTranslation();
     const profileTranslation = t('ProfilePopUp');
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
     const accessToken = useSelector((state) => state.auth?.access_token);
+    const refreshToken = useSelector((state) => state.auth?.refresh_token);
     const [snackbar, setSnackbar] = useState({
         open: false,
         message: '',
@@ -65,7 +70,7 @@ const UserProfile = ({ open, handleClose }) => {
         [name]: type === "checkbox" ? checked :
                 // Handle multiline text fields that should be arrays
                 ["other_past_medical_conditions", "other_current_medical_conditions", "medication"].includes(name) ?
-                value.split('\n').filter(item => item.trim() !== '') :
+                value.split('\n') :  // Remove the filter to allow empty lines
                 // Handle numeric array fields (measurements)
                 ["systolic_blood_pressure_mmhg", "diastolic_blood_pressure_mmhg", "heart_rate_resting_bpm"].includes(name) ?  
                 value ? [parseInt(value)] : [] :
@@ -85,13 +90,10 @@ const UserProfile = ({ open, handleClose }) => {
     // Update initial form data when profile is loaded
     useEffect(() => {
         if (open && accessToken) {
-            fetch("http://localhost:8000/get-profile", {
+            fetchWithAuth("http://localhost:8000/get-profile", {
                 method: "POST",
-                headers: { 
-                    Authorization: `Bearer ${accessToken}`,
-                    "Content-Type": "application/json"
-                },
-            })
+                headers: null, // Default set in fetchWithAuth
+            }, accessToken, refreshToken, dispatch, navigate)
                 .then((response) => {
                     if (!response.ok) {
                         throw new Error("Failed to fetch profile data");
@@ -170,14 +172,11 @@ const UserProfile = ({ open, handleClose }) => {
         }
 
 
-        const response = await fetch("http://localhost:8000/update-profile", {
+        const response = await fetchWithAuth("http://localhost:8000/update-profile", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
+          headers: null, // Default set in fetchWithAuth
           body: JSON.stringify(changedFields),
-        });
+        }, accessToken, refreshToken, dispatch, navigate);
             
         if (!response.ok) {
           const errorData = await response.json();
