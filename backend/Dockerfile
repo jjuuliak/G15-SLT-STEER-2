@@ -1,4 +1,4 @@
-FROM python:3.13
+FROM steer-base:latest
 
 WORKDIR /app
 

@@ -1,4 +1,4 @@
-FROM python:3.13
+FROM steer-base:latest
 
 WORKDIR /app
 
@@ -18,4 +18,4 @@ RUN --mount=type=cache,target=/root/.cache/pip pip install --no-cache-dir -r req
 
 COPY . .
 
-CMD ["python", "embed_documents.py"]  # Or main.py, depending on the service
+CMD ["python", "embed_documents.py"]
