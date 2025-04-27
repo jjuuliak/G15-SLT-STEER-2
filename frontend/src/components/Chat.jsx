@@ -285,7 +285,7 @@ const Chat = () => {
           maxRows={5}
           sx={{ 
             wordBreak: "break-word", 
-            backgroundColor: theme.palette.primary.secondary,
+            backgroundColor: theme.palette.primary.light,
           }}
           slotProps={{
             input: {

@@ -12,9 +12,10 @@ const MealPlanBox = () => {
 
   useEffect(() => {
     if (mealPlanData && mealPlanData.meal_plan) {
-      const index = mealPlanData?.created ? getCurrentDayIndex(mealPlanData?.created) : 0;
+      const parsedData = typeof mealPlanData?.meal_plan === 'string' ? JSON.parse(mealPlanData?.meal_plan) : mealPlanData?.meal_plan;
+      const index = parsedData?.created ? getCurrentDayIndex(parsedData?.created) : 0;
       setMealIndex(index);
-      setDays(typeof mealPlanData?.meal_plan === 'string' ? JSON.parse(mealPlanData?.meal_plan)?.days : mealPlanData?.meal_plan?.days);
+      setDays(parsedData?.days);
     }
   }, [mealPlanData]);
 
