@@ -1,6 +1,6 @@
 .chat {
   padding: 10px;
-  background-color: #EBF5F3;
+  background-color: var(--primary-light);
   border-radius: 8px;
   display: flex;
   flex-direction: column;

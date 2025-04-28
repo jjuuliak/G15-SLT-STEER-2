@@ -3,16 +3,30 @@ import { createTheme } from "@mui/material/styles";
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#1E3E30",
-      secondary: "#EAF2E1",
+      main: "#05240E", // Dark green
+      secondary: "#DAEDD7", // Light green
+      light: "#F2F2F2" // Light grey
     },
     secondary: {
-      main: "#2E604A",
-      secondary: "#198754"
+      main: "#CAE7F7", // Light blue
+      secondary: "#D3D0FB", // Light purple
+      dark: '#5245EF' // Accent purple
     },
   },
   typography: {
-    fontFamily: "Roboto, Helvetica, Arial, sans-serif",
+    fontFamily: "Poppins, Plus Jakarta Sans, Arial",
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        containedPrimary: {
+          backgroundColor: '#05240E',
+          '&:hover': {
+            backgroundColor: '#2E604A',
+          },
+        },
+      },
+    },
   },
 });
 

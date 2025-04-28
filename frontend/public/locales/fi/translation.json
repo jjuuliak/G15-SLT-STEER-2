@@ -71,6 +71,8 @@
     },
     "settings": "Asetukset",
     "close": "Sulje",
+    "ClearHistoryButton": "Tyhjennä historia",
+    "ClearHistoryButtonClicked": "Tyhjennetty!",
     "settingsTabs": {
         "general": "Yleiset",
         "appearance": "Ulkoasu",
