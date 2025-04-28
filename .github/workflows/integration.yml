@@ -7,9 +7,7 @@ on:
     branches: [ "main", "staging" ]
 
 jobs:
-
   test:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -20,12 +18,18 @@ jobs:
         echo "MONGO_USER=test" >> .env
         echo "MONGO_PASSWORD=test" >> .env
         echo "CI_TEST=true" >> .env
-    - name: Start Docker
+
+    - name: Build base image
+      run: docker build -f base-image.Dockerfile -t steer-base .
+
+    - name: Start Docker services
       uses: hoverkraft-tech/compose-action@v2.2.0
       with:
         compose-file: "./docker-compose.yml"
         up-flags: "--build"
+
     - name: Backend Tests
       run: docker compose exec backend pytest tests
+      
     - name: Frontend Tests
       run: docker compose exec frontend npm test -- --watchAll=false
