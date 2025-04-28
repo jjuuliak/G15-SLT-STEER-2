@@ -15,13 +15,13 @@ const Message = ({ msg, sendOption }) => {
         style={{
           padding: "10px",
           margin: "5px 0",
-          backgroundColor: msg.sender === "bot" ? theme.palette.secondary.main : theme.palette.secondary.secondary,
+          backgroundColor: msg.sender === "bot" ? theme.palette.primary.secondary : theme.palette.primary.light,
           alignSelf: msg.sender === "bot" ? "flex-start" : "flex-end",
           width: "70%"
         }}
       >
         {msg.sender === "bot" ? (
-          <div style={{ color: 'white', padding: '8px' }}>
+          <div style={{ color: 'black', padding: '8px' }}>
           <ReactMarkdown
             remarkPlugins={[remarkGfm]} // Enables tables, strikethrough, etc.
             components={{
@@ -45,7 +45,7 @@ const Message = ({ msg, sendOption }) => {
         ) : (
           <Typography
             variant="body1"
-            sx={{ color: "white", p: 1, my: 2 }}
+            sx={{ color: "black", p: 1, my: 2 }}
           >
             {msg.text}
           </Typography>

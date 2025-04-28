@@ -1,6 +1,6 @@
 .weight {
   padding: 16px;
-  background-color: #EBF5F3;
+  background-color: var(--primary-light);
   border-radius: 8px;
 }
 

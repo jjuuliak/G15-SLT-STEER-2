@@ -17,6 +17,7 @@ import { useLocation, useNavigate } from 'react-router';
 import Message from "./Message";
 import { setMealPlan } from "../redux/actionCreators/mealPlanActions"
 import { setWorkoutPlan } from "../redux/actionCreators/workoutPlanActions";
+import { fetchWithAuth } from '../services/authService';
 import { useTranslation } from 'react-i18next';
 
 const Chat = () => {
@@ -46,6 +47,7 @@ const Chat = () => {
   const [messages, setMessages] = useState([initialMessage]);
   const [loading, setLoading] = useState(false);
   const accessToken = useSelector((state) => state.auth?.access_token);
+  const refreshToken = useSelector((state) => state.auth?.refresh_token);
 
   const messagesEndRef = useRef(null);
 
@@ -95,21 +97,14 @@ const Chat = () => {
         : workoutPlan 
         ? 'http://localhost:8000/ask-workout-plan' 
         : 'http://localhost:8000/ask';
+      
+      const lang = localStorage.getItem("i18nextLng") === "fi" ? "Finnish" : "English";
 
-      let lang = localStorage.getItem("i18nextLng") === "fi" ? "Finnish" : "English";
-
-      const response = await fetch(url, {
+      const response = await fetchWithAuth(url, {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
+        headers: null, // Default set in fetchWithAuth
         body: JSON.stringify({ message: mealPlan ? 'Create me a meal plan for a week' : workoutPlan ? 'Create me a workout plan for a week' : msg, "language": lang })
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`);
-      }
+      }, accessToken, refreshToken, dispatch, navigate);
 
       if (mealPlan) {
         const data = await response.json();
@@ -293,7 +288,7 @@ const Chat = () => {
           maxRows={5}
           sx={{ 
             wordBreak: "break-word", 
-            backgroundColor: theme.palette.primary.secondary,
+            backgroundColor: theme.palette.primary.light,
           }}
           slotProps={{
             input: {
