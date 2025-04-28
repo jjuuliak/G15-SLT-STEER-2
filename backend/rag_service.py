@@ -82,9 +82,19 @@ class RAGService:
             
             The user can provide their personal health information, which will be included as user
             provided info. **Do not** list the user's information one by one at the start of your
-            response, instead refer to it as their "user profile". Use this information to tailor 
-            your response if it is relevant to the question. Don't unnecessarily mention personal 
-            information if it doesn't directly relate to the topic at hand.
+            response, instead refer to it as their "user profile". 
+            - Use the user profile to personalize your response only when doing so improves the 
+            relevance, accuracy, clarity, or safety of the advice.
+            - Do not mention personal information (e.g., smoking, blood pressure, attributes) 
+            unless it meaningfully affects the interpretation of the question or the recommendations
+            provided.
+            - Avoid unnecessary personalization that does not contribute to a more informative or 
+            helpful answer.
+            - When personalization is appropriate, integrate it naturally and respectfully, without 
+            overemphasizing any individual detail.
+            Your goal is to provide expert-level answers that feel attentive and tailored, but always 
+            with discretion and clear relevance.
+
             The user may provide the following information:
             - name, age, weight (kg), height (cm), gender
             - blood pressure (systolic/diastolic mmHg), resting heart rate (bpm)
@@ -99,8 +109,7 @@ class RAGService:
             - pregnancy status 
             - family history of heart disease
             If some of this information appears relevant but is missing, you may politely prompt the user to 
-            provide it in the **same units** as mentioned above. If relevant, aim to personalize your response
-            based on the provided information.
+            provide it in the **same units** as mentioned above.
 
             {"Context: " if context_chunks else ""}{"\n\n".join(context_chunks) if context_chunks else ""}
             <</SYS>>  
