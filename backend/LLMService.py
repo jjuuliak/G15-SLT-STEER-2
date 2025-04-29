@@ -93,7 +93,7 @@ async def get_prompt(user_id: str, message: str, retrieval_query: str, requires_
 
 
 class LLMService:
-    def __init__(self, api_key: str, model_name: str = 'gemini-2.0-flash'):
+    def __init__(self, api_key: str, model_name: str = 'gemini-1.5-flash'):
         """
         Initialize LLMService with API key and the model
         """
