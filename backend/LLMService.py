@@ -36,11 +36,15 @@ MEAL_INSTRUCTION = ["""You are a helpful cardiovascular health expert who focuse
                        allergies, intolerances, religious practices) and preferences.
                     
                        As the explanation, give an overview of the plan and explain how you personalized it to suit
-                       the user's needs.
+                       the user's needs. **Do not mention user attributes unless it is specifically food related 
+                       (e.g., allergies).** Do not greet the user in the explanation.
                     
                        **Do not** list the user's information one by one at the start of your explanation, instead 
                        refer to it as their "user profile". Only use and mention the user info if **directly relates**
-                       to the meals in the plan.
+                       to the meals in the plan. When giving the explanation, **write it as if you are speaking 
+                       directly to the user.** Use second-person language like "you", "your" etc.  **Do not refer to 
+                       the user in the third person**
+
                     
                        You will be given instructions and additional information inbetween [INST] and [/INST] tags 
                        by the system <<SYS>>."""]
@@ -55,7 +59,10 @@ EXERCISE_INSTRUCTION = ["""You are a helpful cardiovascular health and fitness e
                            prefereneces.
                         
                            As the explanation, give an overview of the plan and explain how you personalized it to 
-                           suit the user's needs.
+                           suit the user's needs. When giving the explanation, **write it as if you are speaking 
+                           directly to the user.** Use second-person language like "you", "your goals", "your 
+                           fitness level", etc.  **Do not refer to the user in the third person** Do not greet the 
+                           user in the explanation.
 
                            **Do not** list the user's information one by one at the start of your explanation, instead 
                            refer to it as their "user profile". Only use and mention the user info if it **directly 
@@ -127,25 +134,25 @@ class LLMService:
 
 
     async def process_response(self, response: Iterator[types.GenerateContentResponse]) -> AsyncGenerator[str]:
-            """
-            Processes the streamed response, yielding the response and possible attributes
-            """
-            attributes = []
-            for chunk in response:
-                for candidate in chunk.candidates:
-                    for part in candidate.content.parts:
-                        # Save and send text chunk by chunk if present
-                        if part.text:
-                            yield json.dumps({"response": part.text})
+        """
+        Processes the streamed response, yielding the response and possible attributes
+        """
+        attributes = []
+        for chunk in response:
+            for candidate in chunk.candidates:
+                for part in candidate.content.parts:
+                    # Save and send text chunk by chunk if present
+                    if part.text:
+                        yield json.dumps({"response": part.text})
 
-                        # Save function call attributes and values if present
-                        if part.function_call:
-                            # Function call always has one pair so take first
-                            key, value = list(part.function_call.args.items())[0]
-                            attributes.append({key: value})
+                    # Save function call attributes and values if present
+                    if part.function_call:
+                        # Function call always has one pair so take first
+                        key, value = list(part.function_call.args.items())[0]
+                        attributes.append({key: value})
 
-            if attributes:
-                yield json.dumps({"attributes": attributes})
+        if attributes:
+            yield json.dumps({"attributes": attributes})
     
     
     async def send_message(self, user_id: str, message: str, language: str = 'English') -> AsyncGenerator[str]:
@@ -190,6 +197,7 @@ class LLMService:
 
         if len(full_answer) > 0:
             chat_history.store_history(user_id, message, full_answer)
+
 
     def get_error_message(self, e: Exception) -> dict:
         """
