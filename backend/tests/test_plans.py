@@ -1,8 +1,8 @@
-from utils.response import ResponseFor, TestAccountFor
+from utils.response import ResponseFor, AccountFor
 
 
 def test_plans():
-    account = TestAccountFor("Plans")
+    account = AccountFor("Plans")
     access_token = account.access_token
 
     # Get last meal plan, should not exist

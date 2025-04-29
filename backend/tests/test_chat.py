@@ -1,9 +1,9 @@
 from utils.response import ResponseFor
-from utils.response import TestAccountFor
+from utils.response import AccountFor
 
 
 def test_chat_history():
-    account = TestAccountFor("Chat")
+    account = AccountFor("Chat")
     access_token = account.access_token
 
     # Get history, should successfully return empty
