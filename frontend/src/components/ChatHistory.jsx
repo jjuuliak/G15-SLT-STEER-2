@@ -293,14 +293,10 @@ const filterOutSystemMessages = (messages) => {
                     position: 'relative',
                     border: `1px solid ${theme.palette.divider}`,
                     '& .MuiTypography-body2': {
-                      color: message.role === 'user' 
-                        ? 'rgba(255, 255, 255, 0.85)' 
-                        : theme.palette.text.primary,
+                      color: theme.palette.text.primary,
                     },
                     '& .MuiTypography-caption': {
-                      color: message.role === 'user'
-                        ? 'rgba(255, 255, 255, 0.7)' 
-                        : theme.palette.text.secondary,
+                      color: theme.palette.text.secondary,
                     }
                   }}
                 >
