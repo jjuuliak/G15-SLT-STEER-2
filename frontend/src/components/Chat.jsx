@@ -75,11 +75,12 @@ const Chat = () => {
     }
   }, [messagesFromRedux]);
 
+
   const handleSnackbarClose = () => {
       setSnackbar(prev => ({ ...prev, open: false }));
   };
 
-  const sendMessage = async (msg = message) => {
+  const sendMessage = async (msg = message, mealPlan = false, workoutPlan = false) => {
     if (typeof msg !== 'string' || !msg.trim()) {
       return; // Message can't be empty
     }
@@ -91,19 +92,21 @@ const Chat = () => {
     setMessage("");
 
     try {
-      const url = msg.includes('meal plan') 
+      const url = mealPlan 
         ? 'http://localhost:8000/ask-meal-plan' 
-        : msg.includes('workout plan') 
+        : workoutPlan 
         ? 'http://localhost:8000/ask-workout-plan' 
         : 'http://localhost:8000/ask';
       
+      const lang = localStorage.getItem("i18nextLng") === "fi" ? "Finnish" : "English";
+
       const response = await fetchWithAuth(url, {
         method: "POST",
         headers: null, // Default set in fetchWithAuth
-        body: JSON.stringify({ message: msg, "language": "English" })
+        body: JSON.stringify({ message: mealPlan ? 'Create me a meal plan for a week' : workoutPlan ? 'Create me a workout plan for a week' : msg, "language": lang })
       }, accessToken, refreshToken, dispatch, navigate);
 
-      if (msg.includes('meal plan')) {
+      if (mealPlan) {
         const data = await response.json();
         if (data.progress && data.progress.level_up) {
           setSnackbar({
@@ -116,7 +119,7 @@ const Chat = () => {
         setMessages((prev) => [...prev, botMessage]);
         dispatch({ type: 'SET_MESSAGES', payload: [...messages, userMessage, botMessage] });
       }
-      else if (msg.includes('workout plan')) {
+      else if (workoutPlan) {
         const data = await response.json();
         if (data.progress && data.progress.level_up) {
           setSnackbar({
