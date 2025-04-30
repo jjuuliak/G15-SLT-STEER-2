@@ -44,9 +44,6 @@ const filterOutSystemMessages = (messages) => {
   for (let i = 0; i < messages.length; i++) {
     const current = messages[i];
     if (current.system) {
-      if (result.length > 0) {
-        result.pop(); // remove previous message
-      }
       continue; // skip this message
     }
     result.push(current);
