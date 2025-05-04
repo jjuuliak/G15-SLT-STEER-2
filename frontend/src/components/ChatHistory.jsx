@@ -39,6 +39,25 @@ const ChatHistory = () => {
   const messagesEndRef = useRef(null); // Reference to the bottom of messages
   const firstMessageRef = useRef(null); // Reference to the first message
 
+/**
+ * Filters out messages where the text is valid JSON and also removes the message before it.
+ * @param {Array} messages - The array of message objects.
+ * @returns {Array} Filtered messages.
+ */
+const filterOutSystemMessages = (messages) => {
+  const result = [];
+  for (let i = 0; i < messages.length; i++) {
+    const current = messages[i];
+    if (current.system) {
+      continue; // skip this message
+    }
+    result.push(current);
+  }
+  return result;
+};
+
+
+
   /**
    * Fetches chat history from the backend with pagination support
    * @param {number} startIndex - Starting index for pagination
@@ -63,7 +82,12 @@ const ChatHistory = () => {
       }, accessToken, refreshToken, dispatch, navigate);
 
       const data = await response.json();
-      const newMessages = data.history || [];
+      const newMessagesRaw = data.history || [];
+
+      // Filter out messages where text is JSON + previous message
+      const newMessages = filterOutSystemMessages(newMessagesRaw);
+
+  
       
       if (startIndex === 0) {
         // Initial load: Set messages directly
@@ -269,14 +293,10 @@ const ChatHistory = () => {
                     position: 'relative',
                     border: `1px solid ${theme.palette.divider}`,
                     '& .MuiTypography-body2': {
-                      color: message.role === 'user' 
-                        ? 'rgba(255, 255, 255, 0.85)' 
-                        : theme.palette.text.primary,
+                      color: theme.palette.text.primary,
                     },
                     '& .MuiTypography-caption': {
-                      color: message.role === 'user'
-                        ? 'rgba(255, 255, 255, 0.7)' 
-                        : theme.palette.text.secondary,
+                      color: theme.palette.text.secondary,
                     }
                   }}
                 >
