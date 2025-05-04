@@ -1,8 +1,8 @@
-from utils.response import ResponseFor, TestAccountFor
+from utils.response import ResponseFor, AccountFor
 
 
 def test_profile():
-    account = TestAccountFor("Profile")
+    account = AccountFor("Profile")
     access_token = account.access_token
 
     # Get profile, should not have "smoking"
