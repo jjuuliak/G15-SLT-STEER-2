@@ -30,7 +30,7 @@ class ResponseFor:
         conn.close()
 
 
-class TestAccountFor:
+class AccountFor:
     """
     Creates a test account with given name or fails if account cannot be created
     """

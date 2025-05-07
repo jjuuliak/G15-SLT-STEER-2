@@ -1,6 +1,8 @@
 services:
   backend:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
     ports:
       - "8000:8000"
     env_file: ".env"
@@ -33,7 +35,9 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
     env_file: ".env"
   doc_embedding:
-    build: ./doc_embedding
+    build:
+      context: .
+      dockerfile: ./doc_embedding/Dockerfile
     command: python embed_documents.py
     restart: "no"
     volumes:

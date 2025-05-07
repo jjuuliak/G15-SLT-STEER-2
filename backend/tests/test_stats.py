@@ -3,11 +3,11 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import user_stats
-from utils.response import ResponseFor, TestAccountFor
+from utils.response import ResponseFor, AccountFor
 
 
 def test_stats():
-    account = TestAccountFor("Stats")
+    account = AccountFor("Stats")
     access_token = account.access_token
 
     # Get stats, should have all of them
