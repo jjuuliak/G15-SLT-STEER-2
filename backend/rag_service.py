@@ -6,8 +6,7 @@ from pathlib import Path
 
 
 DATABASE_PATH = Path("/app/embedding_db") 
-EMBEDDING_MODEL = "intfloat/multilingual-e5-small"
-MODEL_DIR = "/app/embedding_models"
+MODEL_CACHE = "/app/embedding_models/intfloat_multilingual-e5-small"
 
 
 class RAGService:
@@ -19,7 +18,7 @@ class RAGService:
         if os.getenv("CI_TEST") == "true":
             return
 
-        embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL, cache_folder=MODEL_DIR)
+        embeddings = HuggingFaceEmbeddings(model_name=MODEL_CACHE)
         try:
             self.vector_store = FAISS.load_local(DATABASE_PATH, embeddings, 
                                                  allow_dangerous_deserialization=True)

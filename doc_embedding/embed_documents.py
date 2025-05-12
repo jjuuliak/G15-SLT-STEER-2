@@ -17,8 +17,7 @@ import re
 
 DOCUMENT_URLS_PATH = Path(os.getenv("DOCUMENT_URLS_PATH", "docs/doc_urls.json"))
 DATABASE_PATH = Path(os.getenv("DATABASE_PATH", "embedding_db"))
-EMBEDDING_MODEL = "intfloat/multilingual-e5-small"
-MODEL_DIR = "/app/embedding_models"
+MODEL_CACHE = "/app/embedding_models/intfloat_multilingual-e5-small"
 
 
 def load_urls(path):
@@ -59,9 +58,9 @@ def load_webpage(url, retries=3):
                     cleaned_text = clean_text(raw_text)
                     return cleaned_text, title
 
-                else:
-                    print(f"Failed to fetch {url} (Status: {response.status_code})", flush=True)
-                    time.sleep((attempt + 1))
+            else:
+                print(f"Failed to fetch {url} (Status: {response.status_code})", flush=True)
+                time.sleep((attempt + 1))
         
         except requests.RequestException as e:
             print(f"Attempt {attempt+1} failed for {url}: {e}", flush=True)
@@ -75,7 +74,7 @@ def chunk_text(text, chunk_size=150, chunk_overlap=30):
 
     if not text:
         return []
-    tokenizer = AutoTokenizer.from_pretrained(EMBEDDING_MODEL)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_CACHE)
 
     def token_length(text_string):
         return len(tokenizer.encode(text_string, add_special_tokens=False))
@@ -143,13 +142,10 @@ def main():
         print("FAISS index already exists. Skipping embedding process.", flush=True)
         return
     
-    print(f"Starting the embedding process", flush=True)
-    
-    embedding_model = SentenceTransformer(EMBEDDING_MODEL)
-    embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL, cache_folder=MODEL_DIR)
-
-    # Initialize FAISS index based on embedding dimensionality
-    index = faiss.IndexFlatIP(embedding_model.get_sentence_embedding_dimension())
+    print(f"Starting the embedding process.", flush=True)
+    embeddings = HuggingFaceEmbeddings(model_name=MODEL_CACHE)
+    # Use model's dims for index
+    index = faiss.IndexFlatIP(384)
 
     # LangChain's FAISS wrapper
     vector_store = FAISS(
@@ -158,7 +154,7 @@ def main():
         docstore=InMemoryDocstore(),
         index_to_docstore_id={},
     )
-
+    print(f"Embedding model and vector store initialized. Fetching documents..", flush=True)
     urls = load_urls(DOCUMENT_URLS_PATH)
     process_and_store(vector_store, urls)
     vector_store.save_local(DATABASE_PATH)
