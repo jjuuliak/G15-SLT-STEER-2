@@ -237,6 +237,7 @@ class LLMService:
             For all queries relating to cardiovascular health we should retrieve more information.
             - Keep the message as close to the original meaning as possible.
             - Translate all text to English.
+            - Keep the message concise.
             - Most importantly don't give any explanations for your decisions, only provide the expected message.
 
             chat history: {history}
