@@ -43,10 +43,10 @@ def clean_text(text):
     return cleaned
 
 
-def load_webpage(url, retries=3, backoff_factor=2):
+def load_webpage(url, retries=3):
     """Loads, extracts, and cleans text from a webpage while retrieving its title."""
     
-    # Retry requests with exponential backoff
+    # Retry requests with linear backoff
     for attempt in range(retries):
         try:
             response = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'}, timeout=5)
@@ -59,11 +59,13 @@ def load_webpage(url, retries=3, backoff_factor=2):
                     cleaned_text = clean_text(raw_text)
                     return cleaned_text, title
 
-            print(f"Failed to fetch {url} (Status: {response.status_code})")
+                else:
+                    print(f"Failed to fetch {url} (Status: {response.status_code})", flush=True)
+                    time.sleep((attempt + 1))
         
         except requests.RequestException as e:
-            print(f"Attempt {attempt+1} failed for {url}: {e}")
-            time.sleep(backoff_factor * (attempt + 1))
+            print(f"Attempt {attempt+1} failed for {url}: {e}", flush=True)
+            time.sleep((attempt + 1))
     
     return None, None
 
@@ -101,6 +103,7 @@ def process_and_store(vector_store, urls):
     """Loads, chunks, embeds, and stores website content with metadata."""
     all_chunks = []
     metadata_list = []
+    next_print_threshold = 100
 
     for url in urls:
         text, title = load_webpage(url)
@@ -112,6 +115,10 @@ def process_and_store(vector_store, urls):
 
             # Add title as metadata for each chunk
             metadata_list.extend([{"title": title, "url": url}] * len(chunks))
+            
+            while len(all_chunks) >= next_print_threshold:
+                print(f"{next_print_threshold} chunks processed..", flush=True)
+                next_print_threshold += 100
 
     if all_chunks:
         store_in_faiss(vector_store, all_chunks, metadata_list)
@@ -133,8 +140,10 @@ def main():
 
     # Don't run if an index already exists
     if index_exists(DATABASE_PATH):
-        print("FAISS index already exists. Skipping embedding process.")
+        print("FAISS index already exists. Skipping embedding process.", flush=True)
         return
+    
+    print(f"Starting the embedding process", flush=True)
     
     embedding_model = SentenceTransformer(EMBEDDING_MODEL)
     embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL, cache_folder=MODEL_DIR)
