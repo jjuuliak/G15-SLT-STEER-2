@@ -17,8 +17,7 @@ import re
 
 DOCUMENT_URLS_PATH = Path(os.getenv("DOCUMENT_URLS_PATH", "docs/doc_urls.json"))
 DATABASE_PATH = Path(os.getenv("DATABASE_PATH", "embedding_db"))
-EMBEDDING_MODEL = "intfloat/multilingual-e5-small"
-MODEL_DIR = "/app/embedding_models"
+MODEL_CACHE = "/app/embedding_models/intfloat_multilingual-e5-small"
 
 
 def load_urls(path):
@@ -43,10 +42,10 @@ def clean_text(text):
     return cleaned
 
 
-def load_webpage(url, retries=3, backoff_factor=2):
+def load_webpage(url, retries=3):
     """Loads, extracts, and cleans text from a webpage while retrieving its title."""
     
-    # Retry requests with exponential backoff
+    # Retry requests with linear backoff
     for attempt in range(retries):
         try:
             response = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'}, timeout=5)
@@ -59,11 +58,13 @@ def load_webpage(url, retries=3, backoff_factor=2):
                     cleaned_text = clean_text(raw_text)
                     return cleaned_text, title
 
-            print(f"Failed to fetch {url} (Status: {response.status_code})")
+            else:
+                print(f"Failed to fetch {url} (Status: {response.status_code})", flush=True)
+                time.sleep((attempt + 1))
         
         except requests.RequestException as e:
-            print(f"Attempt {attempt+1} failed for {url}: {e}")
-            time.sleep(backoff_factor * (attempt + 1))
+            print(f"Attempt {attempt+1} failed for {url}: {e}", flush=True)
+            time.sleep((attempt + 1))
     
     return None, None
 
@@ -73,7 +74,7 @@ def chunk_text(text, chunk_size=150, chunk_overlap=30):
 
     if not text:
         return []
-    tokenizer = AutoTokenizer.from_pretrained(EMBEDDING_MODEL)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_CACHE)
 
     def token_length(text_string):
         return len(tokenizer.encode(text_string, add_special_tokens=False))
@@ -101,6 +102,7 @@ def process_and_store(vector_store, urls):
     """Loads, chunks, embeds, and stores website content with metadata."""
     all_chunks = []
     metadata_list = []
+    next_print_threshold = 100
 
     for url in urls:
         text, title = load_webpage(url)
@@ -112,6 +114,10 @@ def process_and_store(vector_store, urls):
 
             # Add title as metadata for each chunk
             metadata_list.extend([{"title": title, "url": url}] * len(chunks))
+            
+            while len(all_chunks) >= next_print_threshold:
+                print(f"{next_print_threshold} chunks processed..", flush=True)
+                next_print_threshold += 100
 
     if all_chunks:
         store_in_faiss(vector_store, all_chunks, metadata_list)
@@ -133,14 +139,13 @@ def main():
 
     # Don't run if an index already exists
     if index_exists(DATABASE_PATH):
-        print("FAISS index already exists. Skipping embedding process.")
+        print("FAISS index already exists. Skipping embedding process.", flush=True)
         return
     
-    embedding_model = SentenceTransformer(EMBEDDING_MODEL)
-    embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL, cache_folder=MODEL_DIR)
-
-    # Initialize FAISS index based on embedding dimensionality
-    index = faiss.IndexFlatIP(embedding_model.get_sentence_embedding_dimension())
+    print(f"Starting the embedding process.", flush=True)
+    embeddings = HuggingFaceEmbeddings(model_name=MODEL_CACHE)
+    # Use model's dims for index
+    index = faiss.IndexFlatIP(384)
 
     # LangChain's FAISS wrapper
     vector_store = FAISS(
@@ -149,7 +154,7 @@ def main():
         docstore=InMemoryDocstore(),
         index_to_docstore_id={},
     )
-
+    print(f"Embedding model and vector store initialized. Fetching documents..", flush=True)
     urls = load_urls(DOCUMENT_URLS_PATH)
     process_and_store(vector_store, urls)
     vector_store.save_local(DATABASE_PATH)
